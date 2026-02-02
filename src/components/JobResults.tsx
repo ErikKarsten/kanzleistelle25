@@ -7,7 +7,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { MapPin, Clock, Building2, ChevronRight } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
-import type { Job } from "@/types/database";
+import type { Tables } from "@/integrations/supabase/types";
+
+type Job = Tables<"jobs">;
 
 interface JobResultsProps {
   searchFilters: {
@@ -44,7 +46,7 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
       const { data, error } = await query.limit(20);
 
       if (error) throw error;
-      return data as Job[];
+      return data;
     },
   });
 
@@ -108,17 +110,12 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
                       <div className="flex flex-wrap items-center gap-2">
                         <CardTitle className="text-lg">{job.title}</CardTitle>
                         <Badge variant="secondary">
-                          {employmentTypeLabels[job.employment_type]}
+                          {job.employment_type ? employmentTypeLabels[job.employment_type] : "N/A"}
                         </Badge>
-                        {job.is_featured && (
-                          <Badge className="bg-accent text-accent-foreground">
-                            Featured
-                          </Badge>
-                        )}
                       </div>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <Building2 className="h-4 w-4" />
-                        <span>Kanzlei</span>
+                        <span>{job.company}</span>
                       </div>
                     </CardHeader>
                     <CardContent className="pb-4">
