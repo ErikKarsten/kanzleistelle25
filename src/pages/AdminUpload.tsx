@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,10 +13,10 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
-import { Loader2, ArrowLeft, Upload } from "lucide-react";
+ import { Loader2, Upload } from "lucide-react";
+ import AdminNav from "@/components/AdminNav";
 
 const AdminUpload = () => {
-  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -90,14 +89,7 @@ const AdminUpload = () => {
   return (
     <div className="min-h-screen bg-background py-12">
       <div className="container max-w-2xl">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/")}
-          className="mb-6"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Zurück zur Startseite
-        </Button>
+         <AdminNav />
 
         <Card>
           <CardHeader>
