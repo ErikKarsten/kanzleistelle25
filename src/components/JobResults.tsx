@@ -4,10 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MapPin, Clock, Building2, ChevronRight } from "lucide-react";
+ import { MapPin, Clock, Building2, Send } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
 import type { Tables } from "@/integrations/supabase/types";
+ import ApplyModal from "./ApplyModal";
+ import { useState } from "react";
 
 type Job = Tables<"jobs">;
 
@@ -26,6 +28,8 @@ const employmentTypeLabels: Record<string, string> = {
 };
 
 const JobResults = ({ searchFilters }: JobResultsProps) => {
+   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+ 
   const { data: jobs, isLoading, error } = useQuery({
     queryKey: ["jobs", searchFilters],
     queryFn: async () => {
@@ -102,7 +106,7 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
             {jobs.map((job) => (
               <Card
                 key={job.id}
-                className="hover:shadow-md transition-shadow cursor-pointer"
+                 className="hover:shadow-md transition-shadow"
               >
                 <div className="flex flex-col md:flex-row md:items-center">
                   <div className="flex-1">
@@ -146,9 +150,12 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
                     </CardContent>
                   </div>
                   <div className="px-6 pb-4 md:pb-0 md:pr-6">
-                    <Button className="w-full md:w-auto">
-                      Details
-                      <ChevronRight className="h-4 w-4 ml-1" />
+                     <Button 
+                       className="w-full md:w-auto"
+                       onClick={() => setSelectedJob(job)}
+                     >
+                       <Send className="h-4 w-4" />
+                       Jetzt bewerben
                     </Button>
                   </div>
                 </div>
@@ -166,6 +173,16 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
           </div>
         )}
       </div>
+       
+       {selectedJob && (
+         <ApplyModal
+           open={!!selectedJob}
+           onOpenChange={(open) => !open && setSelectedJob(null)}
+           jobId={selectedJob.id}
+           jobTitle={selectedJob.title}
+           company={selectedJob.company}
+         />
+       )}
     </section>
   );
 };

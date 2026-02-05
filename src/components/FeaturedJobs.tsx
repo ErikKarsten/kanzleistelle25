@@ -5,9 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MapPin, Clock, Star, Building2 } from "lucide-react";
+ import { Send } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
 import type { Tables } from "@/integrations/supabase/types";
+ import ApplyModal from "./ApplyModal";
+ import { useState } from "react";
 
 type Job = Tables<"jobs">;
 
@@ -19,6 +22,8 @@ const employmentTypeLabels: Record<string, string> = {
 };
 
 const FeaturedJobs = () => {
+   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+ 
   const { data: jobs, isLoading, error } = useQuery({
     queryKey: ["featured-jobs"],
     queryFn: async () => {
@@ -127,6 +132,13 @@ const FeaturedJobs = () => {
                   <p className="text-sm text-muted-foreground line-clamp-2">
                     {job.description}
                   </p>
+                   <Button 
+                     className="w-full mt-3"
+                     onClick={() => setSelectedJob(job)}
+                   >
+                     <Send className="h-4 w-4" />
+                     Jetzt bewerben
+                   </Button>
                 </CardContent>
               </Card>
             ))}
@@ -142,6 +154,16 @@ const FeaturedJobs = () => {
         <div className="mt-8 text-center md:hidden">
           <Button variant="outline">Alle Featured Jobs anzeigen</Button>
         </div>
+         
+         {selectedJob && (
+           <ApplyModal
+             open={!!selectedJob}
+             onOpenChange={(open) => !open && setSelectedJob(null)}
+             jobId={selectedJob.id}
+             jobTitle={selectedJob.title}
+             company={selectedJob.company}
+           />
+         )}
       </div>
     </section>
   );
