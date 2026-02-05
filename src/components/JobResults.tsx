@@ -40,7 +40,7 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
         .order("created_at", { ascending: false });
 
       if (searchFilters.title) {
-        query = query.ilike("title", `%${searchFilters.title}%`);
+        query = query.or(`title.ilike.%${searchFilters.title}%,description.ilike.%${searchFilters.title}%`);
       }
 
       if (searchFilters.location) {
