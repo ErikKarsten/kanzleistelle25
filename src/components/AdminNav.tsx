@@ -1,6 +1,6 @@
  import { useNavigate, useLocation } from "react-router-dom";
  import { Button } from "@/components/ui/button";
- import { Upload, Users, ArrowLeft } from "lucide-react";
+ import { Upload, Users, ArrowLeft, LayoutDashboard } from "lucide-react";
  
  const AdminNav = () => {
    const navigate = useNavigate();
@@ -18,6 +18,15 @@
        </Button>
        
        <div className="h-6 w-px bg-border mx-2 hidden sm:block" />
+       
+       <Button
+         variant={location.pathname === "/admin-dashboard" ? "default" : "outline"}
+         onClick={() => navigate("/admin-dashboard")}
+         size="sm"
+       >
+         <LayoutDashboard className="h-4 w-4" />
+         Dashboard
+       </Button>
        
        <Button
          variant={location.pathname === "/admin-upload" ? "default" : "outline"}
