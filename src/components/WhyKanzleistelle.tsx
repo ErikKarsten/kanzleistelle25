@@ -3,12 +3,12 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const benefits = [
   { text: "Express-Bewerbung in 30 Sekunden", highlight: true },
-  { text: "Spezialisiert auf die Rechtsbranche", highlight: false },
+  { text: "Spezialisiert auf Steuerberatung", highlight: false },
   { text: "Über 500 aktive Stellenangebote", highlight: false },
-  { text: "Direkte Kontakte zu Top-Kanzleien", highlight: false },
+  { text: "Direkte Kontakte zu Top-Steuerkanzleien", highlight: false },
   { text: "Kostenlose Nutzung für Bewerber", highlight: false },
   { text: "Persönliche Karriereberatung", highlight: false },
-  { text: "Datenschutzkonforme Bewerbungen", highlight: false },
+  { text: "DATEV-kompatible Kanzleien", highlight: false },
 ];
 
 const uspFeatures = [
@@ -30,7 +30,7 @@ const uspFeatures = [
   {
     icon: Shield,
     title: "100% Diskret",
-    description: "Ihre Daten sind sicher. Arbeitgeber sehen nur, was Sie freigeben.",
+    description: "Ihre Daten sind sicher. Kanzleien sehen nur, was Sie freigeben.",
   },
 ];
 
@@ -73,12 +73,12 @@ const WhyKanzleistelle = () => {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
-              Die Jobbörse für Ihre Karriere im Rechtswesen
+              Die Jobbörse für Ihre Karriere in der Steuerbranche
             </h2>
             <p className="text-muted-foreground mb-8">
-              Kanzleistelle ist die führende Plattform für Fachkräfte in der Rechtsbranche. 
-              Wir verbinden qualifizierte Bewerber mit renommierten Kanzleien und 
-              Rechtsabteilungen in ganz Deutschland.
+              Kanzleistelle24 ist die führende Plattform für Steuerfachkräfte. 
+              Wir verbinden qualifizierte Bewerber mit renommierten Steuerkanzleien und 
+              Wirtschaftsprüfungsgesellschaften in ganz Deutschland.
             </p>
             <ul className="space-y-4">
               {benefits.map((benefit, index) => (

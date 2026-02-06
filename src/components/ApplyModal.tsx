@@ -42,33 +42,37 @@ const roles = [
     id: "steuerfachangestellte", 
     label: "Steuerfachangestellte*r", 
     sublabel: "(m/w/d)",
-    icon: Calculator 
+    icon: Calculator,
+    color: "bg-[hsl(220,60%,25%)] text-[hsl(45,100%,95%)]"
   },
   { 
     id: "steuerberater", 
     label: "Steuerberater*in", 
     sublabel: "(m/w/d)",
-    icon: Scale 
+    icon: Scale,
+    color: "bg-[hsl(220,60%,25%)] text-[hsl(45,100%,95%)]"
   },
   { 
     id: "bilanzbuchhalter", 
     label: "Finanz/Bilanzbuchhalter*in", 
     sublabel: "(m/w/d)",
-    icon: BookOpen 
+    icon: BookOpen,
+    color: "bg-[hsl(220,60%,25%)] text-[hsl(45,100%,95%)]"
   },
   { 
-    id: "sonstige", 
-    label: "Sonstige", 
-    sublabel: "",
-    icon: Users 
+    id: "lohnbuchhalter", 
+    label: "Lohnbuchhalter*in", 
+    sublabel: "(m/w/d)",
+    icon: Users,
+    color: "bg-[hsl(220,60%,25%)] text-[hsl(45,100%,95%)]"
   },
 ];
 
 const experienceLevels = [
-  { id: "0-1", label: "0-1 Jahre", icon: Clock },
-  { id: "2-3", label: "2-3 Jahre", icon: Briefcase },
-  { id: "4-6", label: "4-6 Jahre", icon: Award },
-  { id: "7+", label: "7+ Jahre", icon: Star },
+  { id: "0-1", label: "0-1 Jahre", icon: Clock, description: "Berufseinsteiger" },
+  { id: "2-3", label: "2-3 Jahre", icon: Briefcase, description: "Erste Erfahrung" },
+  { id: "4-6", label: "4-6 Jahre", icon: Award, description: "Erfahren" },
+  { id: "7+", label: "7+ Jahre", icon: Star, description: "Experte" },
 ];
 
 const ApplyModal = ({
@@ -225,19 +229,21 @@ const ApplyModal = ({
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, role: role.id }))}
                       className={cn(
-                        "flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all hover:shadow-md",
+                        "flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all hover:shadow-lg",
                         isSelected 
-                          ? "border-primary bg-primary/5 shadow-md" 
-                          : "border-border hover:border-primary/50"
+                          ? "border-[hsl(45,90%,50%)] bg-[hsl(220,60%,25%)]/5 shadow-lg ring-2 ring-[hsl(45,90%,50%)]/30" 
+                          : "border-border hover:border-[hsl(220,60%,25%)]/50"
                       )}
                     >
                       <div className={cn(
-                        "w-12 h-12 rounded-full flex items-center justify-center mb-3 transition-colors",
-                        isSelected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                        "w-14 h-14 rounded-xl flex items-center justify-center mb-3 transition-all shadow-md",
+                        isSelected 
+                          ? "bg-[hsl(220,60%,25%)] text-[hsl(45,100%,95%)] ring-2 ring-[hsl(45,90%,50%)]" 
+                          : "bg-[hsl(220,60%,25%)]/10 text-[hsl(220,60%,25%)]"
                       )}>
-                        <Icon className="h-6 w-6" />
+                        <Icon className="h-7 w-7" />
                       </div>
-                      <span className="text-sm font-medium text-center text-foreground">{role.label}</span>
+                      <span className="text-sm font-semibold text-center text-foreground">{role.label}</span>
                       {role.sublabel && (
                         <span className="text-xs text-muted-foreground">{role.sublabel}</span>
                       )}
@@ -277,19 +283,22 @@ const ApplyModal = ({
                       type="button"
                       onClick={() => setFormData(prev => ({ ...prev, experience: level.id }))}
                       className={cn(
-                        "flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all hover:shadow-md",
+                        "flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all hover:shadow-lg",
                         isSelected 
-                          ? "border-primary bg-primary/5 shadow-md" 
-                          : "border-border hover:border-primary/50"
+                          ? "border-[hsl(45,90%,50%)] bg-[hsl(220,60%,25%)]/5 shadow-lg ring-2 ring-[hsl(45,90%,50%)]/30" 
+                          : "border-border hover:border-[hsl(220,60%,25%)]/50"
                       )}
                     >
                       <div className={cn(
-                        "w-12 h-12 rounded-full flex items-center justify-center mb-3 transition-colors",
-                        isSelected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                        "w-14 h-14 rounded-xl flex items-center justify-center mb-3 transition-all shadow-md",
+                        isSelected 
+                          ? "bg-[hsl(220,60%,25%)] text-[hsl(45,100%,95%)] ring-2 ring-[hsl(45,90%,50%)]" 
+                          : "bg-[hsl(220,60%,25%)]/10 text-[hsl(220,60%,25%)]"
                       )}>
-                        <Icon className="h-6 w-6" />
+                        <Icon className="h-7 w-7" />
                       </div>
-                      <span className="text-sm font-medium text-foreground">{level.label}</span>
+                      <span className="text-sm font-semibold text-foreground">{level.label}</span>
+                      <span className="text-xs text-muted-foreground">{level.description}</span>
                     </button>
                   );
                 })}
