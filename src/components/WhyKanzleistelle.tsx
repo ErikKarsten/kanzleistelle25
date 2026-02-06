@@ -1,4 +1,5 @@
-import { CheckCircle2, Zap } from "lucide-react";
+import { CheckCircle2, Zap, FileX, Clock, Shield, Smartphone } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 const benefits = [
   { text: "Express-Bewerbung in 30 Sekunden", highlight: true },
@@ -10,10 +11,65 @@ const benefits = [
   { text: "Datenschutzkonforme Bewerbungen", highlight: false },
 ];
 
+const uspFeatures = [
+  {
+    icon: FileX,
+    title: "Kein Lebenslauf nötig",
+    description: "Für den ersten Kontakt brauchen Sie keinen ausformulierten Lebenslauf.",
+  },
+  {
+    icon: Clock,
+    title: "30 Sekunden Bewerbung",
+    description: "Bewerben Sie sich schneller als je zuvor – in nur wenigen Klicks.",
+  },
+  {
+    icon: Smartphone,
+    title: "Mobil optimiert",
+    description: "Bewerben Sie sich bequem vom Smartphone – jederzeit und überall.",
+  },
+  {
+    icon: Shield,
+    title: "100% Diskret",
+    description: "Ihre Daten sind sicher. Arbeitgeber sehen nur, was Sie freigeben.",
+  },
+];
+
 const WhyKanzleistelle = () => {
   return (
     <section className="py-16">
       <div className="container">
+        {/* USP Section - Why Kanzleistelle24? */}
+        <div className="mb-16">
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-4">
+              <Zap className="h-4 w-4" />
+              Das unterscheidet uns
+            </div>
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+              Warum Kanzleistelle24?
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Wir machen Bewerbungen so einfach wie nie zuvor. Kein Anschreiben, kein Lebenslauf – 
+              nur Sie und Ihr Traumjob.
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {uspFeatures.map((feature, index) => (
+              <Card key={index} className="text-center border-2 hover:border-primary/50 transition-colors">
+                <CardContent className="pt-6">
+                  <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                    <feature.icon className="h-7 w-7 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-foreground mb-2">{feature.title}</h3>
+                  <p className="text-sm text-muted-foreground">{feature.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Original Benefits Section */}
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">

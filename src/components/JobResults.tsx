@@ -110,11 +110,16 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
             {jobs.map((job) => (
               <Card
                 key={job.id}
-                 className="hover:shadow-md transition-shadow"
+                className="hover:shadow-md transition-shadow relative"
               >
+                {/* Express Badge */}
+                <div className="absolute top-3 right-3 bg-primary text-primary-foreground px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-md">
+                  <Zap className="h-3 w-3" />
+                  30 Sek. Bewerbung
+                </div>
                 <div className="flex flex-col md:flex-row md:items-center">
                   <div className="flex-1">
-                    <CardHeader className="pb-2">
+                    <CardHeader className="pb-2 pt-10 md:pt-6">
                       <div className="flex flex-wrap items-center gap-2">
                         <CardTitle className="text-lg">{job.title}</CardTitle>
                         <Badge variant="secondary">

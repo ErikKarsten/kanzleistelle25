@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
+import VisualFeatureCards from "@/components/VisualFeatureCards";
 import FeaturedJobs from "@/components/FeaturedJobs";
 import FeatureCards from "@/components/FeatureCards";
 import JobResults from "@/components/JobResults";
@@ -39,6 +40,12 @@ const Index = () => {
 
       <main className="flex-1">
         <HeroSection onSearch={handleSearch} />
+        <VisualFeatureCards onScrollToJobs={() => {
+          const resultsSection = document.getElementById("job-results");
+          if (resultsSection) {
+            resultsSection.scrollIntoView({ behavior: "smooth" });
+          }
+        }} />
         <FeaturedJobs />
         <FeatureCards />
 
