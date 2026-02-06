@@ -1,25 +1,37 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Search, MapPin, Briefcase } from "lucide-react";
 
 interface HeroSectionProps {
-  onSearch: (filters: { title: string; location: string }) => void;
+  onSearch: (filters: { title: string; location: string; employmentType?: string }) => void;
 }
 
 const HeroSection = ({ onSearch }: HeroSectionProps) => {
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
+  const [employmentType, setEmploymentType] = useState<string>("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSearch({ title, location });
+    onSearch({ 
+      title, 
+      location, 
+      employmentType: employmentType === "all" ? undefined : employmentType || undefined 
+    });
   };
 
   return (
     <section className="relative py-20 md:py-32 bg-gradient-to-br from-primary/5 via-background to-secondary/10">
       <div className="container">
-        <div className="max-w-3xl mx-auto text-center">
+        <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-6">
             Finden Sie Ihren{" "}
             <span className="text-primary">Traumjob</span>{" "}
@@ -50,6 +62,20 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
                   onChange={(e) => setLocation(e.target.value)}
                   className="pl-10 h-12"
                 />
+              </div>
+              <div className="relative flex-1">
+                <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
+                <Select value={employmentType} onValueChange={setEmploymentType}>
+                  <SelectTrigger className="pl-10 h-12 bg-background">
+                    <SelectValue placeholder="Anstellungsart" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border shadow-md z-50">
+                    <SelectItem value="all">Alle Anstellungsarten</SelectItem>
+                    <SelectItem value="vollzeit">Vollzeit</SelectItem>
+                    <SelectItem value="teilzeit">Teilzeit</SelectItem>
+                    <SelectItem value="minijob">Minijob</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <Button type="submit" size="lg" className="h-12 px-8">
                 <Search className="h-5 w-5 mr-2" />
