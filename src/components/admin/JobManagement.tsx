@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -58,14 +59,10 @@ interface JobWithCompany {
   } | null;
 }
 
-interface ApplicationCount {
-  job_id: string;
-  count: number;
-}
-
 const JobManagement = () => {
   const [selectedJob, setSelectedJob] = useState<JobWithCompany | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("active");
   const queryClient = useQueryClient();
 
   // Fetch jobs with company info
@@ -164,10 +161,11 @@ const JobManagement = () => {
   // Calculate stats
   const stats = useMemo(() => {
     if (!jobs || !applicationCounts) {
-      return { activeJobs: 0, jobsWithoutApps: 0, popularJob: null as string | null };
+      return { activeJobs: 0, inactiveJobs: 0, jobsWithoutApps: 0, popularJob: null as string | null };
     }
 
     const activeJobs = jobs.filter((job) => job.is_active).length;
+    const inactiveJobs = jobs.filter((job) => !job.is_active).length;
 
     const jobsWithoutApps = jobs.filter(
       (job) => job.is_active && (!applicationCounts[job.id] || applicationCounts[job.id] === 0)
@@ -187,8 +185,17 @@ const JobManagement = () => {
       ? jobs.find((j) => j.id === popularJobId)?.title || null
       : null;
 
-    return { activeJobs, jobsWithoutApps, popularJob };
+    return { activeJobs, inactiveJobs, jobsWithoutApps, popularJob };
   }, [jobs, applicationCounts]);
+
+  // Filter jobs by active tab
+  const filteredJobs = useMemo(() => {
+    if (!jobs) return [];
+    return jobs.filter((job) => {
+      if (activeTab === "active") return job.is_active === true;
+      return job.is_active === false || job.is_active === null;
+    });
+  }, [jobs, activeTab]);
 
   const handleJobClick = (job: JobWithCompany) => {
     setSelectedJob(job);
@@ -264,136 +271,37 @@ const JobManagement = () => {
             </div>
           </div>
 
-          {/* Jobs Table */}
-          {jobs && jobs.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">
-                Noch keine Stellenanzeigen vorhanden.
-              </p>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-muted/50">
-                    <TableHead className="font-semibold">Job-Titel</TableHead>
-                    <TableHead className="font-semibold">Kanzlei</TableHead>
-                    <TableHead className="font-semibold">Standort</TableHead>
-                    <TableHead className="font-semibold">Veröffentlicht</TableHead>
-                    <TableHead className="font-semibold">Bewerbungen</TableHead>
-                    <TableHead className="font-semibold">Status</TableHead>
-                    <TableHead className="font-semibold text-right">
-                      Aktionen
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {jobs?.map((job) => (
-                    <TableRow key={job.id} className="hover:bg-muted/30">
-                      <TableCell>
-                        <button
-                          onClick={() => handleJobClick(job)}
-                          className="font-medium text-primary hover:underline text-left"
-                        >
-                          {job.title}
-                        </button>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1 text-muted-foreground">
-                          <Building2 className="h-3 w-3" />
-                          {job.companies?.name || job.company}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1 text-muted-foreground">
-                          <MapPin className="h-3 w-3" />
-                          {job.location || "Remote"}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground">
-                        {job.created_at
-                          ? format(new Date(job.created_at), "dd.MM.yyyy", {
-                              locale: de,
-                            })
-                          : "—"}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline">
-                          {applicationCounts?.[job.id] || 0}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          className={
-                            job.is_active
-                              ? "bg-green-100 text-green-800"
-                              : "bg-gray-100 text-gray-600"
-                          }
-                        >
-                          {job.is_active ? "Aktiv" : "Inaktiv"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center justify-end gap-2">
-                          <Switch
-                            checked={job.is_active ?? false}
-                            onCheckedChange={(checked) =>
-                              toggleMutation.mutate({
-                                jobId: job.id,
-                                isActive: checked,
-                              })
-                            }
-                            aria-label="Status umschalten"
-                          />
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleJobClick(job)}
-                            title="Bearbeiten"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="text-destructive hover:text-destructive"
-                                title="Löschen"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>
-                                  Stelle löschen?
-                                </AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Diese Aktion kann nicht rückgängig gemacht
-                                  werden. Die Stelle "{job.title}" wird
-                                  unwiderruflich gelöscht.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                                <AlertDialogAction
-                                  onClick={() => deleteMutation.mutate(job.id)}
-                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                >
-                                  Endgültig löschen
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
+          {/* Tabs for Active/Inactive */}
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full max-w-[300px] grid-cols-2">
+              <TabsTrigger value="active">
+                Aktiv ({stats.activeJobs})
+              </TabsTrigger>
+              <TabsTrigger value="inactive">
+                Inaktiv ({stats.inactiveJobs})
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="active" className="mt-6">
+              <JobsTable
+                jobs={filteredJobs}
+                applicationCounts={applicationCounts}
+                onJobClick={handleJobClick}
+                onToggle={(jobId, isActive) => toggleMutation.mutate({ jobId, isActive })}
+                onDelete={(jobId) => deleteMutation.mutate(jobId)}
+              />
+            </TabsContent>
+
+            <TabsContent value="inactive" className="mt-6">
+              <JobsTable
+                jobs={filteredJobs}
+                applicationCounts={applicationCounts}
+                onJobClick={handleJobClick}
+                onToggle={(jobId, isActive) => toggleMutation.mutate({ jobId, isActive })}
+                onDelete={(jobId) => deleteMutation.mutate(jobId)}
+              />
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 
@@ -404,6 +312,143 @@ const JobManagement = () => {
         onDelete={(id) => deleteMutation.mutate(id)}
       />
     </>
+  );
+};
+
+// Extracted table component for reuse
+interface JobsTableProps {
+  jobs: JobWithCompany[];
+  applicationCounts: Record<string, number> | undefined;
+  onJobClick: (job: JobWithCompany) => void;
+  onToggle: (jobId: string, isActive: boolean) => void;
+  onDelete: (jobId: string) => void;
+}
+
+const JobsTable = ({
+  jobs,
+  applicationCounts,
+  onJobClick,
+  onToggle,
+  onDelete,
+}: JobsTableProps) => {
+  if (jobs.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-muted-foreground">
+          Keine Stellenanzeigen in dieser Kategorie.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-muted/50">
+            <TableHead className="font-semibold">Job-Titel</TableHead>
+            <TableHead className="font-semibold">Kanzlei</TableHead>
+            <TableHead className="font-semibold">Standort</TableHead>
+            <TableHead className="font-semibold">Veröffentlicht</TableHead>
+            <TableHead className="font-semibold">Bewerbungen</TableHead>
+            <TableHead className="font-semibold">Status</TableHead>
+            <TableHead className="font-semibold text-right">Aktionen</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {jobs.map((job) => (
+            <TableRow key={job.id} className="hover:bg-muted/30">
+              <TableCell>
+                <button
+                  onClick={() => onJobClick(job)}
+                  className="font-medium text-primary hover:underline text-left"
+                >
+                  {job.title}
+                </button>
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-1 text-muted-foreground">
+                  <Building2 className="h-3 w-3" />
+                  {job.companies?.name || job.company}
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-1 text-muted-foreground">
+                  <MapPin className="h-3 w-3" />
+                  {job.location || "Remote"}
+                </div>
+              </TableCell>
+              <TableCell className="text-muted-foreground">
+                {job.created_at
+                  ? format(new Date(job.created_at), "dd.MM.yyyy", { locale: de })
+                  : "—"}
+              </TableCell>
+              <TableCell>
+                <Badge variant="outline">{applicationCounts?.[job.id] || 0}</Badge>
+              </TableCell>
+              <TableCell>
+                <Badge
+                  className={
+                    job.is_active
+                      ? "bg-green-100 text-green-800"
+                      : "bg-gray-100 text-gray-600"
+                  }
+                >
+                  {job.is_active ? "Aktiv" : "Inaktiv"}
+                </Badge>
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center justify-end gap-2">
+                  <Switch
+                    checked={job.is_active ?? false}
+                    onCheckedChange={(checked) => onToggle(job.id, checked)}
+                    aria-label="Status umschalten"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onJobClick(job)}
+                    title="Bearbeiten"
+                  >
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive"
+                        title="Löschen"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Stelle löschen?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Diese Aktion kann nicht rückgängig gemacht werden. Die
+                          Stelle "{job.title}" wird unwiderruflich gelöscht.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => onDelete(job.id)}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Endgültig löschen
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 };
 
