@@ -1,10 +1,31 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Briefcase, User } from "lucide-react";
+import { Menu, X, Briefcase, User, LayoutDashboard, LogOut } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const { user, role, isLoading, isAuthenticated, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
+
+  const getDashboardLink = () => {
+    if (role === "admin") return "/admin/dashboard";
+    if (role === "employer") return "/dashboard";
+    return "/";
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -34,15 +55,43 @@ const Header = () => {
         </nav>
 
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="outline" size="sm" asChild>
-            <Link to="/login">
-              <User className="h-4 w-4 mr-2" />
-              Anmelden
-            </Link>
-          </Button>
-          <Button size="sm" className="bg-background text-primary border-2 border-primary hover:bg-primary hover:text-primary-foreground" asChild>
-            <Link to="/register-employer">Kanzlei registrieren</Link>
-          </Button>
+          {isLoading ? (
+            <div className="h-9 w-24 bg-muted animate-pulse rounded-md" />
+          ) : isAuthenticated ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <User className="h-4 w-4 mr-2" />
+                  {user?.email?.split("@")[0] || "Konto"}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem asChild>
+                  <Link to={getDashboardLink()} className="flex items-center cursor-pointer">
+                    <LayoutDashboard className="h-4 w-4 mr-2" />
+                    {role === "admin" ? "Admin-Dashboard" : "Zum Dashboard"}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut} className="text-destructive cursor-pointer">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Abmelden
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/login">
+                  <User className="h-4 w-4 mr-2" />
+                  Anmelden
+                </Link>
+              </Button>
+              <Button size="sm" className="bg-background text-primary border-2 border-primary hover:bg-primary hover:text-primary-foreground" asChild>
+                <Link to="/register-employer">Kanzlei registrieren</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -95,17 +144,34 @@ const Header = () => {
               Über uns
             </Link>
             <div className="flex flex-col gap-2 pt-2 border-t">
-              <Button variant="outline" size="sm" className="w-full" asChild>
-                <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                  <User className="h-4 w-4 mr-2" />
-                  Anmelden
-                </Link>
-              </Button>
-              <Button size="sm" className="w-full" asChild>
-                <Link to="/register-employer" onClick={() => setIsMenuOpen(false)}>
-                  Kanzlei registrieren
-                </Link>
-              </Button>
+              {isAuthenticated ? (
+                <>
+                  <Button variant="default" size="sm" className="w-full" asChild>
+                    <Link to={getDashboardLink()} onClick={() => setIsMenuOpen(false)}>
+                      <LayoutDashboard className="h-4 w-4 mr-2" />
+                      Zum Dashboard
+                    </Link>
+                  </Button>
+                  <Button variant="outline" size="sm" className="w-full" onClick={() => { handleSignOut(); setIsMenuOpen(false); }}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Abmelden
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" size="sm" className="w-full" asChild>
+                    <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                      <User className="h-4 w-4 mr-2" />
+                      Anmelden
+                    </Link>
+                  </Button>
+                  <Button size="sm" className="w-full" asChild>
+                    <Link to="/register-employer" onClick={() => setIsMenuOpen(false)}>
+                      Kanzlei registrieren
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
           </nav>
         </div>

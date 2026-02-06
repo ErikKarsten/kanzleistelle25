@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEmployerAuth } from "@/hooks/useEmployerAuth";
+import { useAuth } from "@/contexts/AuthContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -41,12 +42,27 @@ import EmployerJobModal from "@/components/employer/EmployerJobModal";
 import EmployerOnboarding from "@/components/employer/EmployerOnboarding";
 
 const EmployerDashboard = () => {
-  const { user, companyId, isLoading: authLoading, signOut } = useEmployerAuth();
+  const navigate = useNavigate();
+  const { user, role, companyId, isLoading: authLoading, isAuthenticated, signOut } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("jobs");
   const [jobModalOpen, setJobModalOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<any>(null);
+
+  // Redirect if not authenticated or admin
+  useEffect(() => {
+    if (authLoading) return;
+    
+    if (!isAuthenticated) {
+      navigate("/login", { replace: true });
+      return;
+    }
+    
+    if (role === "admin") {
+      navigate("/admin/dashboard", { replace: true });
+    }
+  }, [authLoading, isAuthenticated, role, navigate]);
 
   // Fetch company data
   const { data: company, isLoading: companyLoading } = useQuery({

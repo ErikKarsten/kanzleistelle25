@@ -1,136 +1,44 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { User } from "@supabase/supabase-js";
+import { useAuth } from "@/contexts/AuthContext";
+import { Loader2 } from "lucide-react";
 
 interface EmployerAuthState {
-  user: User | null;
+  user: ReturnType<typeof useAuth>["user"];
   companyId: string | null;
   isLoading: boolean;
   isEmployer: boolean;
+  signOut: () => Promise<void>;
 }
 
-export const useEmployerAuth = () => {
+export const useEmployerAuth = (): EmployerAuthState => {
   const navigate = useNavigate();
-  const [state, setState] = useState<EmployerAuthState>({
-    user: null,
-    companyId: null,
-    isLoading: true,
-    isEmployer: false,
-  });
+  const { user, role, companyId, isLoading, isAuthenticated, signOut } = useAuth();
 
   useEffect(() => {
-    // Set up auth state listener first
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === "SIGNED_OUT" || !session) {
-          setState({
-            user: null,
-            companyId: null,
-            isLoading: false,
-            isEmployer: false,
-          });
-          navigate("/login");
-          return;
-        }
+    if (isLoading) return;
 
-        if (session?.user) {
-          // Check if user is employer
-          const { data: roles } = await supabase
-            .from("user_roles")
-            .select("role")
-            .eq("user_id", session.user.id);
+    // Not authenticated - redirect to login
+    if (!isAuthenticated) {
+      navigate("/login", { replace: true });
+      return;
+    }
 
-          const isEmployer = roles?.some((r) => r.role === "employer") || false;
+    // Admin trying to access employer dashboard - redirect to admin
+    if (role === "admin") {
+      navigate("/admin/dashboard", { replace: true });
+      return;
+    }
 
-          if (!isEmployer) {
-            // Not an employer, redirect
-            navigate("/");
-            setState({
-              user: session.user,
-              companyId: null,
-              isLoading: false,
-              isEmployer: false,
-            });
-            return;
-          }
+    // Not an employer and no company - they shouldn't be here
+    // But we'll let the dashboard handle the onboarding flow
+  }, [isLoading, isAuthenticated, role, navigate]);
 
-          // Get company ID
-          const { data: company } = await supabase
-            .from("companies")
-            .select("id")
-            .eq("user_id", session.user.id)
-            .maybeSingle();
-
-          setState({
-            user: session.user,
-            companyId: company?.id || null,
-            isLoading: false,
-            isEmployer: true,
-          });
-        }
-      }
-    );
-
-    // Then get initial session
-    const initializeAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        setState({
-          user: null,
-          companyId: null,
-          isLoading: false,
-          isEmployer: false,
-        });
-        navigate("/login");
-        return;
-      }
-
-      // Check employer role
-      const { data: roles } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", session.user.id);
-
-      const isEmployer = roles?.some((r) => r.role === "employer") || false;
-
-      if (!isEmployer) {
-        navigate("/");
-        setState({
-          user: session.user,
-          companyId: null,
-          isLoading: false,
-          isEmployer: false,
-        });
-        return;
-      }
-
-      // Get company
-      const { data: company } = await supabase
-        .from("companies")
-        .select("id")
-        .eq("user_id", session.user.id)
-        .maybeSingle();
-
-      setState({
-        user: session.user,
-        companyId: company?.id || null,
-        isLoading: false,
-        isEmployer: true,
-      });
-    };
-
-    initializeAuth();
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate]);
-
-  const signOut = async () => {
-    await supabase.auth.signOut();
+  return {
+    user,
+    companyId,
+    isLoading,
+    isEmployer: role === "employer" || !!companyId,
+    signOut,
   };
-
-  return { ...state, signOut };
 };
