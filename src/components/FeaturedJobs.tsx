@@ -90,9 +90,14 @@ const FeaturedJobs = () => {
             {jobs.map((job) => (
               <Card
                 key={job.id}
-                className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-l-primary"
+                className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-l-primary relative"
               >
-                <CardHeader className="pb-3">
+                {/* Express Badge */}
+                <div className="absolute top-3 right-3 bg-primary text-primary-foreground px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-md">
+                  <Zap className="h-3 w-3" />
+                  30 Sek. Bewerbung
+                </div>
+                <CardHeader className="pb-3 pt-10">
                   <div className="flex items-start justify-between gap-2">
                     <CardTitle className="text-lg line-clamp-2">
                       {job.title}

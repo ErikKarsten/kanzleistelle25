@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, MapPin, Briefcase, Zap } from "lucide-react";
+import heroBackground from "@/assets/hero-background.jpg";
 
 interface HeroSectionProps {
   onSearch: (filters: { title: string; location: string; employmentType?: string }) => void;
@@ -29,8 +30,15 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
   };
 
   return (
-    <section className="relative py-20 md:py-32 bg-gradient-to-br from-primary/5 via-background to-secondary/10">
-      <div className="container">
+    <section className="relative py-20 md:py-32 overflow-hidden">
+      {/* Background Image with Overlay */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${heroBackground})` }}
+      />
+      <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-background/90 to-background/80" />
+      
+      <div className="container relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-6">
             Finden Sie Ihren{" "}
