@@ -3,11 +3,10 @@ import { Card, CardContent } from "@/components/ui/card";
 
 const benefits = [
   { text: "Express-Bewerbung in 30 Sekunden", highlight: true },
-  { text: "Spezialisiert auf Steuerberatung", highlight: false },
-  { text: "Über 500 aktive Stellenangebote", highlight: false },
-  { text: "Direkte Kontakte zu Top-Steuerkanzleien", highlight: false },
-  { text: "Kostenlose Nutzung für Bewerber", highlight: false },
-  { text: "Persönliche Karriereberatung", highlight: false },
+  { text: "Spezialisiert auf die Steuerbranche", highlight: false },
+  { text: "Persönlich geprüfte Kanzleien", highlight: false },
+  { text: "Diskrete Vermittlung garantiert", highlight: false },
+  { text: "Kostenlos für Bewerber", highlight: false },
   { text: "DATEV-kompatible Kanzleien", highlight: false },
 ];
 
@@ -95,17 +94,31 @@ const WhyKanzleistelle = () => {
           </div>
           <div className="bg-gradient-to-br from-primary/10 to-secondary/30 rounded-2xl p-8 md:p-12">
             <div className="text-center">
-              <div className="text-5xl md:text-6xl font-bold text-primary mb-2">500+</div>
-              <p className="text-muted-foreground mb-6">Aktive Stellenangebote</p>
+              <h3 className="text-2xl md:text-3xl font-bold text-primary mb-6">
+                Unser Versprechen
+              </h3>
               
-              <div className="grid grid-cols-2 gap-6 mt-8">
-                <div>
-                  <div className="text-3xl font-bold text-foreground">200+</div>
-                  <p className="text-sm text-muted-foreground">Partner-Kanzleien</p>
+              <div className="space-y-6 text-left">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-foreground">Spezialisiert auf die Steuerbranche</p>
+                    <p className="text-sm text-muted-foreground">Wir kennen die Branche und ihre Besonderheiten</p>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-3xl font-bold text-foreground">50k+</div>
-                  <p className="text-sm text-muted-foreground">Erfolgreiche Vermittlungen</p>
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-foreground">Persönlich geprüfte Kanzleien</p>
+                    <p className="text-sm text-muted-foreground">Jede Partner-Kanzlei wird von uns geprüft</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-foreground">Diskrete Vermittlung</p>
+                    <p className="text-sm text-muted-foreground">Ihre Daten sind bei uns sicher</p>
+                  </div>
                 </div>
               </div>
             </div>
