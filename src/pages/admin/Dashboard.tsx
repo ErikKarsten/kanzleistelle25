@@ -11,6 +11,7 @@ import ApplicationFilters from "@/components/admin/ApplicationFilters";
 import ApplicationsTable from "@/components/admin/ApplicationsTable";
 import ApplicationDetailsModal from "@/components/admin/ApplicationDetailsModal";
 import CompanyManagement from "@/components/admin/CompanyManagement";
+import JobManagement from "@/components/admin/JobManagement";
 import { toast } from "sonner";
 
 interface ApplicationWithJob {
@@ -319,6 +320,9 @@ const AdminDashboardContent = () => {
             </Tabs>
           </CardContent>
         </Card>
+
+        {/* Job Management */}
+        <JobManagement />
 
         {/* Company Management */}
         <CompanyManagement />
