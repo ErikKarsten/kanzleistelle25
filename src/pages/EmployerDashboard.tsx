@@ -26,7 +26,7 @@ import {
   Calendar,
   Loader2,
   FileText,
-  Download,
+  AlertCircle,
 } from "lucide-react";
 import {
   Select,
@@ -38,6 +38,7 @@ import {
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import EmployerJobModal from "@/components/employer/EmployerJobModal";
+import EmployerOnboarding from "@/components/employer/EmployerOnboarding";
 
 const EmployerDashboard = () => {
   const { user, companyId, isLoading: authLoading, signOut } = useEmployerAuth();
@@ -165,6 +166,7 @@ const EmployerDashboard = () => {
     });
   };
 
+  // Loading state
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -173,14 +175,30 @@ const EmployerDashboard = () => {
     );
   }
 
+  // No company found - show onboarding
+  if (!authLoading && user && !companyId) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center bg-secondary/20 py-12">
+          <EmployerOnboarding userId={user.id} />
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  const activeJobs = jobs?.filter((j) => j.is_active) || [];
+  const pendingApplications = applications?.filter((a) => a.status === "pending") || [];
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
 
       <main className="flex-1 bg-secondary/20 py-8">
         <div className="container">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-8">
+          {/* Header with prominent CTA */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-foreground">
                 Kanzlei-Dashboard
@@ -189,14 +207,24 @@ const EmployerDashboard = () => {
                 Willkommen, {company?.name || "Kanzlei"}
               </p>
             </div>
-            <Button variant="outline" onClick={signOut}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Abmelden
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button 
+                size="lg" 
+                className="shadow-lg"
+                onClick={() => { setSelectedJob(null); setJobModalOpen(true); }}
+              >
+                <Plus className="h-5 w-5 mr-2" />
+                Neue Stelle schalten
+              </Button>
+              <Button variant="outline" onClick={signOut}>
+                <LogOut className="h-4 w-4 mr-2" />
+                Abmelden
+              </Button>
+            </div>
           </div>
 
-          {/* Stats */}
-          <div className="grid gap-4 md:grid-cols-3 mb-8">
+          {/* Quick Stats */}
+          <div className="grid gap-4 md:grid-cols-4 mb-8">
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-4">
@@ -213,13 +241,11 @@ const EmployerDashboard = () => {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Eye className="h-6 w-6 text-primary" />
+                  <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                    <Eye className="h-6 w-6 text-green-600" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold">
-                      {jobs?.filter((j) => j.is_active).length || 0}
-                    </p>
+                    <p className="text-2xl font-bold">{activeJobs.length}</p>
                     <p className="text-sm text-muted-foreground">Aktive Jobs</p>
                   </div>
                 </div>
@@ -228,8 +254,8 @@ const EmployerDashboard = () => {
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Users className="h-6 w-6 text-primary" />
+                  <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                    <Users className="h-6 w-6 text-blue-600" />
                   </div>
                   <div>
                     <p className="text-2xl font-bold">{applications?.length || 0}</p>
@@ -238,18 +264,40 @@ const EmployerDashboard = () => {
                 </div>
               </CardContent>
             </Card>
+            <Card className={pendingApplications.length > 0 ? "border-orange-300 bg-orange-50" : ""}>
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-4">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                    pendingApplications.length > 0 ? "bg-orange-100" : "bg-muted"
+                  }`}>
+                    <AlertCircle className={`h-6 w-6 ${
+                      pendingApplications.length > 0 ? "text-orange-600" : "text-muted-foreground"
+                    }`} />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{pendingApplications.length}</p>
+                    <p className="text-sm text-muted-foreground">Neue Bewerbungen</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Tabs */}
+          {/* Main Content Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="mb-6">
               <TabsTrigger value="jobs" className="flex items-center gap-2">
                 <Briefcase className="h-4 w-4" />
-                Meine Jobs
+                Offene Stellen
               </TabsTrigger>
               <TabsTrigger value="applications" className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
                 Bewerbungen
+                {pendingApplications.length > 0 && (
+                  <Badge variant="destructive" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                    {pendingApplications.length}
+                  </Badge>
+                )}
               </TabsTrigger>
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <Building2 className="h-4 w-4" />
@@ -262,9 +310,9 @@ const EmployerDashboard = () => {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
-                    <CardTitle>Meine Stellenanzeigen</CardTitle>
+                    <CardTitle>Ihre Stellenanzeigen</CardTitle>
                     <CardDescription>
-                      Verwalten Sie Ihre offenen Positionen
+                      {activeJobs.length} aktive von {jobs?.length || 0} Stellen
                     </CardDescription>
                   </div>
                   <Button onClick={() => { setSelectedJob(null); setJobModalOpen(true); }}>
@@ -282,17 +330,29 @@ const EmployerDashboard = () => {
                       {jobs.map((job) => (
                         <div
                           key={job.id}
-                          className="flex items-center justify-between p-4 border rounded-lg hover:bg-secondary/50 transition-colors"
+                          className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${
+                            job.is_active 
+                              ? "hover:bg-secondary/50" 
+                              : "bg-muted/30 opacity-75"
+                          }`}
                         >
                           <div className="flex-1">
-                            <h3 className="font-semibold text-foreground">{job.title}</h3>
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-semibold text-foreground">{job.title}</h3>
+                              {!job.is_active && (
+                                <Badge variant="outline" className="text-xs">Inaktiv</Badge>
+                              )}
+                            </div>
                             <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
                               {job.location && <span>{job.location}</span>}
                               {job.employment_type && (
-                                <Badge variant="outline" className="text-xs">
+                                <Badge variant="secondary" className="text-xs">
                                   {job.employment_type}
                                 </Badge>
                               )}
+                              <span className="text-xs">
+                                Erstellt: {format(new Date(job.created_at!), "dd.MM.yyyy", { locale: de })}
+                              </span>
                             </div>
                           </div>
                           <div className="flex items-center gap-4">
@@ -317,13 +377,14 @@ const EmployerDashboard = () => {
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-12">
-                      <Briefcase className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground mb-4">
-                        Sie haben noch keine Stellenanzeigen erstellt.
+                    <div className="text-center py-12 bg-muted/20 rounded-lg border-2 border-dashed">
+                      <Briefcase className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold mb-2">Noch keine Stellenanzeigen</h3>
+                      <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                        Erstellen Sie Ihre erste Stellenanzeige und erreichen Sie qualifizierte Bewerber.
                       </p>
-                      <Button onClick={() => { setSelectedJob(null); setJobModalOpen(true); }}>
-                        <Plus className="h-4 w-4 mr-2" />
+                      <Button size="lg" onClick={() => { setSelectedJob(null); setJobModalOpen(true); }}>
+                        <Plus className="h-5 w-5 mr-2" />
                         Erste Stelle erstellen
                       </Button>
                     </div>
@@ -351,13 +412,24 @@ const EmployerDashboard = () => {
                       {applications.map((app) => (
                         <div
                           key={app.id}
-                          className="p-4 border rounded-lg hover:bg-secondary/50 transition-colors"
+                          className={`p-4 border rounded-lg transition-colors ${
+                            app.status === "pending" 
+                              ? "border-orange-200 bg-orange-50/50" 
+                              : "hover:bg-secondary/50"
+                          }`}
                         >
                           <div className="flex items-start justify-between gap-4">
                             <div className="flex-1 min-w-0">
-                              <h3 className="font-semibold text-foreground">
-                                {app.first_name} {app.last_name}
-                              </h3>
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-semibold text-foreground">
+                                  {app.first_name} {app.last_name}
+                                </h3>
+                                {app.status === "pending" && (
+                                  <Badge variant="outline" className="bg-orange-100 text-orange-700 border-orange-300">
+                                    Neu
+                                  </Badge>
+                                )}
+                              </div>
                               <p className="text-sm text-primary mt-1">
                                 {(app as any).jobs?.title || "Unbekannte Stelle"}
                               </p>
@@ -407,7 +479,7 @@ const EmployerDashboard = () => {
                                   })
                                 }
                               >
-                                <SelectTrigger className="w-[140px]">
+                                <SelectTrigger className="w-[160px]">
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
