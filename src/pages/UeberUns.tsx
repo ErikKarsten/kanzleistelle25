@@ -12,7 +12,10 @@ import {
   CheckCircle2,
   Building2,
   Briefcase,
+  Quote,
 } from "lucide-react";
+import teamCollaborationImage from "@/assets/team-collaboration.jpg";
+import officeModernImage from "@/assets/office-modern.jpg";
 
 const values = [
   {
@@ -74,30 +77,35 @@ const UeberUns = () => {
       <Header />
 
       <main className="flex-1">
-        {/* Hero Section */}
-        <section className="bg-secondary/30 py-16 md:py-24">
-          <div className="container">
-            <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
+        {/* Hero Section with Image */}
+        <section className="relative h-[60vh] min-h-[500px] flex items-center">
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${officeModernImage})` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/85 to-primary/70" />
+          <div className="container relative z-10">
+            <div className="max-w-2xl text-primary-foreground">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
                 Über Kanzleistelle24
               </h1>
-              <p className="text-lg text-muted-foreground">
+              <p className="text-xl opacity-90">
                 Wir glauben, dass großartige Karrieren in der Steuerbranche nicht dem Zufall 
-                überlassen werden sollten. Deshalb haben wir eine Plattform geschaffen, die 
-                Fachkräfte und Kanzleien zusammenbringt – einfach, schnell und persönlich.
+                überlassen werden sollten.
               </p>
             </div>
           </div>
         </section>
 
-        {/* Mission Statement */}
-        <section className="py-16 container">
-          <div className="grid gap-12 md:grid-cols-2 items-center">
+        {/* Mission Statement with Image */}
+        <section className="py-20 container">
+          <div className="grid gap-12 lg:grid-cols-2 items-center">
             <div>
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
-                Unsere Mission
+              <span className="text-primary font-semibold text-sm uppercase tracking-wider">Unsere Mission</span>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-2 mb-6">
+                Die Steuerbranche verbinden
               </h2>
-              <p className="text-muted-foreground mb-6">
+              <p className="text-muted-foreground mb-6 text-lg">
                 Die Steuerbranche steht vor großen Herausforderungen: Fachkräftemangel, 
                 hohe Fluktuation und veraltete Recruiting-Methoden. Wir sind angetreten, 
                 das zu ändern.
@@ -108,61 +116,61 @@ const UeberUns = () => {
                 es Kandidaten, sich in nur 30 Sekunden zu bewerben – ohne aufwändiges 
                 Anschreiben oder perfekten Lebenslauf.
               </p>
-              <p className="text-muted-foreground">
-                Für Kanzleien bedeutet das: Zugang zu motivierten Kandidaten, die wirklich 
-                interessiert sind – nicht nur an irgendeinem Job, sondern an einer Karriere 
-                in der Steuerberatung.
-              </p>
+              <div className="flex flex-col sm:flex-row gap-4 mt-8">
+                <div className="flex items-center gap-3 p-4 bg-secondary/50 rounded-xl">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Building2 className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">Für Kanzleien</p>
+                    <p className="text-sm text-muted-foreground">Top-Talente finden</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-4 bg-secondary/50 rounded-xl">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Briefcase className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground">Für Kandidaten</p>
+                    <p className="text-sm text-muted-foreground">Traumjob entdecken</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="bg-gradient-to-br from-primary/10 to-secondary/30 rounded-2xl p-8 md:p-12">
-              <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                    <Building2 className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-1">Für Kanzleien</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Qualifizierte Kandidaten ohne großen Aufwand finden
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                    <Briefcase className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-1">Für Kandidaten</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Traumjob finden ohne Bewerbungsstress
-                    </p>
-                  </div>
-                </div>
+            <div className="relative">
+              <img 
+                src={teamCollaborationImage} 
+                alt="Team bei der Arbeit" 
+                className="rounded-2xl shadow-2xl"
+              />
+              <div className="absolute -bottom-6 -left-6 bg-primary text-primary-foreground p-6 rounded-xl shadow-lg max-w-xs hidden md:block">
+                <Quote className="h-8 w-8 mb-3 opacity-50" />
+                <p className="text-sm italic">
+                  "Wir bringen Menschen und Kanzleien zusammen, die wirklich zueinander passen."
+                </p>
               </div>
             </div>
           </div>
         </section>
 
         {/* Values */}
-        <section className="py-16 bg-secondary/20">
+        <section className="py-20 bg-secondary/20">
           <div className="container">
-            <div className="text-center mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+            <div className="text-center mb-14">
+              <span className="text-primary font-semibold text-sm uppercase tracking-wider">Was uns antreibt</span>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-2">
                 Unsere Werte
               </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                Was uns antreibt und unterscheidet.
-              </p>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
               {values.map((value, index) => (
-                <Card key={index} className="text-center border-2 hover:border-primary/50 transition-colors">
-                  <CardContent className="pt-8 pb-6">
-                    <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                      <value.icon className="h-7 w-7 text-primary" />
+                <Card key={index} className="text-center border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
+                  <CardContent className="pt-10 pb-8">
+                    <div className="mx-auto w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                      <value.icon className="h-8 w-8 text-primary group-hover:text-primary-foreground transition-colors" />
                     </div>
-                    <h3 className="font-semibold text-foreground mb-2">{value.title}</h3>
+                    <h3 className="font-bold text-lg text-foreground mb-3">{value.title}</h3>
                     <p className="text-sm text-muted-foreground">{value.description}</p>
                   </CardContent>
                 </Card>
@@ -172,48 +180,57 @@ const UeberUns = () => {
         </section>
 
         {/* Our Story / Timeline */}
-        <section className="py-16 container">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+        <section className="py-20 container">
+          <div className="text-center mb-14">
+            <span className="text-primary font-semibold text-sm uppercase tracking-wider">Wie alles begann</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-2">
               Unsere Geschichte
             </h2>
           </div>
 
-          <div className="max-w-3xl mx-auto space-y-8">
-            {milestones.map((milestone, index) => (
-              <div key={index} className="flex gap-6">
-                <div className="w-24 shrink-0">
-                  <span className="text-sm font-semibold text-primary">{milestone.year}</span>
-                </div>
-                <div className="flex-1 pb-8 border-l-2 border-primary/20 pl-6 relative">
-                  <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-primary" />
-                  <h3 className="font-semibold text-foreground mb-2">{milestone.title}</h3>
-                  <p className="text-sm text-muted-foreground">{milestone.description}</p>
-                </div>
-              </div>
-            ))}
+          <div className="max-w-4xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-8">
+              {milestones.map((milestone, index) => (
+                <Card key={index} className="border-0 shadow-lg overflow-hidden">
+                  <div className="h-2 bg-gradient-to-r from-primary to-primary/50" />
+                  <CardContent className="pt-6 pb-6">
+                    <span className="text-xs font-bold text-primary uppercase tracking-wider">
+                      {milestone.year}
+                    </span>
+                    <h3 className="font-bold text-xl text-foreground mt-2 mb-3">{milestone.title}</h3>
+                    <p className="text-sm text-muted-foreground">{milestone.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         </section>
 
-        {/* Why Trust Us */}
-        <section className="py-16 bg-secondary/20">
+        {/* Trust Badges */}
+        <section className="py-16 bg-secondary/30">
           <div className="container">
-            <div className="max-w-3xl mx-auto text-center">
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-8">
-                Warum Kanzleistelle24?
-              </h2>
-              <div className="grid gap-4 md:grid-cols-3 mb-8">
-                <div className="flex items-center justify-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-primary" />
-                  <span>Spezialisiert auf Steuer</span>
+            <div className="max-w-4xl mx-auto">
+              <div className="grid gap-6 md:grid-cols-3 text-center">
+                <div className="p-6">
+                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle2 className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="font-bold text-foreground mb-2">Spezialisiert auf Steuer</h3>
+                  <p className="text-sm text-muted-foreground">100% Fokus auf die Steuerbranche</p>
                 </div>
-                <div className="flex items-center justify-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-primary" />
-                  <span>Persönlich geprüfte Kanzleien</span>
+                <div className="p-6">
+                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle2 className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="font-bold text-foreground mb-2">Geprüfte Kanzleien</h3>
+                  <p className="text-sm text-muted-foreground">Jede Kanzlei wird persönlich geprüft</p>
                 </div>
-                <div className="flex items-center justify-center gap-2">
-                  <CheckCircle2 className="h-5 w-5 text-primary" />
-                  <span>Diskrete Vermittlung</span>
+                <div className="p-6">
+                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle2 className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="font-bold text-foreground mb-2">Diskrete Vermittlung</h3>
+                  <p className="text-sm text-muted-foreground">Ihre Daten sind bei uns sicher</p>
                 </div>
               </div>
             </div>
@@ -221,17 +238,17 @@ const UeberUns = () => {
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 bg-primary text-primary-foreground">
+        <section className="py-20 bg-primary text-primary-foreground">
           <div className="container text-center">
-            <h2 className="text-2xl md:text-3xl font-bold mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">
               Starten Sie jetzt
             </h2>
-            <p className="text-lg opacity-90 mb-8 max-w-2xl mx-auto">
+            <p className="text-xl opacity-90 mb-10 max-w-2xl mx-auto">
               Ob Sie Ihren Traumjob suchen oder die besten Talente für Ihre Kanzlei – 
               wir sind für Sie da.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" variant="secondary" asChild>
+              <Button size="lg" variant="secondary" className="text-lg px-8" asChild>
                 <Link to="/">
                   Jobs entdecken
                   <ArrowRight className="h-5 w-5 ml-2" />
@@ -240,7 +257,7 @@ const UeberUns = () => {
               <Button
                 size="lg"
                 variant="secondary"
-                className="bg-background text-primary hover:bg-background/90"
+                className="bg-background text-primary hover:bg-background/90 text-lg px-8"
                 asChild
               >
                 <Link to="/fuer-arbeitgeber">Für Arbeitgeber</Link>

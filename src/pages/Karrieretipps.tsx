@@ -2,9 +2,10 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, ArrowRight, BookOpen } from "lucide-react";
+import { Calendar, Clock, ArrowRight, BookOpen, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import careerProfessionalImage from "@/assets/career-professional.jpg";
 
 const articles = [
   {
@@ -15,6 +16,7 @@ const articles = [
     readTime: "8 Min. Lesezeit",
     date: "15. Januar 2025",
     featured: true,
+    image: careerProfessionalImage,
   },
   {
     id: 2,
@@ -72,18 +74,19 @@ const Karrieretipps = () => {
       <Header />
 
       <main className="flex-1">
-        {/* Hero Section */}
-        <section className="bg-secondary/30 py-16 md:py-24">
-          <div className="container">
-            <div className="max-w-3xl mx-auto text-center">
-              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-6">
-                <BookOpen className="h-4 w-4" />
-                Karriere-Ratgeber
+        {/* Hero Section with Image */}
+        <section className="relative bg-primary py-20 md:py-28 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary to-primary/80" />
+          <div className="container relative z-10">
+            <div className="max-w-3xl mx-auto text-center text-primary-foreground">
+              <div className="inline-flex items-center gap-2 bg-background/10 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold mb-6">
+                <TrendingUp className="h-4 w-4" />
+                Ihr Karriere-Ratgeber
               </div>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
                 Karrieretipps für die Steuerbranche
               </h1>
-              <p className="text-lg text-muted-foreground">
+              <p className="text-lg opacity-90">
                 Expertenwissen für Ihren nächsten Karriereschritt. Von Bewerbungstipps 
                 bis zur Gehaltsverhandlung – wir begleiten Sie auf Ihrem Weg.
               </p>
@@ -93,14 +96,19 @@ const Karrieretipps = () => {
 
         {/* Featured Article */}
         {featuredArticle && (
-          <section className="py-12 container">
-            <Card className="overflow-hidden border-2 hover:border-primary/50 transition-colors">
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="bg-gradient-to-br from-primary/10 to-secondary/30 p-8 md:p-12 flex items-center justify-center">
-                  <BookOpen className="h-24 w-24 text-primary/30" />
+          <section className="py-16 container">
+            <Card className="overflow-hidden border-0 shadow-xl">
+              <div className="grid md:grid-cols-2">
+                <div className="relative h-64 md:h-auto">
+                  <img 
+                    src={featuredArticle.image} 
+                    alt={featuredArticle.title}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent md:hidden" />
                 </div>
-                <CardContent className="p-8 flex flex-col justify-center">
-                  <Badge variant="secondary" className="w-fit mb-4">
+                <CardContent className="p-8 md:p-12 flex flex-col justify-center bg-card">
+                  <Badge className="w-fit mb-4 bg-primary/10 text-primary hover:bg-primary/20">
                     {featuredArticle.category}
                   </Badge>
                   <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
@@ -131,20 +139,36 @@ const Karrieretipps = () => {
 
         {/* Article Grid */}
         <section className="py-12 container">
-          <h2 className="text-2xl font-bold text-foreground mb-8">Weitere Artikel</h2>
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="text-2xl font-bold text-foreground">Weitere Artikel</h2>
+            <div className="flex gap-2">
+              <Badge variant="outline" className="cursor-pointer hover:bg-primary hover:text-primary-foreground">
+                Alle
+              </Badge>
+              <Badge variant="outline" className="cursor-pointer hover:bg-primary hover:text-primary-foreground">
+                Karriere
+              </Badge>
+              <Badge variant="outline" className="cursor-pointer hover:bg-primary hover:text-primary-foreground">
+                Gehalt
+              </Badge>
+            </div>
+          </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {regularArticles.map((article) => (
-              <Card key={article.id} className="hover:shadow-lg transition-shadow group cursor-pointer">
-                <CardHeader className="pb-4">
-                  <Badge variant="outline" className="w-fit mb-2">
+              <Card key={article.id} className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 shadow-md overflow-hidden">
+                <div className="h-40 bg-gradient-to-br from-primary/5 to-secondary/30 flex items-center justify-center">
+                  <BookOpen className="h-12 w-12 text-primary/20 group-hover:scale-110 transition-transform" />
+                </div>
+                <CardHeader className="pb-2">
+                  <Badge variant="outline" className="w-fit mb-2 text-xs">
                     {article.category}
                   </Badge>
-                  <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
+                  <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
                     {article.title}
                   </h3>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
+                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
                     {article.excerpt}
                   </p>
                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
@@ -160,6 +184,32 @@ const Karrieretipps = () => {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </section>
+
+        {/* Newsletter Section */}
+        <section className="py-16 bg-secondary/30">
+          <div className="container">
+            <div className="max-w-2xl mx-auto text-center">
+              <BookOpen className="h-12 w-12 text-primary mx-auto mb-6" />
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+                Bleiben Sie informiert
+              </h2>
+              <p className="text-muted-foreground mb-8">
+                Erhalten Sie die neuesten Karrieretipps und exklusive Stellenangebote 
+                direkt in Ihr Postfach.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                <input 
+                  type="email" 
+                  placeholder="Ihre E-Mail-Adresse"
+                  className="flex-1 px-4 py-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+                <Button size="lg">
+                  Anmelden
+                </Button>
+              </div>
+            </div>
           </div>
         </section>
 

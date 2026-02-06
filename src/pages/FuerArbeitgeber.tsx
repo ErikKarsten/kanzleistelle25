@@ -24,7 +24,11 @@ import {
   Building2,
   Briefcase,
   AlertTriangle,
+  Zap,
+  Phone,
+  Mail,
 } from "lucide-react";
+import officeModernImage from "@/assets/office-modern.jpg";
 
 const painPoints = [
   {
@@ -105,32 +109,73 @@ const FuerArbeitgeber = () => {
       <Header />
 
       <main className="flex-1">
-        {/* Hero Section */}
-        <section className="bg-primary text-primary-foreground py-16 md:py-24">
-          <div className="container">
-            <div className="max-w-3xl mx-auto text-center">
-              <div className="inline-flex items-center gap-2 bg-background/10 text-primary-foreground px-4 py-2 rounded-full text-sm font-semibold mb-6">
-                <Briefcase className="h-4 w-4" />
-                Für Steuerkanzleien
+        {/* Hero Section with Image */}
+        <section className="relative min-h-[70vh] flex items-center">
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${officeModernImage})` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/90 to-primary/70" />
+          <div className="container relative z-10 py-20">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div className="text-primary-foreground">
+                <div className="inline-flex items-center gap-2 bg-background/10 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold mb-6">
+                  <Briefcase className="h-4 w-4" />
+                  Für Steuerkanzleien
+                </div>
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+                  Finden Sie die besten Talente für Ihre Kanzlei
+                </h1>
+                <p className="text-xl opacity-90 mb-8">
+                  Der Fachkräftemangel in der Steuerberatung ist real. Wir helfen Ihnen, 
+                  qualifizierte Mitarbeiter zu finden – schnell, diskret und passgenau.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Button size="lg" variant="secondary" className="bg-background text-primary hover:bg-background/90 text-lg" asChild>
+                    <a href="#kontakt">
+                      Jetzt anfragen
+                      <ArrowRight className="h-5 w-5 ml-2" />
+                    </a>
+                  </Button>
+                  <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 text-lg">
+                    <Phone className="h-5 w-5 mr-2" />
+                    Rückruf anfordern
+                  </Button>
+                </div>
               </div>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
-                Finden Sie die besten Talente für Ihre Kanzlei
-              </h1>
-              <p className="text-lg opacity-90 mb-8">
-                Der Fachkräftemangel in der Steuerberatung ist real. Wir helfen Ihnen, 
-                qualifizierte Mitarbeiter zu finden – schnell, diskret und passgenau.
-              </p>
-              <Button size="lg" variant="secondary" className="bg-background text-primary hover:bg-background/90">
-                <a href="#kontakt">Jetzt unverbindlich anfragen</a>
-              </Button>
+              
+              {/* Quick Stats */}
+              <div className="hidden lg:grid grid-cols-2 gap-4">
+                <div className="bg-background/10 backdrop-blur-sm rounded-2xl p-6 text-primary-foreground">
+                  <Zap className="h-10 w-10 mb-4" />
+                  <div className="text-4xl font-bold mb-1">30 Sek.</div>
+                  <div className="opacity-80">Express-Bewerbung</div>
+                </div>
+                <div className="bg-background/10 backdrop-blur-sm rounded-2xl p-6 text-primary-foreground">
+                  <Clock className="h-10 w-10 mb-4" />
+                  <div className="text-4xl font-bold mb-1">24h</div>
+                  <div className="opacity-80">Erste Rückmeldung</div>
+                </div>
+                <div className="bg-background/10 backdrop-blur-sm rounded-2xl p-6 text-primary-foreground">
+                  <Award className="h-10 w-10 mb-4" />
+                  <div className="text-4xl font-bold mb-1">100%</div>
+                  <div className="opacity-80">Branchenfokus</div>
+                </div>
+                <div className="bg-background/10 backdrop-blur-sm rounded-2xl p-6 text-primary-foreground">
+                  <CheckCircle2 className="h-10 w-10 mb-4" />
+                  <div className="text-4xl font-bold mb-1">Geprüft</div>
+                  <div className="opacity-80">Jeder Kandidat</div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
         {/* Pain Points */}
-        <section className="py-16 container">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+        <section className="py-20 container">
+          <div className="text-center mb-14">
+            <span className="text-primary font-semibold text-sm uppercase tracking-wider">Die Realität im Markt</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-2 mb-4">
               Die Herausforderungen kennen wir
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -138,15 +183,15 @@ const FuerArbeitgeber = () => {
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-8 md:grid-cols-3">
             {painPoints.map((point, index) => (
-              <Card key={index} className="text-center">
-                <CardContent className="pt-8 pb-6">
-                  <div className="mx-auto w-14 h-14 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
-                    <point.icon className="h-7 w-7 text-destructive" />
+              <Card key={index} className="text-center border-0 shadow-lg hover:shadow-xl transition-shadow">
+                <CardContent className="pt-10 pb-8">
+                  <div className="mx-auto w-16 h-16 rounded-2xl bg-destructive/10 flex items-center justify-center mb-6">
+                    <point.icon className="h-8 w-8 text-destructive" />
                   </div>
-                  <h3 className="font-semibold text-foreground mb-2">{point.title}</h3>
-                  <p className="text-sm text-muted-foreground">{point.description}</p>
+                  <h3 className="font-bold text-xl text-foreground mb-3">{point.title}</h3>
+                  <p className="text-muted-foreground">{point.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -154,10 +199,11 @@ const FuerArbeitgeber = () => {
         </section>
 
         {/* Solutions */}
-        <section className="py-16 bg-secondary/20">
+        <section className="py-20 bg-secondary/20">
           <div className="container">
-            <div className="text-center mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+            <div className="text-center mb-14">
+              <span className="text-primary font-semibold text-sm uppercase tracking-wider">Ihr Recruiting-Partner</span>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-2 mb-4">
                 Unsere Lösung für Sie
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -165,15 +211,15 @@ const FuerArbeitgeber = () => {
               </p>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-3">
+            <div className="grid gap-8 md:grid-cols-3">
               {solutions.map((solution, index) => (
-                <Card key={index} className="text-center border-2 hover:border-primary/50 transition-colors">
-                  <CardContent className="pt-8 pb-6">
-                    <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                      <solution.icon className="h-7 w-7 text-primary" />
+                <Card key={index} className="text-center border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
+                  <CardContent className="pt-10 pb-8">
+                    <div className="mx-auto w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary transition-colors">
+                      <solution.icon className="h-8 w-8 text-primary group-hover:text-primary-foreground transition-colors" />
                     </div>
-                    <h3 className="font-semibold text-foreground mb-2">{solution.title}</h3>
-                    <p className="text-sm text-muted-foreground">{solution.description}</p>
+                    <h3 className="font-bold text-xl text-foreground mb-3">{solution.title}</h3>
+                    <p className="text-muted-foreground">{solution.description}</p>
                   </CardContent>
                 </Card>
               ))}
@@ -181,37 +227,20 @@ const FuerArbeitgeber = () => {
           </div>
         </section>
 
-        {/* Stats / Social Proof */}
-        <section className="py-16 container">
-          <div className="grid gap-8 md:grid-cols-3 text-center">
-            <div>
-              <div className="text-4xl md:text-5xl font-bold text-primary mb-2">100%</div>
-              <p className="text-muted-foreground">Branchenfokus Steuer</p>
-            </div>
-            <div>
-              <div className="text-4xl md:text-5xl font-bold text-primary mb-2">30 Sek.</div>
-              <p className="text-muted-foreground">Express-Bewerbung</p>
-            </div>
-            <div>
-              <div className="text-4xl md:text-5xl font-bold text-primary mb-2">24h</div>
-              <p className="text-muted-foreground">Erste Rückmeldung</p>
-            </div>
-          </div>
-        </section>
-
         {/* Lead Form */}
-        <section id="kontakt" className="py-16 bg-secondary/20">
+        <section id="kontakt" className="py-20">
           <div className="container">
-            <div className="max-w-2xl mx-auto">
-              <Card>
-                <CardHeader className="text-center">
+            <div className="grid lg:grid-cols-2 gap-16 items-start">
+              {/* Form */}
+              <Card className="border-0 shadow-2xl">
+                <CardHeader className="text-center pb-2">
                   <CardTitle className="text-2xl">Unverbindlich anfragen</CardTitle>
                   <p className="text-muted-foreground">
                     Erzählen Sie uns von Ihrem Personalbedarf. Wir melden uns innerhalb von 24 Stunden.
                   </p>
                 </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-6">
+                <CardContent className="pt-6">
+                  <form onSubmit={handleSubmit} className="space-y-5">
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
                         <Label htmlFor="companyName">Kanzleiname *</Label>
@@ -223,6 +252,7 @@ const FuerArbeitgeber = () => {
                           }
                           required
                           placeholder="Muster Steuerberatung GmbH"
+                          className="h-12"
                         />
                       </div>
                       <div className="space-y-2">
@@ -235,6 +265,7 @@ const FuerArbeitgeber = () => {
                           }
                           required
                           placeholder="Max Mustermann"
+                          className="h-12"
                         />
                       </div>
                     </div>
@@ -251,6 +282,7 @@ const FuerArbeitgeber = () => {
                           }
                           required
                           placeholder="info@kanzlei.de"
+                          className="h-12"
                         />
                       </div>
                       <div className="space-y-2">
@@ -263,6 +295,7 @@ const FuerArbeitgeber = () => {
                             setFormData({ ...formData, phone: e.target.value })
                           }
                           placeholder="+49 123 456789"
+                          className="h-12"
                         />
                       </div>
                     </div>
@@ -275,7 +308,7 @@ const FuerArbeitgeber = () => {
                           setFormData({ ...formData, positions: value })
                         }
                       >
-                        <SelectTrigger>
+                        <SelectTrigger className="h-12">
                           <SelectValue placeholder="Bitte wählen" />
                         </SelectTrigger>
                         <SelectContent>
@@ -304,7 +337,7 @@ const FuerArbeitgeber = () => {
                       />
                     </div>
 
-                    <Button type="submit" className="w-full" size="lg" disabled={isSubmitting}>
+                    <Button type="submit" className="w-full h-12 text-lg" disabled={isSubmitting}>
                       {isSubmitting ? "Wird gesendet..." : "Anfrage absenden"}
                       <ArrowRight className="h-5 w-5 ml-2" />
                     </Button>
@@ -316,28 +349,60 @@ const FuerArbeitgeber = () => {
                   </form>
                 </CardContent>
               </Card>
-            </div>
-          </div>
-        </section>
 
-        {/* Trust Elements */}
-        <section className="py-16 container">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-foreground mb-8">
-              Vertrauen Sie auf unsere Expertise
-            </h2>
-            <div className="flex flex-wrap justify-center gap-8">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-primary" />
-                <span className="text-muted-foreground">Spezialisiert auf Steuer</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-primary" />
-                <span className="text-muted-foreground">Persönlich geprüfte Kandidaten</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-primary" />
-                <span className="text-muted-foreground">Diskrete Vermittlung</span>
+              {/* Contact Info */}
+              <div className="space-y-8">
+                <div>
+                  <h3 className="text-2xl font-bold text-foreground mb-4">
+                    Sprechen Sie mit uns
+                  </h3>
+                  <p className="text-muted-foreground mb-8">
+                    Haben Sie Fragen? Unser Team ist für Sie da und berät Sie gerne 
+                    zu unseren Recruiting-Lösungen.
+                  </p>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="flex items-start gap-4 p-6 bg-secondary/50 rounded-xl">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                      <Mail className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-foreground mb-1">E-Mail</h4>
+                      <p className="text-muted-foreground">kontakt@kanzleistelle24.de</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4 p-6 bg-secondary/50 rounded-xl">
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                      <Phone className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-foreground mb-1">Telefon</h4>
+                      <p className="text-muted-foreground">+49 (0) 123 456 789</p>
+                      <p className="text-sm text-muted-foreground">Mo-Fr 9:00 - 18:00 Uhr</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Trust badges */}
+                <div className="pt-8 border-t">
+                  <h4 className="font-semibold text-foreground mb-4">Vertrauen Sie auf:</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-primary" />
+                      <span className="text-muted-foreground">Spezialisiert auf die Steuerbranche</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-primary" />
+                      <span className="text-muted-foreground">Persönlich geprüfte Kandidaten</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-primary" />
+                      <span className="text-muted-foreground">Diskrete und professionelle Vermittlung</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
