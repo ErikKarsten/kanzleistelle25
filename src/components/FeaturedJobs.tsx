@@ -4,8 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MapPin, Clock, Star, Building2 } from "lucide-react";
- import { Send } from "lucide-react";
+import { MapPin, Clock, Star, Building2, Send, Zap } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
 import type { Tables } from "@/integrations/supabase/types";
@@ -132,13 +131,19 @@ const FeaturedJobs = () => {
                   <p className="text-sm text-muted-foreground line-clamp-2">
                     {job.description}
                   </p>
-                   <Button 
-                     className="w-full mt-3"
-                     onClick={() => setSelectedJob(job)}
-                   >
-                     <Send className="h-4 w-4" />
-                     Jetzt bewerben
-                   </Button>
+                  <div className="flex flex-col gap-2 mt-3">
+                    <Button 
+                      className="w-full"
+                      onClick={() => setSelectedJob(job)}
+                    >
+                      <Send className="h-4 w-4" />
+                      Jetzt bewerben
+                    </Button>
+                    <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
+                      <Zap className="h-3 w-3 text-primary" />
+                      <span>Nur 30 Sek.</span>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             ))}

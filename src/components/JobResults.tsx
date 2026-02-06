@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
- import { MapPin, Clock, Building2, Send } from "lucide-react";
+ import { MapPin, Clock, Building2, Send, Zap } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
 import type { Tables } from "@/integrations/supabase/types";
@@ -153,14 +153,18 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
                       </p>
                     </CardContent>
                   </div>
-                  <div className="px-6 pb-4 md:pb-0 md:pr-6">
-                     <Button 
-                       className="w-full md:w-auto"
-                       onClick={() => setSelectedJob(job)}
-                     >
-                       <Send className="h-4 w-4" />
-                       Jetzt bewerben
+                  <div className="px-6 pb-4 md:pb-0 md:pr-6 flex flex-col gap-2">
+                    <Button 
+                      className="w-full md:w-auto"
+                      onClick={() => setSelectedJob(job)}
+                    >
+                      <Send className="h-4 w-4" />
+                      Jetzt bewerben
                     </Button>
+                    <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
+                      <Zap className="h-3 w-3 text-primary" />
+                      <span>Nur 30 Sek.</span>
+                    </div>
                   </div>
                 </div>
               </Card>
