@@ -25,7 +25,16 @@ import {
   Phone,
   Calendar,
   Loader2,
+  FileText,
+  Download,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import EmployerJobModal from "@/components/employer/EmployerJobModal";
@@ -121,6 +130,28 @@ const EmployerDashboard = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employer-jobs"] });
+    },
+  });
+
+  // Update application status
+  const updateApplicationStatusMutation = useMutation({
+    mutationFn: async ({ appId, status }: { appId: string; status: string }) => {
+      const { error } = await supabase
+        .from("applications")
+        .update({ status, updated_at: new Date().toISOString() })
+        .eq("id", appId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employer-applications"] });
+      toast({ title: "Status aktualisiert!" });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Fehler",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
@@ -322,26 +353,37 @@ const EmployerDashboard = () => {
                           key={app.id}
                           className="p-4 border rounded-lg hover:bg-secondary/50 transition-colors"
                         >
-                          <div className="flex items-start justify-between">
-                            <div>
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1 min-w-0">
                               <h3 className="font-semibold text-foreground">
                                 {app.first_name} {app.last_name}
                               </h3>
                               <p className="text-sm text-primary mt-1">
                                 {(app as any).jobs?.title || "Unbekannte Stelle"}
                               </p>
-                              <div className="flex items-center gap-4 text-sm text-muted-foreground mt-2">
+                              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mt-2">
                                 {app.email && (
-                                  <span className="flex items-center gap-1">
+                                  <a href={`mailto:${app.email}`} className="flex items-center gap-1 hover:text-primary">
                                     <Mail className="h-3 w-3" />
                                     {app.email}
-                                  </span>
+                                  </a>
                                 )}
                                 {app.phone && (
-                                  <span className="flex items-center gap-1">
+                                  <a href={`tel:${app.phone}`} className="flex items-center gap-1 hover:text-primary">
                                     <Phone className="h-3 w-3" />
                                     {app.phone}
-                                  </span>
+                                  </a>
+                                )}
+                                {app.resume_url && (
+                                  <a
+                                    href={app.resume_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-1 hover:text-primary"
+                                  >
+                                    <FileText className="h-3 w-3" />
+                                    Lebenslauf
+                                  </a>
                                 )}
                               </div>
                               {app.applicant_role && (
@@ -349,27 +391,35 @@ const EmployerDashboard = () => {
                                   {app.applicant_role}
                                 </Badge>
                               )}
+                              {app.experience && (
+                                <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                                  <span className="font-medium">Erfahrung:</span> {app.experience}
+                                </p>
+                              )}
                             </div>
-                            <div className="text-right">
-                              <Badge
-                                variant={
-                                  app.status === "pending"
-                                    ? "outline"
-                                    : app.status === "accepted"
-                                    ? "default"
-                                    : "secondary"
+                            <div className="flex flex-col items-end gap-2">
+                              <Select
+                                value={app.status || "pending"}
+                                onValueChange={(value) =>
+                                  updateApplicationStatusMutation.mutate({
+                                    appId: app.id,
+                                    status: value,
+                                  })
                                 }
                               >
-                                {app.status === "pending"
-                                  ? "Neu"
-                                  : app.status === "accepted"
-                                  ? "Angenommen"
-                                  : app.status === "rejected"
-                                  ? "Abgelehnt"
-                                  : app.status}
-                              </Badge>
+                                <SelectTrigger className="w-[140px]">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="pending">Neu</SelectItem>
+                                  <SelectItem value="reviewing">In Prüfung</SelectItem>
+                                  <SelectItem value="interview">Vorstellungsgespräch</SelectItem>
+                                  <SelectItem value="accepted">Angenommen</SelectItem>
+                                  <SelectItem value="rejected">Abgelehnt</SelectItem>
+                                </SelectContent>
+                              </Select>
                               {app.created_at && (
-                                <p className="text-xs text-muted-foreground mt-2">
+                                <p className="text-xs text-muted-foreground">
                                   <Calendar className="h-3 w-3 inline mr-1" />
                                   {format(new Date(app.created_at), "dd. MMM yyyy", {
                                     locale: de,
