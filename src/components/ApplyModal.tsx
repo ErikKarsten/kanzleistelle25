@@ -6,14 +6,28 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, Send, Upload, FileText, X } from "lucide-react";
+import { 
+  Loader2, 
+  Send, 
+  ChevronLeft, 
+  ChevronRight,
+  Calculator,
+  Scale,
+  BookOpen,
+  Users,
+  Clock,
+  Briefcase,
+  Award,
+  Star,
+  CheckCircle2
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface ApplyModalProps {
   open: boolean;
@@ -23,7 +37,39 @@ interface ApplyModalProps {
   company: string;
 }
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const roles = [
+  { 
+    id: "steuerfachangestellte", 
+    label: "Steuerfachangestellte*r", 
+    sublabel: "(m/w/d)",
+    icon: Calculator 
+  },
+  { 
+    id: "steuerberater", 
+    label: "Steuerberater*in", 
+    sublabel: "(m/w/d)",
+    icon: Scale 
+  },
+  { 
+    id: "bilanzbuchhalter", 
+    label: "Finanz/Bilanzbuchhalter*in", 
+    sublabel: "(m/w/d)",
+    icon: BookOpen 
+  },
+  { 
+    id: "sonstige", 
+    label: "Sonstige", 
+    sublabel: "",
+    icon: Users 
+  },
+];
+
+const experienceLevels = [
+  { id: "0-1", label: "0-1 Jahre", icon: Clock },
+  { id: "2-3", label: "2-3 Jahre", icon: Briefcase },
+  { id: "4-6", label: "4-6 Jahre", icon: Award },
+  { id: "7+", label: "7+ Jahre", icon: Star },
+];
 
 const ApplyModal = ({
   open,
@@ -33,114 +79,58 @@ const ApplyModal = ({
   company,
 }: ApplyModalProps) => {
   const queryClient = useQueryClient();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
+    role: "",
+    experience: "",
     firstName: "",
     lastName: "",
     email: "",
     phone: "",
   });
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (file.type !== "application/pdf") {
-      toast({
-        title: "Ungültiges Dateiformat",
-        description: "Bitte laden Sie nur PDF-Dateien hoch.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (file.size > MAX_FILE_SIZE) {
-      toast({
-        title: "Datei zu groß",
-        description: "Die maximale Dateigröße beträgt 5MB.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setSelectedFile(file);
+  const resetForm = () => {
+    setCurrentStep(1);
+    setFormData({
+      role: "",
+      experience: "",
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+    });
   };
 
-  const removeFile = () => {
-    setSelectedFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      resetForm();
     }
-  };
-
-  const uploadResume = async (file: File): Promise<string | null> => {
-    const fileExt = file.name.split(".").pop();
-    const fileName = `${crypto.randomUUID()}.${fileExt}`;
-    const filePath = `${jobId}/${fileName}`;
-
-    setIsUploading(true);
-    setUploadProgress(10);
-
-    const { error: uploadError } = await supabase.storage
-      .from("resumes")
-      .upload(filePath, file, {
-        cacheControl: "3600",
-        upsert: false,
-      });
-
-    setUploadProgress(70);
-
-    if (uploadError) {
-      console.error("Upload error:", uploadError);
-      throw new Error("Datei konnte nicht hochgeladen werden.");
-    }
-
-    const { data: urlData } = supabase.storage
-      .from("resumes")
-      .getPublicUrl(filePath);
-
-    setUploadProgress(100);
-    return urlData.publicUrl;
+    onOpenChange(open);
   };
 
   const mutation = useMutation({
     mutationFn: async () => {
-      let resumeUrl: string | null = null;
-
-      if (selectedFile) {
-        resumeUrl = await uploadResume(selectedFile);
-      }
-
       const { error } = await supabase.from("applications").insert({
         job_id: jobId,
         first_name: formData.firstName.trim(),
         last_name: formData.lastName.trim(),
         email: formData.email.trim(),
         phone: formData.phone.trim() || null,
-        resume_url: resumeUrl,
+        cover_letter: `Rolle: ${formData.role}, Erfahrung: ${formData.experience}`,
         applicant_id: null,
       });
       if (error) throw error;
     },
     onSuccess: () => {
       toast({
-        title: "Bewerbung gesendet!",
+        title: "Bewerbung gesendet! 🎉",
         description: `Ihre Bewerbung bei ${company} wurde erfolgreich übermittelt.`,
       });
       queryClient.invalidateQueries({ queryKey: ["applications"] });
-      setFormData({ firstName: "", lastName: "", email: "", phone: "" });
-      setSelectedFile(null);
-      setUploadProgress(0);
-      setIsUploading(false);
-      onOpenChange(false);
+      handleOpenChange(false);
     },
     onError: (error) => {
       console.error("Application error:", error);
-      setIsUploading(false);
-      setUploadProgress(0);
       toast({
         title: "Fehler",
         description: "Bewerbung konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
@@ -162,146 +152,269 @@ const ApplyModal = ({
     mutation.mutate();
   };
 
+  const canProceedToStep2 = formData.role !== "";
+  const canProceedToStep3 = formData.experience !== "";
+
+  const progressPercent = ((currentStep - 1) / 2) * 100;
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="text-xl">Express-Bewerbung</DialogTitle>
-          <DialogDescription className="text-muted-foreground">
-            Bewerben Sie sich jetzt bei <span className="font-medium text-foreground">{company}</span> als{" "}
-            <span className="font-medium text-foreground">{jobTitle}</span>
-          </DialogDescription>
-        </DialogHeader>
-
-        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="firstName">Vorname *</Label>
-              <Input
-                id="firstName"
-                placeholder="Max"
-                value={formData.firstName}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, firstName: e.target.value }))
-                }
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="lastName">Nachname *</Label>
-              <Input
-                id="lastName"
-                placeholder="Mustermann"
-                value={formData.lastName}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, lastName: e.target.value }))
-                }
-                required
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="email">E-Mail *</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="max.mustermann@beispiel.de"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, email: e.target.value }))
-              }
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="phone">Telefon (optional)</Label>
-            <Input
-              id="phone"
-              type="tel"
-              placeholder="+49 123 456789"
-              value={formData.phone}
-              onChange={(e) =>
-                setFormData((prev) => ({ ...prev, phone: e.target.value }))
-              }
-            />
-          </div>
-
-          {/* PDF Upload Section */}
-          <div className="space-y-2">
-            <Label>Lebenslauf (PDF, max. 5MB)</Label>
-            {!selectedFile ? (
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-colors"
-              >
-                <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                <p className="text-sm text-muted-foreground">
-                  Klicken Sie hier, um eine PDF-Datei hochzuladen
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Maximal 5MB
-                </p>
-              </div>
-            ) : (
-              <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border">
-                <FileText className="h-8 w-8 text-primary flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{selectedFile.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                  </p>
-                </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={removeFile}
-                  className="flex-shrink-0"
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="sm:max-w-lg p-0 overflow-hidden">
+        {/* Header with progress */}
+        <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-6 pb-8">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-center text-primary-foreground">
+              In 30 Sekunden bewerben
+            </DialogTitle>
+            <p className="text-center text-primary-foreground/90 text-sm mt-2">
+              Ohne Anschreiben, ohne Lebenslauf
+            </p>
+          </DialogHeader>
+          
+          {/* Step indicators */}
+          <div className="flex items-center justify-center gap-2 mt-6">
+            {[1, 2, 3].map((step) => (
+              <div key={step} className="flex items-center">
+                <div 
+                  className={cn(
+                    "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all",
+                    currentStep >= step 
+                      ? "bg-white text-primary" 
+                      : "bg-primary-foreground/20 text-primary-foreground/60"
+                  )}
                 >
-                  <X className="h-4 w-4" />
-                </Button>
+                  {currentStep > step ? (
+                    <CheckCircle2 className="h-5 w-5" />
+                  ) : (
+                    step
+                  )}
+                </div>
+                {step < 3 && (
+                  <div 
+                    className={cn(
+                      "w-12 h-1 mx-1 rounded transition-all",
+                      currentStep > step 
+                        ? "bg-white" 
+                        : "bg-primary-foreground/20"
+                    )}
+                  />
+                )}
               </div>
-            )}
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="application/pdf"
-              onChange={handleFileSelect}
-              className="hidden"
-            />
+            ))}
           </div>
+        </div>
 
-          {/* Upload Progress */}
-          {isUploading && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Wird hochgeladen...</span>
-                <span className="font-medium">{uploadProgress}%</span>
+        <div className="p-6 -mt-4 bg-background rounded-t-2xl relative">
+          {/* Step 1: Role Selection */}
+          {currentStep === 1 && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-center text-foreground">
+                Was ist deine aktuelle Rolle?
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                {roles.map((role) => {
+                  const Icon = role.icon;
+                  const isSelected = formData.role === role.id;
+                  return (
+                    <button
+                      key={role.id}
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, role: role.id }))}
+                      className={cn(
+                        "flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all hover:shadow-md",
+                        isSelected 
+                          ? "border-primary bg-primary/5 shadow-md" 
+                          : "border-border hover:border-primary/50"
+                      )}
+                    >
+                      <div className={cn(
+                        "w-12 h-12 rounded-full flex items-center justify-center mb-3 transition-colors",
+                        isSelected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                      )}>
+                        <Icon className="h-6 w-6" />
+                      </div>
+                      <span className="text-sm font-medium text-center text-foreground">{role.label}</span>
+                      {role.sublabel && (
+                        <span className="text-xs text-muted-foreground">{role.sublabel}</span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
-              <Progress value={uploadProgress} className="h-2" />
+              <Button 
+                onClick={() => setCurrentStep(2)} 
+                disabled={!canProceedToStep2}
+                className="w-full mt-4"
+                size="lg"
+              >
+                Weiter
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
             </div>
           )}
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={mutation.isPending}
-          >
-            {mutation.isPending ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Wird gesendet...
-              </>
-            ) : (
-              <>
-                <Send className="h-4 w-4" />
-                Jetzt bewerben
-              </>
-            )}
-          </Button>
-        </form>
+          {/* Step 2: Experience */}
+          {currentStep === 2 && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-center text-foreground">
+                Wie viel Berufserfahrung bringst du mit?
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
+                {experienceLevels.map((level) => {
+                  const Icon = level.icon;
+                  const isSelected = formData.experience === level.id;
+                  return (
+                    <button
+                      key={level.id}
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, experience: level.id }))}
+                      className={cn(
+                        "flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all hover:shadow-md",
+                        isSelected 
+                          ? "border-primary bg-primary/5 shadow-md" 
+                          : "border-border hover:border-primary/50"
+                      )}
+                    >
+                      <div className={cn(
+                        "w-12 h-12 rounded-full flex items-center justify-center mb-3 transition-colors",
+                        isSelected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                      )}>
+                        <Icon className="h-6 w-6" />
+                      </div>
+                      <span className="text-sm font-medium text-foreground">{level.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="flex gap-3 mt-4">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setCurrentStep(1)}
+                  className="flex-1"
+                  size="lg"
+                >
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  Zurück
+                </Button>
+                <Button 
+                  onClick={() => setCurrentStep(3)} 
+                  disabled={!canProceedToStep3}
+                  className="flex-1"
+                  size="lg"
+                >
+                  Weiter
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Contact Info */}
+          {currentStep === 3 && (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <h3 className="text-lg font-semibold text-center text-foreground">
+                Fast geschafft! Wie können wir dich erreichen?
+              </h3>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">Vorname *</Label>
+                  <Input
+                    id="firstName"
+                    placeholder="Max"
+                    value={formData.firstName}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, firstName: e.target.value }))
+                    }
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Nachname *</Label>
+                  <Input
+                    id="lastName"
+                    placeholder="Mustermann"
+                    value={formData.lastName}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, lastName: e.target.value }))
+                    }
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email">E-Mail *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="max.mustermann@beispiel.de"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, email: e.target.value }))
+                  }
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone">Telefon (optional)</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="+49 123 456789"
+                  value={formData.phone}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, phone: e.target.value }))
+                  }
+                />
+              </div>
+
+              <div className="bg-muted/50 rounded-lg p-3 text-sm text-muted-foreground">
+                <p className="font-medium text-foreground mb-1">Deine Auswahl:</p>
+                <p>Rolle: {roles.find(r => r.id === formData.role)?.label}</p>
+                <p>Erfahrung: {experienceLevels.find(e => e.id === formData.experience)?.label}</p>
+              </div>
+
+              <div className="flex gap-3">
+                <Button 
+                  type="button"
+                  variant="outline" 
+                  onClick={() => setCurrentStep(2)}
+                  className="flex-1"
+                  size="lg"
+                >
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  Zurück
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex-1"
+                  size="lg"
+                  disabled={mutation.isPending}
+                >
+                  {mutation.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Wird gesendet...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4" />
+                      Jetzt bewerben
+                    </>
+                  )}
+                </Button>
+              </div>
+            </form>
+          )}
+
+          {/* Job info footer */}
+          <div className="mt-6 pt-4 border-t text-center text-sm text-muted-foreground">
+            Bewerbung für <span className="font-medium text-foreground">{jobTitle}</span> bei{" "}
+            <span className="font-medium text-foreground">{company}</span>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
