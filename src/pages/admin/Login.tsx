@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Lock, Mail, Ship } from "lucide-react";
+import { Loader2, Lock, Mail, Briefcase } from "lucide-react";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -65,7 +65,7 @@ const AdminLogin = () => {
         {/* Logo/Brand */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-primary/10 mb-4 hover:bg-primary/20 transition-colors">
-            <Ship className="h-8 w-8 text-primary" />
+            <Briefcase className="h-8 w-8 text-primary" />
           </Link>
           <h1 className="text-2xl font-bold text-foreground">Kanzleistelle24</h1>
           <p className="text-muted-foreground">Admin-Bereich</p>
