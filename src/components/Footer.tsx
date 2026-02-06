@@ -25,13 +25,8 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/karriere-tipps" className="text-muted-foreground hover:text-primary">
-                  Karriere-Tipps
-                </Link>
-              </li>
-              <li>
-                <Link to="/gehaltsrechner" className="text-muted-foreground hover:text-primary">
-                  Gehaltsrechner
+                <Link to="/karrieretipps" className="text-muted-foreground hover:text-primary">
+                  Karrieretipps
                 </Link>
               </li>
             </ul>
@@ -41,17 +36,12 @@ const Footer = () => {
             <h4 className="font-semibold text-foreground mb-4">Für Arbeitgeber</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link to="/job-inserieren" className="text-muted-foreground hover:text-primary">
-                  Job inserieren
+                <Link to="/fuer-arbeitgeber" className="text-muted-foreground hover:text-primary">
+                  Talente finden
                 </Link>
               </li>
               <li>
-                <Link to="/preise" className="text-muted-foreground hover:text-primary">
-                  Preise
-                </Link>
-              </li>
-              <li>
-                <Link to="/arbeitgeber" className="text-muted-foreground hover:text-primary">
+                <Link to="/loesungen" className="text-muted-foreground hover:text-primary">
                   Lösungen
                 </Link>
               </li>

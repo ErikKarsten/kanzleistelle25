@@ -10,6 +10,10 @@ import AdminApplications from "./pages/AdminApplications";
 import AdminDashboardLegacy from "./pages/AdminDashboard";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminLogin from "./pages/admin/Login";
+import Karrieretipps from "./pages/Karrieretipps";
+import Loesungen from "./pages/Loesungen";
+import FuerArbeitgeber from "./pages/FuerArbeitgeber";
+import UeberUns from "./pages/UeberUns";
 
 const queryClient = new QueryClient();
 
@@ -21,6 +25,12 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/karrieretipps" element={<Karrieretipps />} />
+          <Route path="/karriere-tipps" element={<Karrieretipps />} />
+          <Route path="/loesungen" element={<Loesungen />} />
+          <Route path="/fuer-arbeitgeber" element={<FuerArbeitgeber />} />
+          <Route path="/arbeitgeber" element={<FuerArbeitgeber />} />
+          <Route path="/ueber-uns" element={<UeberUns />} />
           <Route path="/admin-upload" element={<AdminUpload />} />
           <Route path="/admin-applications" element={<AdminApplications />} />
           <Route path="/admin-dashboard" element={<AdminDashboardLegacy />} />

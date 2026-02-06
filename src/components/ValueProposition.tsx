@@ -18,7 +18,7 @@ const ValueProposition = () => {
               Kostenlos registrieren
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-            <Button size="lg" variant="outline" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">
+            <Button size="lg" variant="secondary" className="bg-background text-primary hover:bg-background/90 font-semibold">
               Für Arbeitgeber
             </Button>
           </div>

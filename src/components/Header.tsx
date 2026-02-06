@@ -19,8 +19,14 @@ const Header = () => {
           <Link to="/" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
             Stellenangebote
           </Link>
-          <Link to="/arbeitgeber" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+          <Link to="/loesungen" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+            Lösungen
+          </Link>
+          <Link to="/fuer-arbeitgeber" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
             Für Arbeitgeber
+          </Link>
+          <Link to="/karrieretipps" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
+            Karrieretipps
           </Link>
           <Link to="/ueber-uns" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
             Über uns
@@ -32,8 +38,8 @@ const Header = () => {
             <User className="h-4 w-4 mr-2" />
             Anmelden
           </Button>
-          <Button size="sm">
-            Job inserieren
+          <Button size="sm" className="bg-background text-primary border-2 border-primary hover:bg-primary hover:text-primary-foreground" asChild>
+            <Link to="/fuer-arbeitgeber">Für Arbeitgeber</Link>
           </Button>
         </div>
 
@@ -59,11 +65,25 @@ const Header = () => {
               Stellenangebote
             </Link>
             <Link 
-              to="/arbeitgeber" 
+              to="/loesungen" 
+              className="text-sm font-medium text-foreground hover:text-primary"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Lösungen
+            </Link>
+            <Link 
+              to="/fuer-arbeitgeber" 
               className="text-sm font-medium text-foreground hover:text-primary"
               onClick={() => setIsMenuOpen(false)}
             >
               Für Arbeitgeber
+            </Link>
+            <Link 
+              to="/karrieretipps" 
+              className="text-sm font-medium text-foreground hover:text-primary"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Karrieretipps
             </Link>
             <Link 
               to="/ueber-uns" 
@@ -77,8 +97,10 @@ const Header = () => {
                 <User className="h-4 w-4 mr-2" />
                 Anmelden
               </Button>
-              <Button size="sm" className="w-full">
-                Job inserieren
+              <Button size="sm" className="w-full" asChild>
+                <Link to="/fuer-arbeitgeber" onClick={() => setIsMenuOpen(false)}>
+                  Für Arbeitgeber
+                </Link>
               </Button>
             </div>
           </nav>
