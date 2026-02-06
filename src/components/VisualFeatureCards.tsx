@@ -9,17 +9,17 @@ const features = [
   {
     image: candidateLaptopImage,
     title: "Für Kandidaten",
-    subtitle: "Dein Traumjob wartet",
-    description: "Entdecke spannende Karrieremöglichkeiten in der Rechtsbranche.",
+    subtitle: "Dein Traumjob in der Steuerwelt",
+    description: "Entdecke spannende Karrieremöglichkeiten mit DATEV-Expertise und echter Kanzleikultur.",
     buttonText: "Jobs entdecken",
     buttonAction: "jobs",
     highlight: false,
   },
   {
     image: teamMeetingImage,
-    title: "Für Kanzleien",
-    subtitle: "Finden Sie Ihre Spezialisten",
-    description: "Erreichen Sie qualifizierte Fachkräfte für Ihre Kanzlei.",
+    title: "Für Steuerkanzleien",
+    subtitle: "Finden Sie Ihre Experten",
+    description: "Erreichen Sie qualifizierte Fachkräfte für Mandantenbetreuung und Buchhaltung.",
     buttonText: "Talente finden",
     buttonAction: "employer",
     highlight: false,
@@ -28,7 +28,7 @@ const features = [
     image: quickApplyImage,
     title: "So einfach geht's",
     subtitle: "Schnell. Diskret. Erfolgreich.",
-    description: "In nur 30 Sekunden bewerben – ganz ohne Lebenslauf.",
+    description: "In nur 30 Sekunden bewerben – ganz ohne Lebenslauf oder Anschreiben.",
     buttonText: "Jetzt starten",
     buttonAction: "apply",
     highlight: true,
@@ -52,11 +52,11 @@ const VisualFeatureCards = ({ onScrollToJobs }: VisualFeatureCardsProps) => {
       <div className="container">
         <div className="text-center mb-12">
           <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-            Ihre Karriere startet hier
+            Deine Karriere in der Steuerwelt startet hier
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Ob Sie Ihren Traumjob suchen oder Top-Talente für Ihre Kanzlei finden möchten – 
-            wir verbinden die besten Köpfe der Rechtsbranche.
+            Ob du deinen Traumjob suchst oder Top-Talente für deine Steuerkanzlei finden möchtest – 
+            wir verbinden die besten Köpfe der Branche.
           </p>
         </div>
 

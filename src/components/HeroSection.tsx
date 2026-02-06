@@ -41,18 +41,17 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
       <div className="container relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-6">
-            Finden Sie Ihren{" "}
-            <span className="text-primary">Traumjob</span>{" "}
-            in der Rechtsbranche
+            Dein Karrierestützpunkt{" "}
+            <span className="text-primary">in der Steuerwelt</span>
           </h1>
           <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold">
+            <div className="inline-flex items-center gap-2 bg-featured/20 text-featured px-4 py-2 rounded-full text-sm font-semibold border border-featured/30">
               <Zap className="h-4 w-4" />
               In nur 30 Sekunden bewerben – ohne Lebenslauf, ohne Anschreiben
             </div>
           </div>
           <p className="text-lg md:text-xl text-muted-foreground mb-10">
-            Die führende Jobbörse für Rechtsanwaltsfachangestellte, Juristen und Kanzleimitarbeiter in Deutschland.
+            Finde exklusive Positionen in Top-Steuerkanzleien – diskret, schnell und ohne Anschreiben.
           </p>
 
           <form onSubmit={handleSubmit} className="bg-card rounded-xl shadow-lg p-4 md:p-6">
@@ -61,7 +60,7 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   type="text"
-                  placeholder="Jobtitel, Stichwort..."
+                  placeholder="Was suchst du? (z.B. Lohnbuchhalter)"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className="pl-10 h-12"
@@ -71,7 +70,7 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                 <Input
                   type="text"
-                  placeholder="Stadt oder PLZ"
+                  placeholder="Wo?"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   className="pl-10 h-12"
@@ -100,31 +99,31 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <span className="text-sm text-muted-foreground">Beliebte Suchen:</span>
             <button 
-              onClick={() => onSearch({ title: "Rechtsanwaltsfachangestellte", location: "" })}
+              onClick={() => onSearch({ title: "Steuerfachangestellte", location: "" })}
               className="text-sm text-primary hover:underline"
             >
-              Rechtsanwaltsfachangestellte
+              Steuerfachangestellte
             </button>
             <span className="text-muted-foreground">•</span>
             <button 
-              onClick={() => onSearch({ title: "Notar", location: "" })}
+              onClick={() => onSearch({ title: "Lohnbuchhalter", location: "" })}
               className="text-sm text-primary hover:underline"
             >
-              Notar
+              Lohnbuchhalter
             </button>
             <span className="text-muted-foreground">•</span>
             <button 
-              onClick={() => onSearch({ title: "", location: "Berlin" })}
+              onClick={() => onSearch({ title: "Bilanzbuchhalter", location: "" })}
               className="text-sm text-primary hover:underline"
             >
-              Berlin
+              Bilanzbuchhalter
             </button>
             <span className="text-muted-foreground">•</span>
             <button 
-              onClick={() => onSearch({ title: "", location: "München" })}
+              onClick={() => onSearch({ title: "DATEV", location: "" })}
               className="text-sm text-primary hover:underline"
             >
-              München
+              DATEV
             </button>
           </div>
         </div>

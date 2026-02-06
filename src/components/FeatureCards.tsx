@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Zap, Search, Building, Users } from "lucide-react";
+import { Zap, Search, Building, Calculator } from "lucide-react";
 
 const features = [
   {
@@ -9,19 +9,19 @@ const features = [
     highlight: true,
   },
   {
-    icon: Search,
-    title: "Einfache Suche",
-    description: "Finden Sie schnell passende Stellen mit unserer intelligenten Suchfunktion.",
+    icon: Calculator,
+    title: "DATEV-Expertise",
+    description: "Finden Sie Positionen, die Ihre DATEV-Kenntnisse wertschätzen und fördern.",
   },
   {
     icon: Building,
-    title: "Top Kanzleien",
-    description: "Zugang zu exklusiven Stellenangeboten führender Kanzleien in ganz Deutschland.",
+    title: "Top Steuerkanzleien",
+    description: "Zugang zu exklusiven Stellenangeboten führender Kanzleien mit moderner Kanzleikultur.",
   },
   {
-    icon: Users,
-    title: "Persönliche Betreuung",
-    description: "Unser Team unterstützt Sie bei Ihrer Karriereplanung in der Rechtsbranche.",
+    icon: Search,
+    title: "Mandantenbetreuung",
+    description: "Entdecken Sie Positionen mit direktem Mandantenkontakt und Entwicklungsperspektiven.",
   },
 ];
 
@@ -31,10 +31,10 @@ const FeatureCards = () => {
       <div className="container">
         <div className="text-center mb-12">
           <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-            Warum Kanzleistelle?
+            Warum Kanzleistelle24?
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Wir verbinden qualifizierte Fachkräfte mit den besten Arbeitgebern der Rechtsbranche.
+            Wir verbinden qualifizierte Steuerfachkräfte mit den besten Kanzleien Deutschlands.
           </p>
         </div>
 
