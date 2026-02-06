@@ -7,7 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Eye, FileText } from "lucide-react";
+import { FileText } from "lucide-react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import StatusSelect from "./StatusSelect";
@@ -82,13 +82,18 @@ const ApplicationsTable = ({ applications, onViewDetails }: ApplicationsTablePro
         <TableBody>
           {applications.map((app) => (
             <TableRow key={app.id} className="hover:bg-muted/30">
-              <TableCell className="font-medium">
-                {app.first_name} {app.last_name}
+              <TableCell>
+                <button
+                  onClick={() => onViewDetails(app)}
+                  className="font-medium text-primary hover:underline text-left"
+                >
+                  {app.first_name} {app.last_name}
+                </button>
               </TableCell>
               <TableCell>
                 <a
                   href={`mailto:${app.email}`}
-                  className="text-primary hover:underline"
+                  className="text-muted-foreground hover:text-primary hover:underline"
                 >
                   {app.email}
                 </a>
@@ -131,14 +136,6 @@ const ApplicationsTable = ({ applications, onViewDetails }: ApplicationsTablePro
                       <FileText className="h-4 w-4" />
                     </Button>
                   )}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onViewDetails(app)}
-                  >
-                    <Eye className="h-4 w-4 mr-1" />
-                    Details
-                  </Button>
                 </div>
               </TableCell>
             </TableRow>
