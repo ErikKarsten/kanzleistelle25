@@ -5,7 +5,7 @@ import VisualFeatureCards from "@/components/VisualFeatureCards";
 import FeaturedJobs from "@/components/FeaturedJobs";
 import FeatureCards from "@/components/FeatureCards";
 import JobResults from "@/components/JobResults";
-import RegionalJobs from "@/components/RegionalJobs";
+
 import WhyKanzleistelle from "@/components/WhyKanzleistelle";
 import ValueProposition from "@/components/ValueProposition";
 import Footer from "@/components/Footer";
@@ -53,7 +53,7 @@ const Index = () => {
           <JobResults searchFilters={searchFilters} />
         </div>
 
-        <RegionalJobs />
+        
         <WhyKanzleistelle />
         <ValueProposition />
       </main>
