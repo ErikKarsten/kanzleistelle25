@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,10 +64,10 @@ const AdminLogin = () => {
       <div className="w-full max-w-md">
         {/* Logo/Brand */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-primary/10 mb-4">
+          <Link to="/" className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-primary/10 mb-4 hover:bg-primary/20 transition-colors">
             <Ship className="h-8 w-8 text-primary" />
-          </div>
-          <h1 className="text-2xl font-bold text-foreground">Kanzleihafen</h1>
+          </Link>
+          <h1 className="text-2xl font-bold text-foreground">Kanzleistelle24</h1>
           <p className="text-muted-foreground">Admin-Bereich</p>
         </div>
 
@@ -94,7 +94,7 @@ const AdminLogin = () => {
                   <Input
                     id="email"
                     type="email"
-                    placeholder="admin@kanzleihafen.de"
+                    placeholder="admin@kanzleistelle24.de"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10"

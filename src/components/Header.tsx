@@ -11,7 +11,7 @@ const Header = () => {
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
           <Briefcase className="h-8 w-8 text-primary" />
-          <span className="text-xl font-bold text-primary">Kanzleistelle</span>
+          <span className="text-xl font-bold text-primary">Kanzleistelle24</span>
         </Link>
 
         {/* Desktop Navigation */}
