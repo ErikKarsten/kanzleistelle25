@@ -70,7 +70,6 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
                     <SelectValue placeholder="Anstellungsart" />
                   </SelectTrigger>
                   <SelectContent className="bg-popover border shadow-md z-50">
-                    <SelectItem value="all">Alle Anstellungsarten</SelectItem>
                     <SelectItem value="vollzeit">Vollzeit</SelectItem>
                     <SelectItem value="teilzeit">Teilzeit</SelectItem>
                     <SelectItem value="minijob">Minijob</SelectItem>
