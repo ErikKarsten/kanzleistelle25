@@ -14,7 +14,10 @@ import {
   Target,
   Clock,
   Award,
+  Play,
 } from "lucide-react";
+import partnershipImage from "@/assets/partnership-handshake.jpg";
+import teamCollaborationImage from "@/assets/team-collaboration.jpg";
 
 const processSteps = [
   {
@@ -76,50 +79,65 @@ const Loesungen = () => {
       <Header />
 
       <main className="flex-1">
-        {/* Hero Section */}
-        <section className="bg-secondary/30 py-16 md:py-24">
-          <div className="container">
-            <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-6">
-                Recruiting-Lösungen für Steuerkanzleien
+        {/* Hero Section with Image */}
+        <section className="relative py-24 md:py-32 overflow-hidden">
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${teamCollaborationImage})` }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/90 to-primary/80" />
+          <div className="container relative z-10">
+            <div className="max-w-3xl text-primary-foreground">
+              <span className="inline-block bg-background/10 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold mb-6">
+                Recruiting-Lösungen
+              </span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
+                Finden Sie die besten Talente für Ihre Kanzlei
               </h1>
-              <p className="text-lg text-muted-foreground mb-8">
+              <p className="text-xl opacity-90 mb-8">
                 Wir verstehen die Herausforderungen der Branche und liefern passende 
                 Kandidaten für Ihre offenen Positionen – schnell, diskret und qualitätsgeprüft.
               </p>
-              <Button size="lg" asChild>
-                <Link to="/fuer-arbeitgeber">
-                  Jetzt anfragen
-                  <ArrowRight className="h-5 w-5 ml-2" />
-                </Link>
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button size="lg" variant="secondary" className="text-lg" asChild>
+                  <Link to="/fuer-arbeitgeber">
+                    Jetzt anfragen
+                    <ArrowRight className="h-5 w-5 ml-2" />
+                  </Link>
+                </Button>
+                <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 text-lg">
+                  <Play className="h-5 w-5 mr-2" />
+                  So funktioniert's
+                </Button>
+              </div>
             </div>
           </div>
         </section>
 
         {/* Process Section */}
-        <section className="py-16 container">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+        <section className="py-20 container">
+          <div className="text-center mb-14">
+            <span className="text-primary font-semibold text-sm uppercase tracking-wider">In 4 Schritten zum Erfolg</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-2">
               Unser Recruiting-Prozess
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-muted-foreground max-w-2xl mx-auto mt-4">
               Ein strukturierter Prozess für nachhaltige Besetzungen in der Steuerberatung.
             </p>
           </div>
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
             {processSteps.map((step, index) => (
-              <div key={index} className="relative">
-                <Card className="h-full hover:shadow-lg transition-shadow">
+              <div key={index} className="relative group">
+                <Card className="h-full border-0 shadow-lg hover:shadow-xl transition-all duration-300">
                   <CardContent className="pt-8 pb-6">
-                    <div className="text-4xl font-bold text-primary/20 mb-4">
+                    <div className="text-6xl font-black text-primary/10 absolute top-4 right-4">
                       {step.number}
                     </div>
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                      <step.icon className="h-6 w-6 text-primary" />
+                    <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                      <step.icon className="h-7 w-7 text-primary group-hover:text-primary-foreground transition-colors" />
                     </div>
-                    <h3 className="text-lg font-semibold text-foreground mb-2">
+                    <h3 className="text-lg font-bold text-foreground mb-3">
                       {step.title}
                     </h3>
                     <p className="text-sm text-muted-foreground">
@@ -128,8 +146,10 @@ const Loesungen = () => {
                   </CardContent>
                 </Card>
                 {index < processSteps.length - 1 && (
-                  <div className="hidden lg:block absolute top-1/2 -right-4 transform -translate-y-1/2">
-                    <ArrowRight className="h-6 w-6 text-muted-foreground/30" />
+                  <div className="hidden lg:flex absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <ArrowRight className="h-4 w-4 text-primary" />
+                    </div>
                   </div>
                 )}
               </div>
@@ -137,122 +157,149 @@ const Loesungen = () => {
           </div>
         </section>
 
-        {/* Benefits Section */}
-        <section className="py-16 bg-secondary/20">
+        {/* Benefits Section with Image */}
+        <section className="py-20 bg-secondary/20">
           <div className="container">
-            <div className="text-center mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-                Ihre Vorteile
-              </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                Warum Kanzleien mit uns zusammenarbeiten.
-              </p>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {benefits.map((benefit, index) => (
-                <Card key={index} className="text-center border-2 hover:border-primary/50 transition-colors">
-                  <CardContent className="pt-8 pb-6">
-                    <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                      <benefit.icon className="h-7 w-7 text-primary" />
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
+              <div>
+                <span className="text-primary font-semibold text-sm uppercase tracking-wider">Warum Kanzleistelle24</span>
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-2 mb-8">
+                  Ihre Vorteile
+                </h2>
+                <div className="space-y-6">
+                  {benefits.map((benefit, index) => (
+                    <div key={index} className="flex gap-4 p-4 bg-background rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                        <benefit.icon className="h-6 w-6 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-foreground mb-1">
+                          {benefit.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          {benefit.description}
+                        </p>
+                      </div>
                     </div>
-                    <h3 className="font-semibold text-foreground mb-2">
-                      {benefit.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {benefit.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              ))}
+                  ))}
+                </div>
+              </div>
+              <div className="relative">
+                <img 
+                  src={partnershipImage} 
+                  alt="Erfolgreiche Partnerschaft" 
+                  className="rounded-2xl shadow-2xl"
+                />
+                <div className="absolute -bottom-8 -right-8 bg-primary text-primary-foreground p-8 rounded-2xl shadow-xl hidden md:block">
+                  <div className="text-4xl font-black">100%</div>
+                  <div className="text-sm opacity-90">Branchenfokus</div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
         {/* Service Packages */}
-        <section className="py-16 container">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+        <section className="py-20 container">
+          <div className="text-center mb-14">
+            <span className="text-primary font-semibold text-sm uppercase tracking-wider">Passend für jeden Bedarf</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mt-2">
               Unsere Leistungen
             </h2>
           </div>
 
           <div className="grid gap-8 md:grid-cols-3">
-            <Card className="border-2">
-              <CardContent className="pt-8 pb-6">
-                <h3 className="text-xl font-bold text-foreground mb-4">Stellenanzeige</h3>
-                <p className="text-muted-foreground mb-6">
+            <Card className="border-2 hover:border-primary/30 transition-colors">
+              <CardContent className="pt-8 pb-8">
+                <h3 className="text-2xl font-bold text-foreground mb-2">Stellenanzeige</h3>
+                <p className="text-muted-foreground mb-8">
                   Ihre Stelle auf unserer Plattform mit Reichweite in der Steuerbranche.
                 </p>
-                <ul className="space-y-3 mb-6">
-                  <li className="flex items-center gap-2 text-sm">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    30 Tage Laufzeit
+                <ul className="space-y-4 mb-8">
+                  <li className="flex items-center gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                    <span>30 Tage Laufzeit</span>
                   </li>
-                  <li className="flex items-center gap-2 text-sm">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    Express-Bewerbungen
+                  <li className="flex items-center gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                    <span>Express-Bewerbungen</span>
                   </li>
-                  <li className="flex items-center gap-2 text-sm">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    Bewerbermanagement
+                  <li className="flex items-center gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                    <span>Bewerbermanagement</span>
                   </li>
                 </ul>
+                <Button variant="outline" className="w-full">
+                  Mehr erfahren
+                </Button>
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-primary ring-2 ring-primary/20">
-              <CardContent className="pt-8 pb-6">
-                <div className="text-xs font-semibold text-primary mb-2">EMPFOHLEN</div>
-                <h3 className="text-xl font-bold text-foreground mb-4">Active Sourcing</h3>
-                <p className="text-muted-foreground mb-6">
+            <Card className="border-2 border-primary shadow-xl relative">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                <span className="bg-primary text-primary-foreground text-xs font-bold px-4 py-1.5 rounded-full">
+                  EMPFOHLEN
+                </span>
+              </div>
+              <CardContent className="pt-10 pb-8">
+                <h3 className="text-2xl font-bold text-foreground mb-2">Active Sourcing</h3>
+                <p className="text-muted-foreground mb-8">
                   Aktive Kandidatensuche durch unser Recruiting-Team.
                 </p>
-                <ul className="space-y-3 mb-6">
-                  <li className="flex items-center gap-2 text-sm">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    Alle Stellenanzeigen-Features
+                <ul className="space-y-4 mb-8">
+                  <li className="flex items-center gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                    <span>Alle Stellenanzeigen-Features</span>
                   </li>
-                  <li className="flex items-center gap-2 text-sm">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    Direktansprache passender Kandidaten
+                  <li className="flex items-center gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                    <span>Direktansprache passender Kandidaten</span>
                   </li>
-                  <li className="flex items-center gap-2 text-sm">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    Persönliche Beratung
+                  <li className="flex items-center gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                    <span>Persönliche Beratung</span>
                   </li>
                 </ul>
+                <Button className="w-full">
+                  Jetzt anfragen
+                </Button>
               </CardContent>
             </Card>
 
-            <Card className="border-2">
-              <CardContent className="pt-8 pb-6">
-                <h3 className="text-xl font-bold text-foreground mb-4">Executive Search</h3>
-                <p className="text-muted-foreground mb-6">
+            <Card className="border-2 hover:border-primary/30 transition-colors">
+              <CardContent className="pt-8 pb-8">
+                <h3 className="text-2xl font-bold text-foreground mb-2">Executive Search</h3>
+                <p className="text-muted-foreground mb-8">
                   Diskrete Suche nach Führungskräften und Spezialisten.
                 </p>
-                <ul className="space-y-3 mb-6">
-                  <li className="flex items-center gap-2 text-sm">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    Alle Active Sourcing-Features
+                <ul className="space-y-4 mb-8">
+                  <li className="flex items-center gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                    <span>Alle Active Sourcing-Features</span>
                   </li>
-                  <li className="flex items-center gap-2 text-sm">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    Exklusive Kandidatensuche
+                  <li className="flex items-center gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                    <span>Exklusive Kandidatensuche</span>
                   </li>
-                  <li className="flex items-center gap-2 text-sm">
-                    <CheckCircle2 className="h-4 w-4 text-primary" />
-                    Marktanalyse & Beratung
+                  <li className="flex items-center gap-3">
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                    <span>Marktanalyse & Beratung</span>
                   </li>
                 </ul>
+                <Button variant="outline" className="w-full">
+                  Mehr erfahren
+                </Button>
               </CardContent>
             </Card>
           </div>
 
-          <div className="text-center mt-12">
+          <div className="text-center mt-14">
+            <p className="text-muted-foreground mb-6">
+              Nicht sicher, welche Lösung zu Ihnen passt?
+            </p>
             <Button size="lg" asChild>
               <Link to="/fuer-arbeitgeber">
-                Unverbindlich anfragen
+                Unverbindlich beraten lassen
                 <ArrowRight className="h-5 w-5 ml-2" />
               </Link>
             </Button>
