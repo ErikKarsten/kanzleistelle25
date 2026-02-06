@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -10,7 +10,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
 import { toast } from "@/hooks/use-toast";
 import { 
   Loader2, 
@@ -28,6 +27,7 @@ import {
   CheckCircle2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import ApplySuccessStep from "./ApplySuccessStep";
 
 interface ApplyModalProps {
   open: boolean;
@@ -84,6 +84,7 @@ const ApplyModal = ({
 }: ApplyModalProps) => {
   const queryClient = useQueryClient();
   const [currentStep, setCurrentStep] = useState(1);
+  const [applicationId, setApplicationId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     role: "",
     experience: "",
@@ -95,6 +96,7 @@ const ApplyModal = ({
 
   const resetForm = () => {
     setCurrentStep(1);
+    setApplicationId(null);
     setFormData({
       role: "",
       experience: "",
@@ -114,7 +116,7 @@ const ApplyModal = ({
 
   const mutation = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.from("applications").insert({
+      const { data, error } = await supabase.from("applications").insert({
         job_id: jobId,
         first_name: formData.firstName.trim(),
         last_name: formData.lastName.trim(),
@@ -122,16 +124,14 @@ const ApplyModal = ({
         phone: formData.phone.trim() || null,
         cover_letter: `Rolle: ${formData.role}, Erfahrung: ${formData.experience}`,
         applicant_id: null,
-      });
+      }).select('id').single();
       if (error) throw error;
+      return data;
     },
-    onSuccess: () => {
-      toast({
-        title: "Bewerbung gesendet! 🎉",
-        description: `Ihre Bewerbung bei ${company} wurde erfolgreich übermittelt.`,
-      });
+    onSuccess: (data) => {
+      setApplicationId(data.id);
+      setCurrentStep(4); // Go to success step
       queryClient.invalidateQueries({ queryKey: ["applications"] });
-      handleOpenChange(false);
     },
     onError: (error) => {
       console.error("Application error:", error);
@@ -164,49 +164,51 @@ const ApplyModal = ({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-lg p-0 overflow-hidden">
-        {/* Header with progress */}
-        <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-6 pb-8">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold text-center text-primary-foreground">
-              In 30 Sekunden bewerben
-            </DialogTitle>
-            <p className="text-center text-primary-foreground/90 text-sm mt-2">
-              Ohne Anschreiben, ohne Lebenslauf
-            </p>
-          </DialogHeader>
-          
-          {/* Step indicators */}
-          <div className="flex items-center justify-center gap-2 mt-6">
-            {[1, 2, 3].map((step) => (
-              <div key={step} className="flex items-center">
-                <div 
-                  className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all",
-                    currentStep >= step 
-                      ? "bg-white text-primary" 
-                      : "bg-primary-foreground/20 text-primary-foreground/60"
-                  )}
-                >
-                  {currentStep > step ? (
-                    <CheckCircle2 className="h-5 w-5" />
-                  ) : (
-                    step
-                  )}
-                </div>
-                {step < 3 && (
+        {/* Header with progress - hide on success step */}
+        {currentStep !== 4 && (
+          <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-6 pb-8">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold text-center text-primary-foreground">
+                In 30 Sekunden bewerben
+              </DialogTitle>
+              <p className="text-center text-primary-foreground/90 text-sm mt-2">
+                Ohne Anschreiben, ohne Lebenslauf
+              </p>
+            </DialogHeader>
+            
+            {/* Step indicators */}
+            <div className="flex items-center justify-center gap-2 mt-6">
+              {[1, 2, 3].map((step) => (
+                <div key={step} className="flex items-center">
                   <div 
                     className={cn(
-                      "w-12 h-1 mx-1 rounded transition-all",
-                      currentStep > step 
-                        ? "bg-white" 
-                        : "bg-primary-foreground/20"
+                      "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all",
+                      currentStep >= step 
+                        ? "bg-white text-primary" 
+                        : "bg-primary-foreground/20 text-primary-foreground/60"
                     )}
-                  />
-                )}
-              </div>
-            ))}
+                  >
+                    {currentStep > step ? (
+                      <CheckCircle2 className="h-5 w-5" />
+                    ) : (
+                      step
+                    )}
+                  </div>
+                  {step < 3 && (
+                    <div 
+                      className={cn(
+                        "w-12 h-1 mx-1 rounded transition-all",
+                        currentStep > step 
+                          ? "bg-white" 
+                          : "bg-primary-foreground/20"
+                      )}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="p-6 -mt-4 bg-background rounded-t-2xl relative">
           {/* Step 1: Role Selection */}
@@ -430,11 +432,23 @@ const ApplyModal = ({
             </form>
           )}
 
-          {/* Job info footer */}
-          <div className="mt-6 pt-4 border-t text-center text-sm text-muted-foreground">
-            Bewerbung für <span className="font-medium text-foreground">{jobTitle}</span> bei{" "}
-            <span className="font-medium text-foreground">{company}</span>
-          </div>
+          {/* Step 4: Success with optional CV upload */}
+          {currentStep === 4 && applicationId && (
+            <ApplySuccessStep
+              firstName={formData.firstName}
+              applicationId={applicationId}
+              company={company}
+              onClose={() => handleOpenChange(false)}
+            />
+          )}
+
+          {/* Job info footer - hide on success step */}
+          {currentStep !== 4 && (
+            <div className="mt-6 pt-4 border-t text-center text-sm text-muted-foreground">
+              Bewerbung für <span className="font-medium text-foreground">{jobTitle}</span> bei{" "}
+              <span className="font-medium text-foreground">{company}</span>
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
