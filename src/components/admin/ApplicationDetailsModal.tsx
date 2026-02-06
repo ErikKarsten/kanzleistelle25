@@ -14,8 +14,21 @@ import {
   Briefcase, 
   Calendar, 
   FileText,
-  ExternalLink
+  ExternalLink,
+  Archive,
+  Trash2
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,6 +46,7 @@ interface ApplicationWithJob {
   resume_url: string | null;
   status: string | null;
   created_at: string | null;
+  is_archived?: boolean;
   jobs: {
     title: string;
     company: string;
@@ -45,6 +59,9 @@ interface ApplicationDetailsModalProps {
   application: ApplicationWithJob | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onArchive?: (id: string) => void;
+  onDelete?: (id: string) => void;
+  isArchived?: boolean;
 }
 
 const statusConfig: Record<string, { label: string; className: string }> = {
@@ -59,6 +76,9 @@ const ApplicationDetailsModal = ({
   application,
   open,
   onOpenChange,
+  onArchive,
+  onDelete,
+  isArchived = false,
 }: ApplicationDetailsModalProps) => {
   if (!application) return null;
 
@@ -209,6 +229,53 @@ const ApplicationDetailsModal = ({
               Lebenslauf öffnen
             </Button>
           )}
+
+          <Separator />
+
+          {/* Action Buttons */}
+          <div className="flex items-center justify-between">
+            <div className="flex gap-2">
+              {onArchive && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => onArchive(application.id)}
+                >
+                  <Archive className="h-4 w-4 mr-1" />
+                  {isArchived ? "Wiederherstellen" : "Archivieren"}
+                </Button>
+              )}
+            </div>
+
+            {onDelete && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="sm">
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Löschen
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Bewerbung löschen?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Diese Aktion kann nicht rückgängig gemacht werden. Die
+                      Bewerbung wird unwiderruflich aus der Datenbank gelöscht.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => onDelete(application.id)}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Endgültig löschen
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>
