@@ -13,10 +13,11 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
- import { Loader2, Upload } from "lucide-react";
- import AdminNav from "@/components/AdminNav";
+import { Loader2, Upload } from "lucide-react";
+import AdminNav from "@/components/AdminNav";
+import AdminAuthGuard from "@/components/AdminAuthGuard";
 
-const AdminUpload = () => {
+const AdminUploadContent = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -184,6 +185,14 @@ const AdminUpload = () => {
         </Card>
       </div>
     </div>
+  );
+};
+
+const AdminUpload = () => {
+  return (
+    <AdminAuthGuard>
+      <AdminUploadContent />
+    </AdminAuthGuard>
   );
 };
 
