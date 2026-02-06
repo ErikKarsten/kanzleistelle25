@@ -21,8 +21,13 @@ const Index = () => {
     employmentType?: string;
   }>({});
 
-  const handleSearch = (filters: { title: string; location: string }) => {
-    setSearchFilters(prev => ({ ...prev, ...filters }));
+  const handleSearch = (filters: { title: string; location: string; employmentType?: string }) => {
+    setSearchFilters(prev => ({ 
+      ...prev, 
+      title: filters.title || undefined,
+      location: filters.location || undefined,
+      employmentType: filters.employmentType 
+    }));
     // Scroll to results
     const resultsSection = document.getElementById("job-results");
     if (resultsSection) {
