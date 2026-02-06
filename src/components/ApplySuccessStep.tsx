@@ -28,6 +28,16 @@ const ApplySuccessStep = ({
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Sanitize filename: remove special characters, keep only alphanumeric, dash, underscore
+  const sanitizeFileName = (name: string): string => {
+    return name
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // Remove accents
+      .replace(/[^a-zA-Z0-9._-]/g, "_") // Replace special chars with underscore
+      .replace(/_+/g, "_") // Collapse multiple underscores
+      .toLowerCase();
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -55,9 +65,9 @@ const ApplySuccessStep = ({
     setIsUploading(true);
 
     try {
-      // Create unique filename
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${applicationId}_${Date.now()}.${fileExt}`;
+      // Create unique, sanitized filename
+      const sanitizedOriginalName = sanitizeFileName(file.name.replace(/\.pdf$/i, ""));
+      const fileName = `${applicationId}_${Date.now()}_${sanitizedOriginalName}.pdf`;
       const filePath = `applications/${fileName}`;
 
       // Upload to Supabase Storage
