@@ -14,6 +14,9 @@ import Karrieretipps from "./pages/Karrieretipps";
 import Loesungen from "./pages/Loesungen";
 import FuerArbeitgeber from "./pages/FuerArbeitgeber";
 import UeberUns from "./pages/UeberUns";
+import RegisterEmployer from "./pages/RegisterEmployer";
+import Login from "./pages/Login";
+import EmployerDashboard from "./pages/EmployerDashboard";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +34,9 @@ const App = () => (
           <Route path="/fuer-arbeitgeber" element={<FuerArbeitgeber />} />
           <Route path="/arbeitgeber" element={<FuerArbeitgeber />} />
           <Route path="/ueber-uns" element={<UeberUns />} />
+          <Route path="/register-employer" element={<RegisterEmployer />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/dashboard" element={<EmployerDashboard />} />
           <Route path="/admin-upload" element={<AdminUpload />} />
           <Route path="/admin-applications" element={<AdminApplications />} />
           <Route path="/admin-dashboard" element={<AdminDashboardLegacy />} />
