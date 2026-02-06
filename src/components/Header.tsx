@@ -14,7 +14,7 @@ import {
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const { user, role, isLoading, isAuthenticated, signOut } = useAuth();
+  const { user, role, companyName, isLoading, isAuthenticated, signOut } = useAuth();
 
   const handleSignOut = async () => {
     await signOut();
@@ -62,7 +62,7 @@ const Header = () => {
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
                   <User className="h-4 w-4 mr-2" />
-                  {user?.email?.split("@")[0] || "Konto"}
+                  {companyName || user?.email?.split("@")[0] || "Konto"}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48">

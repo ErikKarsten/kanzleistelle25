@@ -9,6 +9,7 @@ interface AuthContextType {
   session: Session | null;
   role: UserRole;
   companyId: string | null;
+  companyName: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   signOut: () => Promise<void>;
@@ -34,6 +35,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [session, setSession] = useState<Session | null>(null);
   const [role, setRole] = useState<UserRole>(null);
   const [companyId, setCompanyId] = useState<string | null>(null);
+  const [companyName, setCompanyName] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchUserData = async (userId: string) => {
@@ -64,7 +66,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (isEmployer || !roles || roles.length === 0) {
         const { data: company, error: companyError } = await supabase
           .from("companies")
-          .select("id")
+          .select("id, name")
           .eq("user_id", userId)
           .maybeSingle();
 
@@ -74,12 +76,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
         if (company) {
           setCompanyId(company.id);
+          setCompanyName(company.name);
           // If user has a company but no employer role, they should still be treated as employer
           if (!isEmployer && !isAdmin) {
             setRole("employer");
           }
         } else {
           setCompanyId(null);
+          setCompanyName(null);
         }
       }
     } catch (error) {
@@ -160,6 +164,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setSession(null);
     setRole(null);
     setCompanyId(null);
+    setCompanyName(null);
   };
 
   const value: AuthContextType = {
@@ -167,6 +172,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     session,
     role,
     companyId,
+    companyName,
     isLoading,
     isAuthenticated: !!user,
     signOut,
