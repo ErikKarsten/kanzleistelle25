@@ -34,12 +34,14 @@ const Header = () => {
         </nav>
 
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="outline" size="sm">
-            <User className="h-4 w-4 mr-2" />
-            Anmelden
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/login">
+              <User className="h-4 w-4 mr-2" />
+              Anmelden
+            </Link>
           </Button>
           <Button size="sm" className="bg-background text-primary border-2 border-primary hover:bg-primary hover:text-primary-foreground" asChild>
-            <Link to="/fuer-arbeitgeber">Für Arbeitgeber</Link>
+            <Link to="/register-employer">Kanzlei registrieren</Link>
           </Button>
         </div>
 
@@ -93,13 +95,15 @@ const Header = () => {
               Über uns
             </Link>
             <div className="flex flex-col gap-2 pt-2 border-t">
-              <Button variant="outline" size="sm" className="w-full">
-                <User className="h-4 w-4 mr-2" />
-                Anmelden
+              <Button variant="outline" size="sm" className="w-full" asChild>
+                <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                  <User className="h-4 w-4 mr-2" />
+                  Anmelden
+                </Link>
               </Button>
               <Button size="sm" className="w-full" asChild>
-                <Link to="/fuer-arbeitgeber" onClick={() => setIsMenuOpen(false)}>
-                  Für Arbeitgeber
+                <Link to="/register-employer" onClick={() => setIsMenuOpen(false)}>
+                  Kanzlei registrieren
                 </Link>
               </Button>
             </div>
