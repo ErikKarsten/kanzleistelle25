@@ -37,8 +37,8 @@ const AdminAuthGuard = ({ children }: AdminAuthGuardProps) => {
               Sie haben keine Berechtigung, auf diesen Bereich zuzugreifen.
               Bitte melden Sie sich mit einem Admin-Konto an.
             </p>
-            <Button onClick={() => navigate("/")} className="w-full">
-              Zur Startseite
+            <Button onClick={() => navigate("/admin/login")} className="w-full">
+              Zum Login
             </Button>
           </CardContent>
         </Card>
