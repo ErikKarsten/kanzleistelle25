@@ -80,9 +80,37 @@ export type Database = {
           },
         ]
       }
+      companies: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          location: string | null
+          logo_url: string | null
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          location?: string | null
+          logo_url?: string | null
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          location?: string | null
+          logo_url?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
       jobs: {
         Row: {
           company: string
+          company_id: string | null
           created_at: string | null
           description: string | null
           employer_id: string | null
@@ -98,6 +126,7 @@ export type Database = {
         }
         Insert: {
           company: string
+          company_id?: string | null
           created_at?: string | null
           description?: string | null
           employer_id?: string | null
@@ -113,6 +142,7 @@ export type Database = {
         }
         Update: {
           company?: string
+          company_id?: string | null
           created_at?: string | null
           description?: string | null
           employer_id?: string | null
@@ -127,6 +157,13 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "jobs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "jobs_employer_id_fkey"
             columns: ["employer_id"]
