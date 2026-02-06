@@ -1,22 +1,23 @@
- import { useQuery } from "@tanstack/react-query";
- import { supabase } from "@/integrations/supabase/client";
- import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
- import { Badge } from "@/components/ui/badge";
- import { Skeleton } from "@/components/ui/skeleton";
- import {
-   Table,
-   TableBody,
-   TableCell,
-   TableHead,
-   TableHeader,
-   TableRow,
- } from "@/components/ui/table";
- import { Users, Mail, Phone, Calendar, Briefcase } from "lucide-react";
- import { format } from "date-fns";
- import { de } from "date-fns/locale";
- import AdminNav from "@/components/AdminNav";
- 
- interface ApplicationWithJob {
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Users, Mail, Phone, Calendar, Briefcase } from "lucide-react";
+import { format } from "date-fns";
+import { de } from "date-fns/locale";
+import AdminNav from "@/components/AdminNav";
+import AdminAuthGuard from "@/components/AdminAuthGuard";
+
+interface ApplicationWithJob {
    id: string;
    first_name: string | null;
    last_name: string | null;
@@ -30,8 +31,8 @@
    } | null;
  }
  
- const AdminApplications = () => {
-   const { data: applications, isLoading, error } = useQuery({
+const AdminApplicationsContent = () => {
+  const { data: applications, isLoading, error } = useQuery({
      queryKey: ["admin-applications"],
      queryFn: async () => {
        const { data, error } = await supabase
@@ -184,9 +185,17 @@
              )}
            </CardContent>
          </Card>
-       </div>
-     </div>
-   );
- };
- 
- export default AdminApplications;
+      </div>
+    </div>
+  );
+};
+
+const AdminApplications = () => {
+  return (
+    <AdminAuthGuard>
+      <AdminApplicationsContent />
+    </AdminAuthGuard>
+  );
+};
+
+export default AdminApplications;

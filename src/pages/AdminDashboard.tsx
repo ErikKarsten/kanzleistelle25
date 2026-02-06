@@ -1,54 +1,55 @@
- import { useState } from "react";
- import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
- import { supabase } from "@/integrations/supabase/client";
- import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
- import { Badge } from "@/components/ui/badge";
- import { Button } from "@/components/ui/button";
- import { Skeleton } from "@/components/ui/skeleton";
- import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
- import {
-   Table,
-   TableBody,
-   TableCell,
-   TableHead,
-   TableHeader,
-   TableRow,
- } from "@/components/ui/table";
- import {
-   Dialog,
-   DialogContent,
-   DialogHeader,
-   DialogTitle,
-   DialogDescription,
-   DialogFooter,
- } from "@/components/ui/dialog";
- import { Input } from "@/components/ui/input";
- import { Label } from "@/components/ui/label";
- import { Textarea } from "@/components/ui/textarea";
- import {
-   Select,
-   SelectContent,
-   SelectItem,
-   SelectTrigger,
-   SelectValue,
- } from "@/components/ui/select";
- import {
-   Briefcase,
-   Users,
-   Pencil,
-   Trash2,
-   Mail,
-   Phone,
-   Calendar,
-   MapPin,
-   Loader2,
-   LayoutDashboard,
- } from "lucide-react";
- import { format } from "date-fns";
- import { de } from "date-fns/locale";
- import { toast } from "@/hooks/use-toast";
- import AdminNav from "@/components/AdminNav";
- import type { Tables } from "@/integrations/supabase/types";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Briefcase,
+  Users,
+  Pencil,
+  Trash2,
+  Mail,
+  Phone,
+  Calendar,
+  MapPin,
+  Loader2,
+  LayoutDashboard,
+} from "lucide-react";
+import { format } from "date-fns";
+import { de } from "date-fns/locale";
+import { toast } from "@/hooks/use-toast";
+import AdminNav from "@/components/AdminNav";
+import AdminAuthGuard from "@/components/AdminAuthGuard";
+import type { Tables } from "@/integrations/supabase/types";
  
  type Job = Tables<"jobs">;
  
@@ -87,10 +88,10 @@
    rejected: "bg-red-100 text-red-800",
  };
  
- const AdminDashboard = () => {
-   const queryClient = useQueryClient();
-   const [editingJob, setEditingJob] = useState<Job | null>(null);
-   const [deletingJob, setDeletingJob] = useState<Job | null>(null);
+const AdminDashboardContent = () => {
+  const queryClient = useQueryClient();
+  const [editingJob, setEditingJob] = useState<Job | null>(null);
+  const [deletingJob, setDeletingJob] = useState<Job | null>(null);
  
    // Fetch jobs
    const { data: jobs, isLoading: jobsLoading } = useQuery({
@@ -510,10 +511,18 @@
                </Button>
              </DialogFooter>
            </DialogContent>
-         </Dialog>
-       </div>
-     </div>
-   );
- };
- 
- export default AdminDashboard;
+        </Dialog>
+      </div>
+    </div>
+  );
+};
+
+const AdminDashboard = () => {
+  return (
+    <AdminAuthGuard>
+      <AdminDashboardContent />
+    </AdminAuthGuard>
+  );
+};
+
+export default AdminDashboard;

@@ -67,15 +67,11 @@ const ApplySuccessStep = ({
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from("resumes")
-        .getPublicUrl(filePath);
-
-      // Update application with resume URL
+      // Store the file path (not public URL) since bucket is now private
+      // Admins will generate signed URLs when viewing resumes
       const { error: updateError } = await supabase
         .from("applications")
-        .update({ resume_url: urlData.publicUrl })
+        .update({ resume_url: filePath })
         .eq("id", applicationId);
 
       if (updateError) throw updateError;
