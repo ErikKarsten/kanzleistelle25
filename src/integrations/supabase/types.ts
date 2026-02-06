@@ -17,9 +17,11 @@ export type Database = {
       applications: {
         Row: {
           applicant_id: string | null
+          applicant_role: string | null
           cover_letter: string | null
           created_at: string | null
           email: string | null
+          experience: string | null
           first_name: string | null
           id: string
           job_id: string | null
@@ -31,9 +33,11 @@ export type Database = {
         }
         Insert: {
           applicant_id?: string | null
+          applicant_role?: string | null
           cover_letter?: string | null
           created_at?: string | null
           email?: string | null
+          experience?: string | null
           first_name?: string | null
           id?: string
           job_id?: string | null
@@ -45,9 +49,11 @@ export type Database = {
         }
         Update: {
           applicant_id?: string | null
+          applicant_role?: string | null
           cover_letter?: string | null
           created_at?: string | null
           email?: string | null
+          experience?: string | null
           first_name?: string | null
           id?: string
           job_id?: string | null

@@ -116,16 +116,39 @@ const ApplyModal = ({
 
   const mutation = useMutation({
     mutationFn: async () => {
-      const { data, error } = await supabase.from("applications").insert({
+      // Validate job_id is a valid UUID
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!jobId || !uuidRegex.test(jobId)) {
+        console.error("Invalid job_id format:", jobId);
+        throw new Error("Ungültige Job-ID");
+      }
+
+      const insertData = {
         job_id: jobId,
         first_name: formData.firstName.trim(),
         last_name: formData.lastName.trim(),
         email: formData.email.trim(),
         phone: formData.phone.trim() || null,
-        cover_letter: `Rolle: ${formData.role}, Erfahrung: ${formData.experience}`,
+        applicant_role: formData.role,
+        experience: formData.experience,
         applicant_id: null,
-      }).select('id').single();
-      if (error) throw error;
+      };
+      
+      console.log("Submitting application with data:", insertData);
+      
+      const { data, error } = await supabase.from("applications").insert(insertData).select('id').single();
+      
+      if (error) {
+        console.error("Supabase insert error:", {
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+        throw error;
+      }
+      
+      console.log("Application submitted successfully:", data);
       return data;
     },
     onSuccess: (data) => {
@@ -133,11 +156,12 @@ const ApplyModal = ({
       setCurrentStep(4); // Go to success step
       queryClient.invalidateQueries({ queryKey: ["applications"] });
     },
-    onError: (error) => {
-      console.error("Application error:", error);
+    onError: (error: any) => {
+      console.error("Application mutation error:", error);
+      const errorMessage = error?.message || "Unbekannter Fehler";
       toast({
-        title: "Fehler",
-        description: "Bewerbung konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+        title: "Fehler beim Absenden",
+        description: `${errorMessage}. Bitte versuchen Sie es erneut.`,
         variant: "destructive",
       });
     },
