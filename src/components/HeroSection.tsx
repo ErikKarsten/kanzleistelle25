@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, MapPin, Briefcase } from "lucide-react";
+import { Search, MapPin, Briefcase, Zap } from "lucide-react";
 
 interface HeroSectionProps {
   onSearch: (filters: { title: string; location: string; employmentType?: string }) => void;
@@ -37,6 +37,12 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
             <span className="text-primary">Traumjob</span>{" "}
             in der Rechtsbranche
           </h1>
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold">
+              <Zap className="h-4 w-4" />
+              In nur 30 Sekunden bewerben – ohne Lebenslauf, ohne Anschreiben
+            </div>
+          </div>
           <p className="text-lg md:text-xl text-muted-foreground mb-10">
             Die führende Jobbörse für Rechtsanwaltsfachangestellte, Juristen und Kanzleimitarbeiter in Deutschland.
           </p>

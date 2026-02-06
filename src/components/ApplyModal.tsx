@@ -208,9 +208,13 @@ const ApplyModal = ({
           {/* Step 1: Role Selection */}
           {currentStep === 1 && (
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-center text-foreground">
-                Was ist deine aktuelle Rolle?
-              </h3>
+              <div className="text-center mb-2">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Schritt 1 von 3</p>
+                <h3 className="text-lg font-semibold text-foreground">
+                  Was ist deine aktuelle Rolle?
+                </h3>
+                <p className="text-sm text-muted-foreground">Fast geschafft! Nur noch wenige Klicks bis zu deinem Traumjob.</p>
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 {roles.map((role) => {
                   const Icon = role.icon;
@@ -256,9 +260,13 @@ const ApplyModal = ({
           {/* Step 2: Experience */}
           {currentStep === 2 && (
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-center text-foreground">
-                Wie viel Berufserfahrung bringst du mit?
-              </h3>
+              <div className="text-center mb-2">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Schritt 2 von 3</p>
+                <h3 className="text-lg font-semibold text-foreground">
+                  Wie viel Berufserfahrung bringst du mit?
+                </h3>
+                <p className="text-sm text-muted-foreground">Super! Noch ein kleiner Schritt.</p>
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 {experienceLevels.map((level) => {
                   const Icon = level.icon;
@@ -312,9 +320,13 @@ const ApplyModal = ({
           {/* Step 3: Contact Info */}
           {currentStep === 3 && (
             <form onSubmit={handleSubmit} className="space-y-4">
-              <h3 className="text-lg font-semibold text-center text-foreground">
-                Fast geschafft! Wie können wir dich erreichen?
-              </h3>
+              <div className="text-center mb-2">
+                <p className="text-xs text-muted-foreground uppercase tracking-wide">Schritt 3 von 3</p>
+                <h3 className="text-lg font-semibold text-foreground">
+                  Fast geschafft! Wie können wir dich erreichen?
+                </h3>
+                <p className="text-sm text-muted-foreground">Gleich hast du es geschafft!</p>
+              </div>
               
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">

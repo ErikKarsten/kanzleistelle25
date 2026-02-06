@@ -1,12 +1,13 @@
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Zap } from "lucide-react";
 
 const benefits = [
-  "Spezialisiert auf die Rechtsbranche",
-  "Über 500 aktive Stellenangebote",
-  "Direkte Kontakte zu Top-Kanzleien",
-  "Kostenlose Nutzung für Bewerber",
-  "Persönliche Karriereberatung",
-  "Datenschutzkonforme Bewerbungen",
+  { text: "Express-Bewerbung in 30 Sekunden", highlight: true },
+  { text: "Spezialisiert auf die Rechtsbranche", highlight: false },
+  { text: "Über 500 aktive Stellenangebote", highlight: false },
+  { text: "Direkte Kontakte zu Top-Kanzleien", highlight: false },
+  { text: "Kostenlose Nutzung für Bewerber", highlight: false },
+  { text: "Persönliche Karriereberatung", highlight: false },
+  { text: "Datenschutzkonforme Bewerbungen", highlight: false },
 ];
 
 const WhyKanzleistelle = () => {
@@ -25,9 +26,13 @@ const WhyKanzleistelle = () => {
             </p>
             <ul className="space-y-4">
               {benefits.map((benefit, index) => (
-                <li key={index} className="flex items-center gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
-                  <span className="text-foreground">{benefit}</span>
+                <li key={index} className={`flex items-center gap-3 ${benefit.highlight ? 'font-semibold' : ''}`}>
+                  {benefit.highlight ? (
+                    <Zap className="h-5 w-5 text-primary shrink-0" />
+                  ) : (
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                  )}
+                  <span className={benefit.highlight ? 'text-primary' : 'text-foreground'}>{benefit.text}</span>
                 </li>
               ))}
             </ul>

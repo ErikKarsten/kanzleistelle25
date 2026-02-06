@@ -1,16 +1,17 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, FileCheck, Building, Users } from "lucide-react";
+import { Zap, Search, Building, Users } from "lucide-react";
 
 const features = [
+  {
+    icon: Zap,
+    title: "Express-Bewerbung",
+    description: "Bewerben Sie sich in nur 30 Sekunden – ohne Lebenslauf, ohne Anschreiben.",
+    highlight: true,
+  },
   {
     icon: Search,
     title: "Einfache Suche",
     description: "Finden Sie schnell passende Stellen mit unserer intelligenten Suchfunktion.",
-  },
-  {
-    icon: FileCheck,
-    title: "Schnelle Bewerbung",
-    description: "Bewerben Sie sich mit wenigen Klicks direkt über unsere Plattform.",
   },
   {
     icon: Building,
@@ -39,10 +40,17 @@ const FeatureCards = () => {
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           {features.map((feature, index) => (
-            <Card key={index} className="text-center hover:shadow-md transition-shadow">
+            <Card 
+              key={index} 
+              className={`text-center hover:shadow-md transition-shadow ${
+                feature.highlight ? 'border-primary border-2 bg-primary/5' : ''
+              }`}
+            >
               <CardHeader>
-                <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                  <feature.icon className="h-6 w-6 text-primary" />
+                <div className={`mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-4 ${
+                  feature.highlight ? 'bg-primary text-primary-foreground' : 'bg-primary/10'
+                }`}>
+                  <feature.icon className={`h-6 w-6 ${feature.highlight ? '' : 'text-primary'}`} />
                 </div>
                 <CardTitle className="text-lg">{feature.title}</CardTitle>
               </CardHeader>
