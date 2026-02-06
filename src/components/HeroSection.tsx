@@ -17,7 +17,7 @@ interface HeroSectionProps {
 const HeroSection = ({ onSearch }: HeroSectionProps) => {
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
-  const [employmentType, setEmploymentType] = useState<string>("");
+  const [employmentType, setEmploymentType] = useState<string>("vollzeit");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

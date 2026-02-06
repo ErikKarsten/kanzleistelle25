@@ -18,7 +18,7 @@ const Index = () => {
     title?: string;
     location?: string;
     employmentType?: string;
-  }>({});
+  }>({ employmentType: "vollzeit" });
 
   const handleSearch = (filters: { title: string; location: string; employmentType?: string }) => {
     setSearchFilters({ 
