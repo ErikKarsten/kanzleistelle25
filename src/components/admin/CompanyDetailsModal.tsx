@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Building2, MapPin, Briefcase, Trash2, Save } from "lucide-react";
+import { Building2, MapPin, Briefcase, Trash2, Save, Plus } from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -26,6 +26,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import JobCreateModal from "./JobCreateModal";
 
 interface Company {
   id: string;
@@ -63,6 +64,7 @@ const CompanyDetailsModal = ({
     description: "",
     logo_url: "",
   });
+  const [jobCreateOpen, setJobCreateOpen] = useState(false);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -196,10 +198,20 @@ const CompanyDetailsModal = ({
 
           {/* Jobs Section */}
           <div className="space-y-4">
-            <h3 className="font-semibold text-foreground flex items-center gap-2">
-              <Briefcase className="h-4 w-4 text-primary" />
-              Offene Stellen ({openJobs.length})
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold text-foreground flex items-center gap-2">
+                <Briefcase className="h-4 w-4 text-primary" />
+                Offene Stellen dieser Kanzlei ({openJobs.length})
+              </h3>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setJobCreateOpen(true)}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Neue Stelle schalten
+              </Button>
+            </div>
 
             {openJobs.length === 0 ? (
               <p className="text-sm text-muted-foreground pl-6">
@@ -263,6 +275,13 @@ const CompanyDetailsModal = ({
             </Button>
           </div>
         </div>
+
+        {/* Job Create Modal */}
+        <JobCreateModal
+          open={jobCreateOpen}
+          onOpenChange={setJobCreateOpen}
+          preselectedCompany={company ? { id: company.id, name: company.name } : null}
+        />
       </DialogContent>
     </Dialog>
   );

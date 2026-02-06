@@ -4,14 +4,30 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MapPin, Clock, Star, Building2, Send, Zap } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
-import type { Tables } from "@/integrations/supabase/types";
- import ApplyModal from "./ApplyModal";
- import { useState } from "react";
+import ApplyModal from "./ApplyModal";
+import { useState } from "react";
 
-type Job = Tables<"jobs">;
+interface JobWithCompany {
+  id: string;
+  title: string;
+  company: string;
+  company_id: string | null;
+  location: string | null;
+  employment_type: string | null;
+  description: string | null;
+  salary_min: number | null;
+  salary_max: number | null;
+  created_at: string | null;
+  is_active: boolean | null;
+  companies: {
+    name: string;
+    logo_url: string | null;
+  } | null;
+}
 
 const employmentTypeLabels: Record<string, string> = {
   vollzeit: "Vollzeit",
@@ -21,20 +37,36 @@ const employmentTypeLabels: Record<string, string> = {
 };
 
 const FeaturedJobs = () => {
-   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
- 
+  const [selectedJob, setSelectedJob] = useState<JobWithCompany | null>(null);
+
   const { data: jobs, isLoading, error } = useQuery({
     queryKey: ["featured-jobs"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("jobs")
-        .select("*")
+        .select(`
+          id,
+          title,
+          company,
+          company_id,
+          location,
+          employment_type,
+          description,
+          salary_min,
+          salary_max,
+          created_at,
+          is_active,
+          companies (
+            name,
+            logo_url
+          )
+        `)
         .eq("is_active", true)
         .order("created_at", { ascending: false })
         .limit(6);
 
       if (error) throw error;
-      return data;
+      return data as JobWithCompany[];
     },
   });
 
@@ -107,8 +139,17 @@ const FeaturedJobs = () => {
                     </Badge>
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Building2 className="h-4 w-4" />
-                    <span>{job.company}</span>
+                    {job.companies?.logo_url ? (
+                      <Avatar className="h-5 w-5">
+                        <AvatarImage src={job.companies.logo_url} alt={job.companies.name || job.company} />
+                        <AvatarFallback className="text-[10px]">
+                          {(job.companies.name || job.company).substring(0, 2).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                    ) : (
+                      <Building2 className="h-4 w-4" />
+                    )}
+                    <span>{job.companies?.name || job.company}</span>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
