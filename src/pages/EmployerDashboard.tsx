@@ -54,20 +54,20 @@ const EmployerDashboard = () => {
     enabled: !!companyId,
   });
 
-  // Fetch jobs for this company
+  // Fetch jobs for this company - filter by company_id for data isolation
   const { data: jobs, isLoading: jobsLoading } = useQuery({
-    queryKey: ["employer-jobs", user?.id],
+    queryKey: ["employer-jobs", companyId],
     queryFn: async () => {
-      if (!user) return [];
+      if (!companyId) return [];
       const { data, error } = await supabase
         .from("jobs")
         .select("*")
-        .eq("employer_id", user.id)
+        .eq("company_id", companyId)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
-    enabled: !!user,
+    enabled: !!companyId,
   });
 
   // Fetch applications for this company's jobs
