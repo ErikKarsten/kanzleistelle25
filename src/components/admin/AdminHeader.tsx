@@ -1,7 +1,7 @@
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut, Ship, Home } from "lucide-react";
+import { LogOut, Briefcase, Home } from "lucide-react";
 import { toast } from "sonner";
 
 const AdminHeader = () => {
@@ -28,7 +28,7 @@ const AdminHeader = () => {
           </Link>
           <div className="flex items-center gap-3">
             <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
-              <Ship className="h-5 w-5 text-primary" />
+              <Briefcase className="h-5 w-5 text-primary" />
             </div>
             <div>
               <span className="font-semibold text-foreground">Kanzleistelle24</span>
