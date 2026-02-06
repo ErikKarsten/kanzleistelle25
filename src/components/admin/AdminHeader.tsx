@@ -1,7 +1,7 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut, Ship } from "lucide-react";
+import { LogOut, Ship, Home } from "lucide-react";
 import { toast } from "sonner";
 
 const AdminHeader = () => {
@@ -22,13 +22,18 @@ const AdminHeader = () => {
   return (
     <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
       <div className="container max-w-7xl flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Ship className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <span className="font-semibold text-foreground">Kanzleihafen</span>
-            <span className="text-muted-foreground ml-2 text-sm">Admin</span>
+        <div className="flex items-center gap-4">
+          <Link to="/" className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center hover:bg-primary/20 transition-colors" title="Zur Startseite">
+            <Home className="h-5 w-5 text-primary" />
+          </Link>
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Ship className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <span className="font-semibold text-foreground">Kanzleistelle24</span>
+              <span className="text-muted-foreground ml-2 text-sm">Admin</span>
+            </div>
           </div>
         </div>
 

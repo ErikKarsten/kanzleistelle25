@@ -9,7 +9,7 @@ const Footer = () => {
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
               <Briefcase className="h-6 w-6 text-primary" />
-              <span className="text-lg font-bold text-primary">Kanzleistelle</span>
+              <span className="text-lg font-bold text-primary">Kanzleistelle24</span>
             </Link>
             <p className="text-sm text-muted-foreground">
               Die führende Jobbörse für die Rechtsbranche in Deutschland.
@@ -76,7 +76,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} Kanzleistelle. Alle Rechte vorbehalten.</p>
+          <p>© {new Date().getFullYear()} Kanzleistelle24. Alle Rechte vorbehalten.</p>
         </div>
       </div>
     </footer>
