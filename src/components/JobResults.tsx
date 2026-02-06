@@ -17,14 +17,14 @@ interface JobResultsProps {
   searchFilters: {
     title?: string;
     location?: string;
+    employmentType?: string;
   };
 }
 
 const employmentTypeLabels: Record<string, string> = {
   vollzeit: "Vollzeit",
   teilzeit: "Teilzeit",
-  freelance: "Freelance",
-  praktikum: "Praktikum",
+  minijob: "Minijob",
 };
 
 const JobResults = ({ searchFilters }: JobResultsProps) => {
@@ -45,6 +45,10 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
 
       if (searchFilters.location) {
         query = query.ilike("location", `%${searchFilters.location}%`);
+      }
+
+      if (searchFilters.employmentType) {
+        query = query.eq("employment_type", searchFilters.employmentType);
       }
 
       const { data, error } = await query.limit(20);

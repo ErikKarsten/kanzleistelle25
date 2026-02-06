@@ -149,8 +149,7 @@ const AdminUpload = () => {
                   <SelectContent>
                     <SelectItem value="vollzeit">Vollzeit</SelectItem>
                     <SelectItem value="teilzeit">Teilzeit</SelectItem>
-                    <SelectItem value="freelance">Freelance</SelectItem>
-                    <SelectItem value="praktikum">Praktikum</SelectItem>
+                    <SelectItem value="minijob">Minijob</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

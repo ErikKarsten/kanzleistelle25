@@ -18,10 +18,20 @@ const Index = () => {
   const [searchFilters, setSearchFilters] = useState<{
     title?: string;
     location?: string;
+    employmentType?: string;
   }>({});
 
   const handleSearch = (filters: { title: string; location: string }) => {
-    setSearchFilters(filters);
+    setSearchFilters(prev => ({ ...prev, ...filters }));
+    // Scroll to results
+    const resultsSection = document.getElementById("job-results");
+    if (resultsSection) {
+      resultsSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const handleEmploymentTypeChange = (type: string | undefined) => {
+    setSearchFilters(prev => ({ ...prev, employmentType: type }));
     // Scroll to results
     const resultsSection = document.getElementById("job-results");
     if (resultsSection) {
@@ -37,7 +47,10 @@ const Index = () => {
         <HeroSection onSearch={handleSearch} />
         <FeaturedJobs />
         <FeatureCards />
-        <JobTypeFilters />
+        <JobTypeFilters 
+          selectedType={searchFilters.employmentType} 
+          onTypeChange={handleEmploymentTypeChange} 
+        />
 
         <div id="job-results">
           <JobResults searchFilters={searchFilters} />
