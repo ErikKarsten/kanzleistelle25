@@ -41,12 +41,17 @@ const CompanyCreateModal = ({ open, onOpenChange }: CompanyCreateModalProps) => 
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-companies"] });
-      toast.success("Kanzlei erstellt");
+      toast.success("Kanzlei angelegt", {
+        description: `"${formData.name}" wurde erfolgreich erstellt.`,
+      });
       setFormData({ name: "", location: "", description: "", logo_url: "" });
       onOpenChange(false);
     },
-    onError: () => {
-      toast.error("Fehler beim Erstellen");
+    onError: (error) => {
+      console.error("Company creation error:", error);
+      toast.error("Fehler beim Erstellen", {
+        description: "Bitte prüfen Sie Ihre Berechtigung.",
+      });
     },
   });
 
