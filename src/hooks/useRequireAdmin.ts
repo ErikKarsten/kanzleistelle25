@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
-type AppRole = "admin" | "employer" | "candidate";
-
 export const useRequireAdmin = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
@@ -19,7 +17,7 @@ export const useRequireAdmin = () => {
 
         if (!session) {
           if (mounted) {
-            navigate("/");
+            navigate("/admin/login");
           }
           return;
         }
@@ -35,7 +33,7 @@ export const useRequireAdmin = () => {
         if (error) {
           console.error("Error checking admin role:", error);
           if (mounted) {
-            navigate("/");
+            navigate("/admin/login");
           }
           return;
         }
@@ -44,7 +42,8 @@ export const useRequireAdmin = () => {
           // User is authenticated but not an admin
           console.warn("User is not an admin");
           if (mounted) {
-            navigate("/");
+            setIsAuthorized(false);
+            setIsLoading(false);
           }
           return;
         }
@@ -55,7 +54,7 @@ export const useRequireAdmin = () => {
       } catch (error) {
         console.error("Auth check error:", error);
         if (mounted) {
-          navigate("/");
+          navigate("/admin/login");
         }
       } finally {
         if (mounted) {
@@ -71,7 +70,7 @@ export const useRequireAdmin = () => {
       (event, session) => {
         if (event === "SIGNED_OUT" || !session) {
           if (mounted) {
-            navigate("/");
+            navigate("/admin/login");
           }
         }
       }

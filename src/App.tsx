@@ -9,6 +9,7 @@ import AdminUpload from "./pages/AdminUpload";
 import AdminApplications from "./pages/AdminApplications";
 import AdminDashboardLegacy from "./pages/AdminDashboard";
 import AdminDashboard from "./pages/admin/Dashboard";
+import AdminLogin from "./pages/admin/Login";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/admin-upload" element={<AdminUpload />} />
           <Route path="/admin-applications" element={<AdminApplications />} />
           <Route path="/admin-dashboard" element={<AdminDashboardLegacy />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

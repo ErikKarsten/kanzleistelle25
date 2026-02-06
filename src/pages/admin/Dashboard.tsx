@@ -3,8 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { LayoutDashboard } from "lucide-react";
 import AdminAuthGuard from "@/components/AdminAuthGuard";
+import AdminHeader from "@/components/admin/AdminHeader";
 import StatCards from "@/components/admin/StatCards";
 import ApplicationFilters from "@/components/admin/ApplicationFilters";
 import ApplicationsTable from "@/components/admin/ApplicationsTable";
@@ -141,17 +141,14 @@ const AdminDashboardContent = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <AdminHeader />
+      
       <div className="container max-w-7xl py-8 px-4 sm:px-6 lg:px-8">
-        {/* Header */}
+        {/* Page Title */}
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <LayoutDashboard className="h-5 w-5 text-primary" />
-            </div>
-            <h1 className="text-2xl font-bold text-foreground">
-              Admin Dashboard
-            </h1>
-          </div>
+          <h1 className="text-2xl font-bold text-foreground">
+            Dashboard
+          </h1>
           <p className="text-muted-foreground">
             Übersicht aller Bewerbungen und Stellenanzeigen
           </p>
