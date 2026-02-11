@@ -39,10 +39,12 @@ const CompanyCreateModal = ({ open, onOpenChange }: CompanyCreateModalProps) => 
         description: data.description.trim() || null,
         logo_url: data.logo_url.trim() || null,
         website: data.website.trim() || null,
-        user_id: null,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Company create error:", error);
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-companies"] });
