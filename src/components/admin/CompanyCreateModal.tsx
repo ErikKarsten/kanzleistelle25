@@ -11,9 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Building2, Plus } from "lucide-react";
+import { Building2, Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { companySchema } from "@/lib/validations";
 
 interface CompanyCreateModalProps {
   open: boolean;
@@ -26,18 +25,20 @@ const CompanyCreateModal = ({ open, onOpenChange }: CompanyCreateModalProps) => 
     location: "",
     description: "",
     logo_url: "",
+    website: "",
   });
   const queryClient = useQueryClient();
 
   const createMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
-      const validated = companySchema.parse(data);
-      
+      if (!data.name.trim()) throw new Error("Name ist erforderlich");
+
       const { error } = await supabase.from("companies").insert({
-        name: validated.name,
-        location: validated.location || null,
-        description: validated.description || null,
-        logo_url: validated.logo_url || null,
+        name: data.name.trim(),
+        location: data.location.trim() || null,
+        description: data.description.trim() || null,
+        logo_url: data.logo_url.trim() || null,
+        website: data.website.trim() || null,
         user_id: null,
       });
 
@@ -45,16 +46,16 @@ const CompanyCreateModal = ({ open, onOpenChange }: CompanyCreateModalProps) => 
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-companies"] });
-      toast.success("Kanzlei angelegt", {
-        description: `"${formData.name}" wurde erfolgreich erstellt.`,
+      queryClient.invalidateQueries({ queryKey: ["admin-companies-list"] });
+      toast.success("Kanzlei erfolgreich erstellt", {
+        description: `"${formData.name}" wurde angelegt.`,
       });
-      setFormData({ name: "", location: "", description: "", logo_url: "" });
+      setFormData({ name: "", location: "", description: "", logo_url: "", website: "" });
       onOpenChange(false);
     },
-    onError: (error) => {
-      console.error("Company creation error:", error);
+    onError: (error: any) => {
       toast.error("Fehler beim Erstellen", {
-        description: "Bitte prüfen Sie Ihre Berechtigung.",
+        description: error.message || "Bitte versuchen Sie es erneut.",
       });
     },
   });
@@ -83,9 +84,7 @@ const CompanyCreateModal = ({ open, onOpenChange }: CompanyCreateModalProps) => 
             <Input
               id="create-name"
               value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="Kanzleiname"
             />
           </div>
@@ -95,9 +94,7 @@ const CompanyCreateModal = ({ open, onOpenChange }: CompanyCreateModalProps) => 
             <Input
               id="create-location"
               value={formData.location}
-              onChange={(e) =>
-                setFormData({ ...formData, location: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
               placeholder="z.B. Berlin, Hamburg"
             />
           </div>
@@ -107,10 +104,19 @@ const CompanyCreateModal = ({ open, onOpenChange }: CompanyCreateModalProps) => 
             <Input
               id="create-logo"
               value={formData.logo_url}
-              onChange={(e) =>
-                setFormData({ ...formData, logo_url: e.target.value })
-              }
-              placeholder="https://..."
+              onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
+              placeholder="https://beispiel.de/logo.png"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="create-website">Website</Label>
+            <Input
+              id="create-website"
+              type="url"
+              value={formData.website}
+              onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+              placeholder="https://www.kanzlei-beispiel.de"
             />
           </div>
 
@@ -119,9 +125,7 @@ const CompanyCreateModal = ({ open, onOpenChange }: CompanyCreateModalProps) => 
             <Textarea
               id="create-description"
               value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="Kurze Beschreibung der Kanzlei..."
               rows={3}
             />
@@ -129,7 +133,11 @@ const CompanyCreateModal = ({ open, onOpenChange }: CompanyCreateModalProps) => 
 
           <div className="flex justify-end pt-4">
             <Button onClick={handleCreate} disabled={createMutation.isPending}>
-              <Plus className="h-4 w-4 mr-1" />
+              {createMutation.isPending ? (
+                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+              ) : (
+                <Plus className="h-4 w-4 mr-1" />
+              )}
               Erstellen
             </Button>
           </div>
