@@ -92,6 +92,7 @@ export type Database = {
           logo_url: string | null
           name: string
           user_id: string | null
+          website: string | null
         }
         Insert: {
           created_at?: string | null
@@ -101,6 +102,7 @@ export type Database = {
           logo_url?: string | null
           name: string
           user_id?: string | null
+          website?: string | null
         }
         Update: {
           created_at?: string | null
@@ -110,6 +112,7 @@ export type Database = {
           logo_url?: string | null
           name?: string
           user_id?: string | null
+          website?: string | null
         }
         Relationships: []
       }
