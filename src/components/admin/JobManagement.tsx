@@ -381,7 +381,7 @@ const JobsTable = ({
               <TableCell>
                 <div className="flex items-center gap-1 text-muted-foreground">
                   <Building2 className="h-3 w-3" />
-                  {job.companies?.name || job.company}
+                  {job.companies?.name || "Kanzleihafen (Allgemein)"}
                 </div>
               </TableCell>
               <TableCell>
