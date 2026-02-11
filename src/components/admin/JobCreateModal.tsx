@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
@@ -18,8 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Briefcase, Plus } from "lucide-react";
+import { Briefcase, Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { jobSchema } from "@/lib/validations";
 
 interface Company {
   id: string;
@@ -35,15 +36,17 @@ interface JobCreateModalProps {
 const employmentTypes = [
   { value: "vollzeit", label: "Vollzeit" },
   { value: "teilzeit", label: "Teilzeit" },
-  { value: "freelance", label: "Freelance" },
-  { value: "praktikum", label: "Praktikum" },
+  { value: "minijob", label: "Minijob" },
 ];
+
+const NO_COMPANY = "__none__";
 
 const JobCreateModal = ({
   open,
   onOpenChange,
   preselectedCompany,
 }: JobCreateModalProps) => {
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>(NO_COMPANY);
   const [formData, setFormData] = useState({
     title: "",
     location: "",
@@ -55,7 +58,21 @@ const JobCreateModal = ({
   });
   const queryClient = useQueryClient();
 
-  // Reset form when modal opens with preselected company
+  // Fetch all companies for dropdown
+  const { data: companies } = useQuery({
+    queryKey: ["admin-companies-list"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("companies")
+        .select("id, name")
+        .order("name");
+      if (error) throw error;
+      return data as Company[];
+    },
+    enabled: open,
+  });
+
+  // Reset form when modal opens
   useEffect(() => {
     if (open) {
       setFormData({
@@ -67,42 +84,46 @@ const JobCreateModal = ({
         salary_min: "",
         salary_max: "",
       });
+      setSelectedCompanyId(preselectedCompany?.id || NO_COMPANY);
     }
-  }, [open]);
+  }, [open, preselectedCompany]);
+
+  const selectedCompany = companies?.find((c) => c.id === selectedCompanyId);
 
   const createMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
-      if (!preselectedCompany) throw new Error("Keine Kanzlei ausgewählt");
+      const companyName = selectedCompany?.name || "Allgemein";
+      const validated = jobSchema.parse({ ...data, company: companyName });
 
       const { error } = await supabase.from("jobs").insert({
-        title: data.title,
-        company: preselectedCompany.name,
-        company_id: preselectedCompany.id,
-        location: data.location || null,
-        employment_type: data.employment_type,
-        description: data.description || null,
-        requirements: data.requirements || null,
-        salary_min: data.salary_min ? parseInt(data.salary_min) : null,
-        salary_max: data.salary_max ? parseInt(data.salary_max) : null,
+        title: validated.title,
+        company: companyName,
+        company_id: selectedCompanyId !== NO_COMPANY ? selectedCompanyId : null,
+        location: validated.location || null,
+        employment_type: validated.employment_type || null,
+        description: validated.description || null,
+        requirements: validated.requirements || null,
+        salary_min: validated.salary_min ? parseInt(validated.salary_min) : null,
+        salary_max: validated.salary_max ? parseInt(validated.salary_max) : null,
         is_active: true,
       });
 
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["company-jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-jobs"] });
       queryClient.invalidateQueries({ queryKey: ["featured-jobs"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-dashboard-jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["company-jobs"] });
       toast.success("Stelle erstellt", {
-        description: `Die Stelle wurde für "${preselectedCompany?.name}" angelegt.`,
+        description: `Die Stelle wurde erfolgreich angelegt.`,
       });
       onOpenChange(false);
     },
-    onError: (error) => {
-      console.error("Job creation error:", error);
-      toast.error("Fehler beim Erstellen", {
-        description: "Bitte prüfen Sie Ihre Berechtigung.",
-      });
+    onError: (error: any) => {
+      const msg = error?.issues
+        ? error.issues.map((i: any) => i.message).join(", ")
+        : "Bitte prüfen Sie Ihre Eingaben.";
+      toast.error("Fehler beim Erstellen", { description: msg });
     },
   });
 
@@ -125,13 +146,26 @@ const JobCreateModal = ({
         </DialogHeader>
 
         <div className="space-y-4 py-4">
-          {/* Company Info (read-only) */}
-          {preselectedCompany && (
-            <div className="p-3 bg-muted/50 rounded-lg">
-              <p className="text-sm text-muted-foreground">Kanzlei</p>
-              <p className="font-medium">{preselectedCompany.name}</p>
-            </div>
-          )}
+          {/* Company Dropdown */}
+          <div className="space-y-2">
+            <Label htmlFor="job-company">Kanzlei</Label>
+            <Select
+              value={selectedCompanyId}
+              onValueChange={setSelectedCompanyId}
+            >
+              <SelectTrigger id="job-company">
+                <SelectValue placeholder="Kanzlei auswählen" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={NO_COMPANY}>Keine / Allgemeine Stelle</SelectItem>
+                {companies?.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           <div className="space-y-2">
             <Label htmlFor="job-title">Titel *</Label>
@@ -217,7 +251,7 @@ const JobCreateModal = ({
                 setFormData({ ...formData, description: e.target.value })
               }
               placeholder="Beschreiben Sie die Stelle..."
-              rows={3}
+              rows={4}
             />
           </div>
 
@@ -236,7 +270,11 @@ const JobCreateModal = ({
 
           <div className="flex justify-end pt-4">
             <Button onClick={handleCreate} disabled={createMutation.isPending}>
-              <Plus className="h-4 w-4 mr-1" />
+              {createMutation.isPending ? (
+                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+              ) : (
+                <Plus className="h-4 w-4 mr-1" />
+              )}
               Stelle erstellen
             </Button>
           </div>
