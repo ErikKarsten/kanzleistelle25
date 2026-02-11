@@ -35,6 +35,8 @@ interface Company {
   description: string | null;
   location: string | null;
   created_at: string | null;
+  is_active: boolean;
+  website: string | null;
 }
 
 interface Job {
@@ -63,6 +65,7 @@ const CompanyDetailsModal = ({
     location: "",
     description: "",
     logo_url: "",
+    website: "",
   });
   const [jobCreateOpen, setJobCreateOpen] = useState(false);
   const queryClient = useQueryClient();
@@ -74,6 +77,7 @@ const CompanyDetailsModal = ({
         location: company.location || "",
         description: company.description || "",
         logo_url: company.logo_url || "",
+        website: company.website || "",
       });
     }
   }, [company]);
@@ -104,13 +108,15 @@ const CompanyDetailsModal = ({
           location: data.location || null,
           description: data.description || null,
           logo_url: data.logo_url || null,
-        })
+          website: data.website || null,
+        } as any)
         .eq("id", company.id);
 
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-companies"] });
+      queryClient.invalidateQueries({ queryKey: ["companies"] });
       toast.success("Kanzlei aktualisiert");
       onOpenChange(false);
     },
@@ -177,6 +183,19 @@ const CompanyDetailsModal = ({
                   setFormData({ ...formData, logo_url: e.target.value })
                 }
                 placeholder="https://..."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="website">Website</Label>
+              <Input
+                id="website"
+                type="url"
+                value={formData.website}
+                onChange={(e) =>
+                  setFormData({ ...formData, website: e.target.value })
+                }
+                placeholder="https://www.kanzlei-beispiel.de"
               />
             </div>
 
