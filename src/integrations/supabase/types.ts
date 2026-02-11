@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           applicant_id: string | null
           applicant_role: string | null
+          company_id: string | null
           cover_letter: string | null
           created_at: string | null
           email: string | null
@@ -25,7 +26,7 @@ export type Database = {
           first_name: string | null
           id: string
           is_archived: boolean
-          job_id: string | null
+          job_id: string
           last_name: string | null
           phone: string | null
           resume_url: string | null
@@ -35,6 +36,7 @@ export type Database = {
         Insert: {
           applicant_id?: string | null
           applicant_role?: string | null
+          company_id?: string | null
           cover_letter?: string | null
           created_at?: string | null
           email?: string | null
@@ -42,7 +44,7 @@ export type Database = {
           first_name?: string | null
           id?: string
           is_archived?: boolean
-          job_id?: string | null
+          job_id: string
           last_name?: string | null
           phone?: string | null
           resume_url?: string | null
@@ -52,6 +54,7 @@ export type Database = {
         Update: {
           applicant_id?: string | null
           applicant_role?: string | null
+          company_id?: string | null
           cover_letter?: string | null
           created_at?: string | null
           email?: string | null
@@ -59,7 +62,7 @@ export type Database = {
           first_name?: string | null
           id?: string
           is_archived?: boolean
-          job_id?: string | null
+          job_id?: string
           last_name?: string | null
           phone?: string | null
           resume_url?: string | null
@@ -72,6 +75,13 @@ export type Database = {
             columns: ["applicant_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
           {
