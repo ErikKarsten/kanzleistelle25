@@ -92,7 +92,7 @@ const JobCreateModal = ({
 
   const createMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
-      const companyName = selectedCompany?.name || "Allgemein";
+      const companyName = selectedCompany?.name || "Kanzleihafen (Allgemein)";
       const validated = jobSchema.parse({ ...data, company: companyName });
 
       const { error } = await supabase.from("jobs").insert({
@@ -157,7 +157,7 @@ const JobCreateModal = ({
                 <SelectValue placeholder="Kanzlei auswählen" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={NO_COMPANY}>Keine / Allgemeine Stelle</SelectItem>
+                <SelectItem value={NO_COMPANY}>Allgemein / Keine Kanzlei</SelectItem>
                 {companies?.map((c) => (
                   <SelectItem key={c.id} value={c.id}>
                     {c.name}

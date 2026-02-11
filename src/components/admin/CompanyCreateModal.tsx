@@ -38,6 +38,7 @@ const CompanyCreateModal = ({ open, onOpenChange }: CompanyCreateModalProps) => 
         location: validated.location || null,
         description: validated.description || null,
         logo_url: validated.logo_url || null,
+        user_id: null,
       });
 
       if (error) throw error;
