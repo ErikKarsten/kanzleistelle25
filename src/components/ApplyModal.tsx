@@ -27,6 +27,7 @@ import {
   CheckCircle2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { applicationSchema } from "@/lib/validations";
 import ApplySuccessStep from "./ApplySuccessStep";
 
 interface ApplyModalProps {
@@ -119,36 +120,29 @@ const ApplyModal = ({
       // Validate job_id is a valid UUID
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
       if (!jobId || !uuidRegex.test(jobId)) {
-        console.error("Invalid job_id format:", jobId);
         throw new Error("Ungültige Job-ID");
       }
 
+      // Validate all form data with zod
+      const validated = applicationSchema.parse(formData);
+
       const insertData = {
         job_id: jobId,
-        first_name: formData.firstName.trim(),
-        last_name: formData.lastName.trim(),
-        email: formData.email.trim(),
-        phone: formData.phone.trim() || null,
-        applicant_role: formData.role,
-        experience: formData.experience,
+        first_name: validated.firstName,
+        last_name: validated.lastName,
+        email: validated.email,
+        phone: validated.phone || null,
+        applicant_role: validated.role,
+        experience: validated.experience,
         applicant_id: null,
       };
-      
-      console.log("Submitting application with data:", insertData);
       
       const { data, error } = await supabase.from("applications").insert(insertData).select('id').single();
       
       if (error) {
-        console.error("Supabase insert error:", {
-          code: error.code,
-          message: error.message,
-          details: error.details,
-          hint: error.hint
-        });
         throw error;
       }
       
-      console.log("Application submitted successfully:", data);
       return data;
     },
     onSuccess: (data) => {
@@ -157,11 +151,13 @@ const ApplyModal = ({
       queryClient.invalidateQueries({ queryKey: ["applications"] });
     },
     onError: (error: any) => {
-      console.error("Application mutation error:", error);
-      const errorMessage = error?.message || "Unbekannter Fehler";
+      let errorMessage = "Bitte versuchen Sie es erneut.";
+      if (error?.issues) {
+        errorMessage = error.issues.map((i: any) => i.message).join(", ");
+      }
       toast({
         title: "Fehler beim Absenden",
-        description: `${errorMessage}. Bitte versuchen Sie es erneut.`,
+        description: errorMessage,
         variant: "destructive",
       });
     },

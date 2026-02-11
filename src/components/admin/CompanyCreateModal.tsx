@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Building2, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { companySchema } from "@/lib/validations";
 
 interface CompanyCreateModalProps {
   open: boolean;
@@ -30,11 +31,13 @@ const CompanyCreateModal = ({ open, onOpenChange }: CompanyCreateModalProps) => 
 
   const createMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
+      const validated = companySchema.parse(data);
+      
       const { error } = await supabase.from("companies").insert({
-        name: data.name,
-        location: data.location || null,
-        description: data.description || null,
-        logo_url: data.logo_url || null,
+        name: validated.name,
+        location: validated.location || null,
+        description: validated.description || null,
+        logo_url: validated.logo_url || null,
       });
 
       if (error) throw error;
