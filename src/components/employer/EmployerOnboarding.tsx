@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Building2, Loader2, ArrowRight } from "lucide-react";
+import { companySchema } from "@/lib/validations";
 
 interface EmployerOnboardingProps {
   userId: string;
@@ -26,16 +27,14 @@ const EmployerOnboarding = ({ userId }: EmployerOnboardingProps) => {
 
   const createCompanyMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
-      if (!data.name.trim()) {
-        throw new Error("Bitte geben Sie einen Kanzleinamen ein.");
-      }
+      const validated = companySchema.parse(data);
 
       const { data: company, error } = await supabase
         .from("companies")
         .insert({
-          name: data.name.trim(),
-          location: data.location.trim() || null,
-          description: data.description.trim() || null,
+          name: validated.name,
+          location: validated.location || null,
+          description: validated.description || null,
           user_id: userId,
         })
         .select()

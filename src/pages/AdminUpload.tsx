@@ -16,6 +16,7 @@ import { toast } from "@/components/ui/use-toast";
 import { Loader2, Upload } from "lucide-react";
 import AdminNav from "@/components/AdminNav";
 import AdminAuthGuard from "@/components/AdminAuthGuard";
+import { jobSchema } from "@/lib/validations";
 
 const AdminUploadContent = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -51,12 +52,14 @@ const AdminUploadContent = () => {
     setIsLoading(true);
 
     try {
+      const validated = jobSchema.parse({ ...formData, company: formData.company });
+
       const { error } = await supabase.from("jobs").insert({
-        title: formData.title,
-        company: formData.company,
-        location: formData.location || null,
-        description: formData.description || null,
-        employment_type: formData.employment_type || null,
+        title: validated.title,
+        company: validated.company!,
+        location: validated.location || null,
+        description: validated.description || null,
+        employment_type: validated.employment_type || null,
         is_active: true,
       });
 
@@ -76,10 +79,12 @@ const AdminUploadContent = () => {
         employment_type: "",
       });
     } catch (error: any) {
-      console.error("Error uploading job:", error);
+      const msg = error?.issues
+        ? error.issues.map((i: any) => i.message).join(", ")
+        : error.message || "Bitte versuchen Sie es erneut.";
       toast({
         title: "Fehler beim Hochladen",
-        description: error.message || "Bitte versuchen Sie es erneut.",
+        description: msg,
         variant: "destructive",
       });
     } finally {

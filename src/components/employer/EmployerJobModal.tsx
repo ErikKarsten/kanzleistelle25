@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { jobSchema } from "@/lib/validations";
 
 interface EmployerJobModalProps {
   open: boolean;
@@ -74,20 +75,22 @@ const EmployerJobModal = ({
 
   const createJobMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
+      const validated = jobSchema.parse(data);
+      
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Nicht angemeldet");
 
       const { error } = await supabase.from("jobs").insert({
-        title: data.title,
+        title: validated.title,
         company: companyName,
         company_id: companyId,
         employer_id: user.id,
-        location: data.location || null,
-        employment_type: data.employment_type,
-        description: data.description || null,
-        requirements: data.requirements || null,
-        salary_min: data.salary_min ? parseInt(data.salary_min) : null,
-        salary_max: data.salary_max ? parseInt(data.salary_max) : null,
+        location: validated.location || null,
+        employment_type: validated.employment_type || null,
+        description: validated.description || null,
+        requirements: validated.requirements || null,
+        salary_min: validated.salary_min ? parseInt(validated.salary_min) : null,
+        salary_max: validated.salary_max ? parseInt(validated.salary_max) : null,
         is_active: true,
       });
       if (error) throw error;
@@ -109,17 +112,18 @@ const EmployerJobModal = ({
   const updateJobMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
       if (!job) throw new Error("Keine Stelle ausgewählt");
+      const validated = jobSchema.parse(data);
 
       const { error } = await supabase
         .from("jobs")
         .update({
-          title: data.title,
-          location: data.location || null,
-          employment_type: data.employment_type,
-          description: data.description || null,
-          requirements: data.requirements || null,
-          salary_min: data.salary_min ? parseInt(data.salary_min) : null,
-          salary_max: data.salary_max ? parseInt(data.salary_max) : null,
+          title: validated.title,
+          location: validated.location || null,
+          employment_type: validated.employment_type || null,
+          description: validated.description || null,
+          requirements: validated.requirements || null,
+          salary_min: validated.salary_min ? parseInt(validated.salary_min) : null,
+          salary_max: validated.salary_max ? parseInt(validated.salary_max) : null,
         })
         .eq("id", job.id);
       if (error) throw error;
