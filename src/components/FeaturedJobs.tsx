@@ -213,6 +213,7 @@ const FeaturedJobs = () => {
              jobId={selectedJob.id}
              jobTitle={selectedJob.title}
              company={selectedJob.company}
+             companyId={selectedJob.company_id}
            />
          )}
       </div>

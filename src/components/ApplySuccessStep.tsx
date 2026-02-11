@@ -107,14 +107,15 @@ const ApplySuccessStep = ({
     <div className="space-y-6">
       {/* Success Message */}
       <div className="text-center">
-        <div className="mx-auto w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
+        <div className="mx-auto w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4 animate-bounce">
           <CheckCircle2 className="h-10 w-10 text-green-600" />
         </div>
+        <div className="text-3xl mb-2">🎉</div>
         <h3 className="text-xl font-bold text-foreground mb-2">
           Vielen Dank, {firstName}!
         </h3>
         <p className="text-muted-foreground">
-          Deine Daten wurden sicher an <span className="font-medium text-foreground">{company}</span> übermittelt.
+          Deine Bewerbung ist bei <span className="font-semibold text-primary">{company}</span> eingegangen!
         </p>
       </div>
 

@@ -36,6 +36,7 @@ interface ApplyModalProps {
   jobId: string;
   jobTitle: string;
   company: string;
+  companyId?: string | null;
 }
 
 const roles = [
@@ -82,6 +83,7 @@ const ApplyModal = ({
   jobId,
   jobTitle,
   company,
+  companyId,
 }: ApplyModalProps) => {
   const queryClient = useQueryClient();
   const [currentStep, setCurrentStep] = useState(1);
@@ -126,7 +128,7 @@ const ApplyModal = ({
       // Validate all form data with zod
       const validated = applicationSchema.parse(formData);
 
-      const insertData = {
+      const insertData: Record<string, any> = {
         job_id: jobId,
         first_name: validated.firstName,
         last_name: validated.lastName,
@@ -136,8 +138,11 @@ const ApplyModal = ({
         experience: validated.experience,
         applicant_id: null,
       };
+      if (companyId) {
+        insertData.company_id = companyId;
+      }
       
-      const { data, error } = await supabase.from("applications").insert(insertData).select('id').single();
+      const { data, error } = await supabase.from("applications").insert(insertData as any).select('id').single();
       
       if (error) {
         throw error;
@@ -151,10 +156,7 @@ const ApplyModal = ({
       queryClient.invalidateQueries({ queryKey: ["applications"] });
     },
     onError: (error: any) => {
-      let errorMessage = "Bitte versuchen Sie es erneut.";
-      if (error?.issues) {
-        errorMessage = error.issues.map((i: any) => i.message).join(", ");
-      }
+      const errorMessage = error?.message || error?.issues?.map((i: any) => i.message).join(", ") || "Bitte versuchen Sie es erneut.";
       toast({
         title: "Fehler beim Absenden",
         description: errorMessage,

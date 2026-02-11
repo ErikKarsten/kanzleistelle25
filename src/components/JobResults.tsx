@@ -362,6 +362,7 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
           jobId={selectedJob.id}
           jobTitle={selectedJob.title}
           company={selectedJob.company}
+          companyId={selectedJob.company_id}
         />
       )}
     </section>
