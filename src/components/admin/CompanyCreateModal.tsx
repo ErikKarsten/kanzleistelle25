@@ -50,6 +50,7 @@ const CompanyCreateModal = ({ open, onOpenChange }: CompanyCreateModalProps) => 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-companies"] });
       queryClient.invalidateQueries({ queryKey: ["admin-companies-list"] });
+      queryClient.invalidateQueries({ queryKey: ["companies"] });
       toast.success("Kanzlei erfolgreich erstellt", {
         description: `"${formData.name}" wurde angelegt.`,
       });
