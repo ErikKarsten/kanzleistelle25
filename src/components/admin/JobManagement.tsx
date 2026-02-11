@@ -24,6 +24,7 @@ import {
   TrendingUp,
   FileX,
   Star,
+  Plus,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -40,6 +41,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import JobDetailsModal from "./JobDetailsModal";
+import JobCreateModal from "./JobCreateModal";
 
 interface JobWithCompany {
   id: string;
@@ -62,6 +64,7 @@ interface JobWithCompany {
 const JobManagement = () => {
   const [selectedJob, setSelectedJob] = useState<JobWithCompany | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("active");
   const queryClient = useQueryClient();
 
@@ -225,11 +228,15 @@ const JobManagement = () => {
   return (
     <>
       <Card className="border-none shadow-md">
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-lg font-semibold flex items-center gap-2">
             <Briefcase className="h-5 w-5 text-primary" />
             Stellenanzeigen-Verwaltung
           </CardTitle>
+          <Button onClick={() => setCreateOpen(true)} size="sm">
+            <Plus className="h-4 w-4 mr-1" />
+            Neue Stelle
+          </Button>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Stats Cards */}
@@ -310,6 +317,11 @@ const JobManagement = () => {
         open={detailsOpen}
         onOpenChange={setDetailsOpen}
         onDelete={(id) => deleteMutation.mutate(id)}
+      />
+
+      <JobCreateModal
+        open={createOpen}
+        onOpenChange={setCreateOpen}
       />
     </>
   );
