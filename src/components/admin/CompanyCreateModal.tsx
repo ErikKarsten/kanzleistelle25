@@ -33,17 +33,18 @@ const CompanyCreateModal = ({ open, onOpenChange }: CompanyCreateModalProps) => 
     mutationFn: async (data: typeof formData) => {
       if (!data.name.trim()) throw new Error("Name ist erforderlich");
 
-      const { error } = await supabase.from("companies").insert({
-        name: data.name.trim(),
-        location: data.location.trim() || null,
-        description: data.description.trim() || null,
-        logo_url: data.logo_url.trim() || null,
-        website: data.website.trim() || null,
-      });
+      const insertData: { name: string; location?: string; description?: string; logo_url?: string; website?: string } = { name: data.name.trim() };
+      if (data.location.trim()) insertData.location = data.location.trim();
+      if (data.description.trim()) insertData.description = data.description.trim();
+      if (data.logo_url.trim()) insertData.logo_url = data.logo_url.trim();
+      if (data.website.trim()) insertData.website = data.website.trim();
+
+      console.log("Inserting company with data:", insertData);
+      const { error } = await supabase.from("companies").insert(insertData);
 
       if (error) {
-        console.error("Company create error:", error);
-        throw error;
+        console.error("Company create error:", JSON.stringify(error, null, 2));
+        throw new Error(`${error.message} (Code: ${error.code}, Details: ${error.details}, Hint: ${error.hint})`);
       }
     },
     onSuccess: () => {
