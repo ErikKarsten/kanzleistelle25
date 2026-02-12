@@ -75,16 +75,14 @@ const EmployerJobModal = ({
 
   const createJobMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
-      const validated = jobSchema.parse(data);
+      if (!companyId) throw new Error("Kanzlei-Profil nicht gefunden. Bitte Profil vervollständigen.");
       
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Nicht angemeldet");
+      const validated = jobSchema.parse(data);
 
       const { error } = await supabase.from("jobs").insert({
         title: validated.title,
         company: companyName,
         company_id: companyId,
-        employer_id: user.id,
         location: validated.location || null,
         employment_type: validated.employment_type || null,
         description: validated.description || null,
