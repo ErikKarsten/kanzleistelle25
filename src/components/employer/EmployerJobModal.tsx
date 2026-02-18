@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle, Plus, X } from "lucide-react";
 import { jobSchema } from "@/lib/validations";
 
 interface EmployerJobModalProps {
@@ -29,6 +29,23 @@ interface EmployerJobModalProps {
   companyId: string | null;
   companyName: string;
 }
+
+const REQUIREMENT_SUGGESTIONS = [
+  "DATEV-Kenntnisse",
+  "Teamfähigkeit",
+  "Eigenständige Arbeitsweise",
+  "Berufserfahrung",
+  "Abgeschlossene Ausbildung",
+];
+
+const BENEFIT_SUGGESTIONS = [
+  "Homeoffice möglich",
+  "30 Tage Urlaub",
+  "Fortbildungen",
+  "Kostenlose Getränke",
+  "Modernes Büro",
+  "Fahrtkostenzuschuss",
+];
 
 const EmployerJobModal = ({
   open,
@@ -43,11 +60,14 @@ const EmployerJobModal = ({
     title: "",
     location: "",
     employment_type: "vollzeit",
+    working_model: "vor_ort",
     description: "",
-    requirements: "",
-    salary_min: "",
-    salary_max: "",
+    salary_range: "",
   });
+  const [requirements, setRequirements] = useState<string[]>([]);
+  const [benefits, setBenefits] = useState<string[]>([]);
+  const [requirementInput, setRequirementInput] = useState("");
+  const [benefitInput, setBenefitInput] = useState("");
 
   useEffect(() => {
     if (job) {
@@ -55,47 +75,97 @@ const EmployerJobModal = ({
         title: job.title || "",
         location: job.location || "",
         employment_type: job.employment_type || "vollzeit",
+        working_model: job.working_model || "vor_ort",
         description: job.description || "",
-        requirements: job.requirements || "",
-        salary_min: job.salary_min?.toString() || "",
-        salary_max: job.salary_max?.toString() || "",
+        salary_range: job.salary_range || (job.salary_min && job.salary_max ? `${job.salary_min} - ${job.salary_max} €` : ""),
       });
+      // Parse requirements from string or array
+      if (job.requirements) {
+        try {
+          const parsed = JSON.parse(job.requirements);
+          setRequirements(Array.isArray(parsed) ? parsed : job.requirements.split("\n").filter(Boolean));
+        } catch {
+          setRequirements(job.requirements.split("\n").filter(Boolean));
+        }
+      } else {
+        setRequirements([]);
+      }
+      setBenefits(Array.isArray(job.benefits) ? job.benefits : []);
     } else {
       setFormData({
         title: "",
         location: "",
         employment_type: "vollzeit",
+        working_model: "vor_ort",
         description: "",
-        requirements: "",
-        salary_min: "",
-        salary_max: "",
+        salary_range: "",
       });
+      setRequirements([]);
+      setBenefits([]);
     }
+    setRequirementInput("");
+    setBenefitInput("");
   }, [job, open]);
+
+  const toggleTag = (
+    value: string,
+    list: string[],
+    setList: (v: string[]) => void
+  ) => {
+    if (list.includes(value)) {
+      setList(list.filter((v) => v !== value));
+    } else {
+      setList([...list, value]);
+    }
+  };
+
+  const addCustomTag = (
+    input: string,
+    setInput: (v: string) => void,
+    list: string[],
+    setList: (v: string[]) => void
+  ) => {
+    const val = input.trim();
+    if (val && !list.includes(val)) {
+      setList([...list, val]);
+    }
+    setInput("");
+  };
+
+  const removeTag = (
+    value: string,
+    list: string[],
+    setList: (v: string[]) => void
+  ) => {
+    setList(list.filter((v) => v !== value));
+  };
 
   const createJobMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
-      if (!companyId) throw new Error("Kanzlei-Profil nicht gefunden. Bitte Profil vervollständigen.");
-      
-      const validated = jobSchema.parse(data);
+      if (!companyId)
+        throw new Error(
+          "Kanzlei-Profil nicht gefunden. Bitte Profil vervollständigen."
+        );
 
       const { error } = await supabase.from("jobs").insert({
-        title: validated.title,
+        title: data.title,
         company: companyName,
         company_id: companyId,
-        location: validated.location || null,
-        employment_type: validated.employment_type || null,
-        description: validated.description || null,
-        requirements: validated.requirements || null,
-        salary_min: validated.salary_min ? parseInt(validated.salary_min) : null,
-        salary_max: validated.salary_max ? parseInt(validated.salary_max) : null,
-        is_active: true,
+        location: data.location || null,
+        employment_type: data.employment_type || null,
+        working_model: data.working_model || null,
+        description: data.description || null,
+        requirements: requirements.length > 0 ? requirements.join("\n") : null,
+        benefits: benefits.length > 0 ? benefits : [],
+        salary_range: data.salary_range || null,
+        is_active: false,
+        status: "pending",
       });
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employer-jobs"] });
-      toast({ title: "Stelle erstellt!" });
+      toast({ title: "Stelle eingereicht!", description: "Deine Stelle wird nach Admin-Freigabe veröffentlicht." });
       onOpenChange(false);
     },
     onError: (error: any) => {
@@ -110,18 +180,18 @@ const EmployerJobModal = ({
   const updateJobMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
       if (!job) throw new Error("Keine Stelle ausgewählt");
-      const validated = jobSchema.parse(data);
 
       const { error } = await supabase
         .from("jobs")
         .update({
-          title: validated.title,
-          location: validated.location || null,
-          employment_type: validated.employment_type || null,
-          description: validated.description || null,
-          requirements: validated.requirements || null,
-          salary_min: validated.salary_min ? parseInt(validated.salary_min) : null,
-          salary_max: validated.salary_max ? parseInt(validated.salary_max) : null,
+          title: data.title,
+          location: data.location || null,
+          employment_type: data.employment_type || null,
+          working_model: data.working_model || null,
+          description: data.description || null,
+          requirements: requirements.length > 0 ? requirements.join("\n") : null,
+          benefits: benefits.length > 0 ? benefits : [],
+          salary_range: data.salary_range || null,
         })
         .eq("id", job.id);
       if (error) throw error;
@@ -142,6 +212,10 @@ const EmployerJobModal = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.title.trim()) {
+      toast({ title: "Titel ist erforderlich", variant: "destructive" });
+      return;
+    }
     if (job) {
       updateJobMutation.mutate(formData);
     } else {
@@ -160,29 +234,37 @@ const EmployerJobModal = ({
           </DialogTitle>
         </DialogHeader>
 
+        {/* Info Banner */}
+        {!job && (
+          <div className="flex items-start gap-3 rounded-lg border border-yellow-300 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
+            <AlertCircle className="h-4 w-4 mt-0.5 shrink-0 text-yellow-600" />
+            <p>
+              <strong>Hinweis zur Veröffentlichung:</strong> Deine Stelle wird aktuell geprüft und nach Freigabe durch den Admin veröffentlicht.
+            </p>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Titel */}
           <div className="space-y-2">
             <Label htmlFor="title">Jobtitel *</Label>
             <Input
               id="title"
               value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               required
               placeholder="z.B. Steuerfachangestellte/r"
             />
           </div>
 
+          {/* Standort & Anstellungsart */}
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="location">Standort</Label>
               <Input
                 id="location"
                 value={formData.location}
-                onChange={(e) =>
-                  setFormData({ ...formData, location: e.target.value })
-                }
+                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                 placeholder="z.B. München"
               />
             </div>
@@ -190,9 +272,7 @@ const EmployerJobModal = ({
               <Label htmlFor="employment_type">Anstellungsart</Label>
               <Select
                 value={formData.employment_type}
-                onValueChange={(value) =>
-                  setFormData({ ...formData, employment_type: value })
-                }
+                onValueChange={(value) => setFormData({ ...formData, employment_type: value })}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -206,68 +286,176 @@ const EmployerJobModal = ({
             </div>
           </div>
 
+          {/* Arbeitsmodell & Gehaltsrahmen */}
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="salary_min">Gehalt von (€/Jahr)</Label>
-              <Input
-                id="salary_min"
-                type="number"
-                value={formData.salary_min}
-                onChange={(e) =>
-                  setFormData({ ...formData, salary_min: e.target.value })
-                }
-                placeholder="z.B. 40000"
-              />
+              <Label htmlFor="working_model">Arbeitsmodell</Label>
+              <Select
+                value={formData.working_model}
+                onValueChange={(value) => setFormData({ ...formData, working_model: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="vor_ort">Vor Ort</SelectItem>
+                  <SelectItem value="hybrid">Hybrid</SelectItem>
+                  <SelectItem value="remote">Remote</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="salary_max">Gehalt bis (€/Jahr)</Label>
+              <Label htmlFor="salary_range">Gehaltsrahmen (optional)</Label>
               <Input
-                id="salary_max"
-                type="number"
-                value={formData.salary_max}
-                onChange={(e) =>
-                  setFormData({ ...formData, salary_max: e.target.value })
-                }
-                placeholder="z.B. 55000"
+                id="salary_range"
+                value={formData.salary_range}
+                onChange={(e) => setFormData({ ...formData, salary_range: e.target.value })}
+                placeholder="z.B. 45.000 - 55.000 €"
               />
             </div>
           </div>
 
+          {/* Beschreibung */}
           <div className="space-y-2">
             <Label htmlFor="description">Stellenbeschreibung</Label>
             <Textarea
               id="description"
               value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={4}
               placeholder="Beschreiben Sie die Position..."
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="requirements">Anforderungen</Label>
-            <Textarea
-              id="requirements"
-              value={formData.requirements}
-              onChange={(e) =>
-                setFormData({ ...formData, requirements: e.target.value })
-              }
-              rows={3}
-              placeholder="Was sollte der Bewerber mitbringen?"
-            />
+          {/* Anforderungen */}
+          <div className="space-y-3">
+            <Label>Anforderungen</Label>
+            <div className="flex gap-2">
+              <Input
+                value={requirementInput}
+                onChange={(e) => setRequirementInput(e.target.value)}
+                placeholder="Eigene Anforderung eingeben..."
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addCustomTag(requirementInput, setRequirementInput, requirements, setRequirements);
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => addCustomTag(requirementInput, setRequirementInput, requirements, setRequirements)}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Hinzufügen
+              </Button>
+            </div>
+            {/* Vorschläge */}
+            <div className="flex flex-wrap gap-2">
+              {REQUIREMENT_SUGGESTIONS.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => toggleTag(s, requirements, setRequirements)}
+                  className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                    requirements.includes(s)
+                  ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-background border-border text-foreground hover:border-primary hover:text-primary"
+                  }`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+            {/* Ausgewählte Tags */}
+            {requirements.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-1">
+                {requirements.map((r) => (
+                  <span
+                    key={r}
+                    className="flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-primary text-primary-foreground"
+                  >
+                    {r}
+                    <button type="button" onClick={() => removeTag(r, requirements, setRequirements)}>
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
-          <div className="flex gap-3 justify-end">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+          {/* Benefits */}
+          <div className="space-y-3">
+            <Label>Benefits</Label>
+            <div className="flex gap-2">
+              <Input
+                value={benefitInput}
+                onChange={(e) => setBenefitInput(e.target.value)}
+                placeholder="Eigenen Benefit eingeben..."
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addCustomTag(benefitInput, setBenefitInput, benefits, setBenefits);
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => addCustomTag(benefitInput, setBenefitInput, benefits, setBenefits)}
+              >
+                <Plus className="h-4 w-4 mr-1" />
+                Hinzufügen
+              </Button>
+            </div>
+            {/* Vorschläge */}
+            <div className="flex flex-wrap gap-2">
+              {BENEFIT_SUGGESTIONS.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => toggleTag(s, benefits, setBenefits)}
+                  className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                    benefits.includes(s)
+                      ? "bg-[hsl(var(--primary))] text-white border-primary"
+                      : "bg-background border-border text-foreground hover:border-primary hover:text-primary"
+                  }`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+            {/* Ausgewählte Tags */}
+            {benefits.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-1">
+                {benefits.map((b) => (
+                  <span
+                    key={b}
+                    className="flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-primary text-white"
+                  >
+                    {b}
+                    <button type="button" onClick={() => removeTag(b, benefits, setBenefits)}>
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-3 justify-end pt-2">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Abbrechen
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="bg-primary text-primary-foreground px-8 py-3 text-base font-semibold"
+              size="lg"
+            >
               {isLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -276,7 +464,7 @@ const EmployerJobModal = ({
               ) : job ? (
                 "Speichern"
               ) : (
-                "Stelle erstellen"
+                "Stelle veröffentlichen"
               )}
             </Button>
           </div>
