@@ -25,6 +25,8 @@ import {
   FileX,
   Star,
   Plus,
+  CheckCircle,
+  Clock,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -54,7 +56,9 @@ interface JobWithCompany {
   requirements: string | null;
   salary_min: number | null;
   salary_max: number | null;
+  salary_range: string | null;
   is_active: boolean | null;
+  status: string | null;
   created_at: string | null;
   companies: {
     name: string;
@@ -65,7 +69,7 @@ const JobManagement = () => {
   const [selectedJob, setSelectedJob] = useState<JobWithCompany | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("active");
+  const [activeTab, setActiveTab] = useState("pending");
   const queryClient = useQueryClient();
 
   // Fetch jobs with company info
@@ -85,7 +89,9 @@ const JobManagement = () => {
           requirements,
           salary_min,
           salary_max,
+          salary_range,
           is_active,
+          status,
           created_at,
           companies (
             name
@@ -161,20 +167,39 @@ const JobManagement = () => {
     },
   });
 
+  // Approve pending job mutation
+  const approveMutation = useMutation({
+    mutationFn: async (jobId: string) => {
+      const { error } = await supabase
+        .from("jobs")
+        .update({ status: "published", is_active: true })
+        .eq("id", jobId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["featured-jobs"] });
+      toast.success("Stelle freigegeben und veröffentlicht");
+    },
+    onError: () => {
+      toast.error("Fehler beim Freigeben");
+    },
+  });
+
   // Calculate stats
   const stats = useMemo(() => {
     if (!jobs || !applicationCounts) {
-      return { activeJobs: 0, inactiveJobs: 0, jobsWithoutApps: 0, popularJob: null as string | null };
+      return { activeJobs: 0, inactiveJobs: 0, pendingJobs: 0, jobsWithoutApps: 0, popularJob: null as string | null };
     }
 
-    const activeJobs = jobs.filter((job) => job.is_active).length;
-    const inactiveJobs = jobs.filter((job) => !job.is_active).length;
+    const activeJobs = jobs.filter((job) => job.is_active && job.status !== "pending").length;
+    const inactiveJobs = jobs.filter((job) => !job.is_active && job.status !== "pending").length;
+    const pendingJobs = jobs.filter((job) => job.status === "pending").length;
 
     const jobsWithoutApps = jobs.filter(
       (job) => job.is_active && (!applicationCounts[job.id] || applicationCounts[job.id] === 0)
     ).length;
 
-    // Find most popular job
     let maxCount = 0;
     let popularJobId: string | null = null;
     Object.entries(applicationCounts).forEach(([jobId, count]) => {
@@ -188,16 +213,15 @@ const JobManagement = () => {
       ? jobs.find((j) => j.id === popularJobId)?.title || null
       : null;
 
-    return { activeJobs, inactiveJobs, jobsWithoutApps, popularJob };
+    return { activeJobs, inactiveJobs, pendingJobs, jobsWithoutApps, popularJob };
   }, [jobs, applicationCounts]);
 
   // Filter jobs by active tab
   const filteredJobs = useMemo(() => {
     if (!jobs) return [];
-    return jobs.filter((job) => {
-      if (activeTab === "active") return job.is_active === true;
-      return job.is_active === false || job.is_active === null;
-    });
+    if (activeTab === "pending") return jobs.filter((job) => job.status === "pending");
+    if (activeTab === "active") return jobs.filter((job) => job.is_active === true && job.status !== "pending");
+    return jobs.filter((job) => (job.is_active === false || job.is_active === null) && job.status !== "pending");
   }, [jobs, activeTab]);
 
   const handleJobClick = (job: JobWithCompany) => {
@@ -240,7 +264,19 @@ const JobManagement = () => {
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Stats Cards */}
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-4">
+            <div className="flex items-center gap-3 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+              <div className="p-2 bg-yellow-100 rounded-full">
+                <Clock className="h-5 w-5 text-yellow-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-yellow-700">
+                  {stats.pendingJobs}
+                </p>
+                <p className="text-sm text-yellow-600">Zur Freigabe</p>
+              </div>
+            </div>
+
             <div className="flex items-center gap-3 p-4 bg-green-50 rounded-lg border border-green-200">
               <div className="p-2 bg-green-100 rounded-full">
                 <TrendingUp className="h-5 w-5 text-green-600" />
@@ -278,9 +314,15 @@ const JobManagement = () => {
             </div>
           </div>
 
-          {/* Tabs for Active/Inactive */}
+          {/* Tabs for Pending/Active/Inactive */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full max-w-[300px] grid-cols-2">
+            <TabsList className="grid w-full max-w-[420px] grid-cols-3">
+              <TabsTrigger value="pending" className="relative">
+                Freigabe ({stats.pendingJobs})
+                {stats.pendingJobs > 0 && (
+                  <span className="ml-1 inline-flex h-2 w-2 rounded-full bg-yellow-500" />
+                )}
+              </TabsTrigger>
               <TabsTrigger value="active">
                 Aktiv ({stats.activeJobs})
               </TabsTrigger>
@@ -288,6 +330,14 @@ const JobManagement = () => {
                 Inaktiv ({stats.inactiveJobs})
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="pending" className="mt-6">
+              <PendingJobsTable
+                jobs={filteredJobs}
+                onApprove={(jobId) => approveMutation.mutate(jobId)}
+                onDelete={(jobId) => deleteMutation.mutate(jobId)}
+              />
+            </TabsContent>
 
             <TabsContent value="active" className="mt-6">
               <JobsTable
@@ -441,6 +491,110 @@ const JobsTable = ({
                         <AlertDialogDescription>
                           Diese Aktion kann nicht rückgängig gemacht werden. Die
                           Stelle "{job.title}" wird unwiderruflich gelöscht.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => onDelete(job.id)}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Endgültig löschen
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+};
+
+// Pending jobs approval table
+interface PendingJobsTableProps {
+  jobs: JobWithCompany[];
+  onApprove: (jobId: string) => void;
+  onDelete: (jobId: string) => void;
+}
+
+const PendingJobsTable = ({ jobs, onApprove, onDelete }: PendingJobsTableProps) => {
+  if (jobs.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <CheckCircle className="h-10 w-10 text-green-500 mx-auto mb-3" />
+        <p className="text-muted-foreground">Keine Stellen zur Freigabe.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-yellow-50">
+            <TableHead className="font-semibold">Job-Titel</TableHead>
+            <TableHead className="font-semibold">Kanzlei</TableHead>
+            <TableHead className="font-semibold">Standort</TableHead>
+            <TableHead className="font-semibold">Eingereicht</TableHead>
+            <TableHead className="font-semibold text-right">Aktionen</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {jobs.map((job) => (
+            <TableRow key={job.id} className="hover:bg-yellow-50/50">
+              <TableCell>
+                <div className="font-medium">{job.title}</div>
+                {job.employment_type && (
+                  <Badge variant="secondary" className="text-xs mt-1">{job.employment_type}</Badge>
+                )}
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-1 text-muted-foreground">
+                  <Building2 className="h-3 w-3" />
+                  {job.companies?.name || "Kanzleihafen (Allgemein)"}
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-1 text-muted-foreground">
+                  <MapPin className="h-3 w-3" />
+                  {job.location || "Nicht angegeben"}
+                </div>
+              </TableCell>
+              <TableCell className="text-muted-foreground">
+                {job.created_at
+                  ? format(new Date(job.created_at), "dd.MM.yyyy", { locale: de })
+                  : "—"}
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center justify-end gap-2">
+                  <Button
+                    size="sm"
+                    onClick={() => onApprove(job.id)}
+                    className="bg-primary text-primary-foreground"
+                  >
+                    <CheckCircle className="h-4 w-4 mr-1" />
+                    Freigeben
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive"
+                        title="Löschen"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Stelle ablehnen & löschen?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Die Stelle "{job.title}" wird unwiderruflich gelöscht.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>

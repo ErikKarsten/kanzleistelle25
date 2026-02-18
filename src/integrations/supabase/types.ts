@@ -131,6 +131,7 @@ export type Database = {
       }
       jobs: {
         Row: {
+          benefits: string[] | null
           company: string
           company_id: string | null
           created_at: string | null
@@ -143,10 +144,14 @@ export type Database = {
           requirements: string | null
           salary_max: number | null
           salary_min: number | null
+          salary_range: string | null
+          status: string | null
           title: string
           updated_at: string | null
+          working_model: string | null
         }
         Insert: {
+          benefits?: string[] | null
           company: string
           company_id?: string | null
           created_at?: string | null
@@ -159,10 +164,14 @@ export type Database = {
           requirements?: string | null
           salary_max?: number | null
           salary_min?: number | null
+          salary_range?: string | null
+          status?: string | null
           title: string
           updated_at?: string | null
+          working_model?: string | null
         }
         Update: {
+          benefits?: string[] | null
           company?: string
           company_id?: string | null
           created_at?: string | null
@@ -175,8 +184,11 @@ export type Database = {
           requirements?: string | null
           salary_max?: number | null
           salary_min?: number | null
+          salary_range?: string | null
+          status?: string | null
           title?: string
           updated_at?: string | null
+          working_model?: string | null
         }
         Relationships: [
           {
