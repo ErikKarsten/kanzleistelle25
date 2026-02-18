@@ -44,6 +44,7 @@ import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import JobDetailsModal from "./JobDetailsModal";
 import JobCreateModal from "./JobCreateModal";
+import JobPreviewModal from "./JobPreviewModal";
 
 interface JobWithCompany {
   id: string;
@@ -52,8 +53,10 @@ interface JobWithCompany {
   company_id: string | null;
   location: string | null;
   employment_type: string | null;
+  working_model: string | null;
   description: string | null;
   requirements: string | null;
+  benefits: string[] | null;
   salary_min: number | null;
   salary_max: number | null;
   salary_range: string | null;
@@ -62,12 +65,14 @@ interface JobWithCompany {
   created_at: string | null;
   companies: {
     name: string;
+    logo_url: string | null;
   } | null;
 }
 
 const JobManagement = () => {
   const [selectedJob, setSelectedJob] = useState<JobWithCompany | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("pending");
   const queryClient = useQueryClient();
@@ -85,8 +90,10 @@ const JobManagement = () => {
           company_id,
           location,
           employment_type,
+          working_model,
           description,
           requirements,
+          benefits,
           salary_min,
           salary_max,
           salary_range,
@@ -94,7 +101,8 @@ const JobManagement = () => {
           status,
           created_at,
           companies (
-            name
+            name,
+            logo_url
           )
         `)
         .order("created_at", { ascending: false });
@@ -226,7 +234,11 @@ const JobManagement = () => {
 
   const handleJobClick = (job: JobWithCompany) => {
     setSelectedJob(job);
-    setDetailsOpen(true);
+    if (job.status === "pending") {
+      setPreviewOpen(true);
+    } else {
+      setDetailsOpen(true);
+    }
   };
 
   if (isLoading) {
@@ -334,6 +346,7 @@ const JobManagement = () => {
             <TabsContent value="pending" className="mt-6">
               <PendingJobsTable
                 jobs={filteredJobs}
+                onPreview={(job) => { setSelectedJob(job); setPreviewOpen(true); }}
                 onApprove={(jobId) => approveMutation.mutate(jobId)}
                 onDelete={(jobId) => deleteMutation.mutate(jobId)}
               />
@@ -367,6 +380,13 @@ const JobManagement = () => {
         open={detailsOpen}
         onOpenChange={setDetailsOpen}
         onDelete={(id) => deleteMutation.mutate(id)}
+      />
+
+      <JobPreviewModal
+        job={selectedJob}
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+        onDelete={(id) => { deleteMutation.mutate(id); setPreviewOpen(false); }}
       />
 
       <JobCreateModal
@@ -419,7 +439,7 @@ const JobsTable = ({
         </TableHeader>
         <TableBody>
           {jobs.map((job) => (
-            <TableRow key={job.id} className="hover:bg-muted/30">
+            <TableRow key={job.id} className="hover:bg-muted/40 cursor-pointer transition-colors" onClick={() => onJobClick(job)}>
               <TableCell>
                 <button
                   onClick={() => onJobClick(job)}
@@ -449,15 +469,22 @@ const JobsTable = ({
                 <Badge variant="outline">{applicationCounts?.[job.id] || 0}</Badge>
               </TableCell>
               <TableCell>
-                <Badge
-                  className={
-                    job.is_active
-                      ? "bg-green-100 text-green-800"
-                      : "bg-gray-100 text-gray-600"
-                  }
-                >
-                  {job.is_active ? "Aktiv" : "Inaktiv"}
-                </Badge>
+                <div className="flex items-center gap-1.5">
+                  <Badge
+                    className={
+                      job.is_active
+                        ? "bg-green-100 text-green-800 border border-green-300"
+                        : "bg-gray-100 text-gray-600 border border-gray-300"
+                    }
+                  >
+                    {job.is_active ? "🟢 Live" : "⭕ Inaktiv"}
+                  </Badge>
+                  {job.status === "published" && (
+                    <Badge className="bg-blue-100 text-blue-700 border border-blue-300 text-xs">
+                      Freigegeben
+                    </Badge>
+                  )}
+                </div>
               </TableCell>
               <TableCell>
                 <div className="flex items-center justify-end gap-2">
@@ -517,11 +544,12 @@ const JobsTable = ({
 // Pending jobs approval table
 interface PendingJobsTableProps {
   jobs: JobWithCompany[];
+  onPreview: (job: JobWithCompany) => void;
   onApprove: (jobId: string) => void;
   onDelete: (jobId: string) => void;
 }
 
-const PendingJobsTable = ({ jobs, onApprove, onDelete }: PendingJobsTableProps) => {
+const PendingJobsTable = ({ jobs, onPreview, onApprove, onDelete }: PendingJobsTableProps) => {
   if (jobs.length === 0) {
     return (
       <div className="text-center py-12">
@@ -540,14 +568,19 @@ const PendingJobsTable = ({ jobs, onApprove, onDelete }: PendingJobsTableProps) 
             <TableHead className="font-semibold">Kanzlei</TableHead>
             <TableHead className="font-semibold">Standort</TableHead>
             <TableHead className="font-semibold">Eingereicht</TableHead>
+            <TableHead className="font-semibold">Status</TableHead>
             <TableHead className="font-semibold text-right">Aktionen</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {jobs.map((job) => (
-            <TableRow key={job.id} className="hover:bg-yellow-50/50">
+            <TableRow
+              key={job.id}
+              className="hover:bg-yellow-50/70 cursor-pointer transition-colors"
+              onClick={() => onPreview(job)}
+            >
               <TableCell>
-                <div className="font-medium">{job.title}</div>
+                <div className="font-medium text-primary hover:underline">{job.title}</div>
                 {job.employment_type && (
                   <Badge variant="secondary" className="text-xs mt-1">{job.employment_type}</Badge>
                 )}
@@ -570,7 +603,16 @@ const PendingJobsTable = ({ jobs, onApprove, onDelete }: PendingJobsTableProps) 
                   : "—"}
               </TableCell>
               <TableCell>
-                <div className="flex items-center justify-end gap-2">
+                <Badge className="bg-yellow-100 text-yellow-800 border border-yellow-300">
+                  <Clock className="h-3 w-3 mr-1" />
+                  Wartet
+                </Badge>
+              </TableCell>
+              <TableCell>
+                <div
+                  className="flex items-center justify-end gap-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <Button
                     size="sm"
                     onClick={() => onApprove(job.id)}
@@ -594,7 +636,7 @@ const PendingJobsTable = ({ jobs, onApprove, onDelete }: PendingJobsTableProps) 
                       <AlertDialogHeader>
                         <AlertDialogTitle>Stelle ablehnen & löschen?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Die Stelle "{job.title}" wird unwiderruflich gelöscht.
+                          Die Stelle „{job.title}" wird unwiderruflich gelöscht.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
@@ -619,3 +661,4 @@ const PendingJobsTable = ({ jobs, onApprove, onDelete }: PendingJobsTableProps) 
 };
 
 export default JobManagement;
+
