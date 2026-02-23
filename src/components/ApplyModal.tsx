@@ -136,14 +136,12 @@ const ApplyModal = ({
         phone: validated.phone || null,
         applicant_role: validated.role,
         experience: validated.experience,
-        applicant_id: null,
       };
-      // Only send company_id if it exists
       if (companyId) {
         insertData.company_id = companyId;
       }
 
-      console.log('Sende Daten:', JSON.stringify(insertData, null, 2));
+      console.log('[ApplyModal] Sende Insert:', JSON.stringify(insertData, null, 2));
       
       const { data, error } = await supabase.from("applications").insert(insertData as any).select('id').single();
       
