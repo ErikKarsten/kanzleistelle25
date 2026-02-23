@@ -122,7 +122,7 @@ const ApplyModal = ({
       // Validate job_id is a valid UUID
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
       if (!jobId || !uuidRegex.test(jobId)) {
-        throw new Error("Ungültige Job-ID");
+        throw new Error("Ungültige Job-ID: " + jobId);
       }
 
       // Validate all form data with zod
@@ -138,9 +138,12 @@ const ApplyModal = ({
         experience: validated.experience,
         applicant_id: null,
       };
+      // Only send company_id if it exists
       if (companyId) {
         insertData.company_id = companyId;
       }
+
+      console.log('Sende Daten:', JSON.stringify(insertData, null, 2));
       
       const { data, error } = await supabase.from("applications").insert(insertData as any).select('id').single();
       
@@ -156,10 +159,17 @@ const ApplyModal = ({
       queryClient.invalidateQueries({ queryKey: ["applications"] });
     },
     onError: (error: any) => {
-      const errorMessage = error?.message || error?.issues?.map((i: any) => i.message).join(", ") || "Bitte versuchen Sie es erneut.";
+      console.error('Bewerbung Fehler:', error);
+      const errorMessage = error?.message || "Unbekannter Fehler";
+      const errorDetails = error?.details || error?.hint || "";
+      const errorCode = error?.code || "";
+      const zodErrors = error?.issues?.map((i: any) => i.message).join(", ");
+      const fullMessage = zodErrors 
+        ? zodErrors 
+        : `${errorMessage}${errorDetails ? " - Details: " + errorDetails : ""}${errorCode ? " (Code: " + errorCode + ")" : ""}`;
       toast({
         title: "Fehler beim Absenden",
-        description: errorMessage,
+        description: fullMessage,
         variant: "destructive",
       });
     },
