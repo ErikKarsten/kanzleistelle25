@@ -480,14 +480,14 @@ const JobsTable = ({
                     {job.is_active ? "🟢 Live" : "⭕ Inaktiv"}
                   </Badge>
                   {job.status === "published" && (
-                    <Badge className="bg-blue-100 text-blue-700 border border-blue-300 text-xs">
-                      Freigegeben
-                    </Badge>
+                    <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border" style={{ color: "#D4AF37", borderColor: "#D4AF37" }}>
+                      ✨ Freigegeben
+                    </span>
                   )}
                 </div>
               </TableCell>
               <TableCell>
-                <div className="flex items-center justify-end gap-2">
+                <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
                   <Switch
                     checked={job.is_active ?? false}
                     onCheckedChange={(checked) => onToggle(job.id, checked)}
