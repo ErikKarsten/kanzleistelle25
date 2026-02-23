@@ -578,19 +578,34 @@ const EmployerDashboard = () => {
                     </div>
                   ) : jobs && jobs.length > 0 ? (
                     <div className="space-y-4">
-                      {jobs.map((job) => (
+                      {jobs.map((job) => {
+                        const isPublished = job.status === "published";
+                        const isPending = job.status === "pending" || !job.status;
+                        return (
                         <div
                           key={job.id}
                           className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${
-                            job.is_active 
-                              ? "hover:bg-secondary/50" 
-                              : "bg-muted/30 opacity-75"
+                            isPending
+                              ? "border-muted bg-muted/20"
+                              : job.is_active 
+                                ? "hover:bg-secondary/50" 
+                                : "bg-muted/30 opacity-75"
                           }`}
                         >
                           <div className="flex-1">
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
                               <h3 className="font-semibold text-foreground">{job.title}</h3>
-                              {!job.is_active && (
+                              {isPublished && (
+                                <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border" style={{ color: "#D4AF37", borderColor: "#D4AF37" }}>
+                                  ✨ Freigegeben
+                                </span>
+                              )}
+                              {isPending && (
+                                <Badge variant="outline" className="text-xs text-muted-foreground bg-muted/50">
+                                  In Prüfung
+                                </Badge>
+                              )}
+                              {isPublished && !job.is_active && (
                                 <Badge variant="outline" className="text-xs">Inaktiv</Badge>
                               )}
                             </div>
@@ -605,12 +620,21 @@ const EmployerDashboard = () => {
                                 Erstellt: {format(new Date(job.created_at!), "dd.MM.yyyy", { locale: de })}
                               </span>
                             </div>
+                            {isPending && (
+                              <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                                <Info className="h-3 w-3" />
+                                Wartet auf Admin-Freigabe. Schalter deaktiviert.
+                              </p>
+                            )}
                           </div>
                           <div className="flex items-center gap-4">
                             <div className="flex items-center gap-2">
-                              <span className="text-sm text-muted-foreground">Aktiv</span>
+                              <span className="text-sm text-muted-foreground">
+                                {isPending ? "Offline" : job.is_active ? "Aktiv" : "Inaktiv"}
+                              </span>
                               <Switch
-                                checked={job.is_active || false}
+                                checked={isPublished ? (job.is_active || false) : false}
+                                disabled={isPending}
                                 onCheckedChange={(checked) =>
                                   toggleJobMutation.mutate({ jobId: job.id, isActive: checked })
                                 }
@@ -625,7 +649,8 @@ const EmployerDashboard = () => {
                             </Button>
                           </div>
                         </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   ) : (
                     <div className="text-center py-12 bg-muted/20 rounded-lg border-2 border-dashed">
