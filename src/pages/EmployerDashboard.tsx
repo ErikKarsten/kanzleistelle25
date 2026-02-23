@@ -330,8 +330,9 @@ const EmployerDashboard = () => {
         .eq("id", jobId);
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["employer-jobs"] });
+      toast({ description: variables.isActive ? "Stelle ist jetzt Live" : "Stelle wurde deaktiviert" });
     },
   });
 
@@ -627,7 +628,7 @@ const EmployerDashboard = () => {
                               </p>
                             )}
                           </div>
-                          <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-4" onClick={(e) => e.stopPropagation()}>
                             <div className="flex items-center gap-2">
                               <span className="text-sm text-muted-foreground">
                                 {isPending ? "Offline" : job.is_active ? "Aktiv" : "Inaktiv"}
