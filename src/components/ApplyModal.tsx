@@ -119,13 +119,11 @@ const ApplyModal = ({
 
   const mutation = useMutation({
     mutationFn: async () => {
-      // Validate job_id is a valid UUID
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
       if (!jobId || !uuidRegex.test(jobId)) {
         throw new Error("Ungültige Job-ID: " + jobId);
       }
 
-      // Validate all form data with zod
       const validated = applicationSchema.parse(formData);
 
       const insertData: Record<string, any> = {
@@ -143,17 +141,17 @@ const ApplyModal = ({
 
       console.log('[ApplyModal] Sende Insert:', JSON.stringify(insertData, null, 2));
       
-      const { data, error } = await supabase.from("applications").insert(insertData as any).select('id').single();
+      const { error } = await supabase.from("applications").insert(insertData as any);
       
       if (error) {
+        console.dir(error, { depth: null });
         throw error;
       }
       
-      return data;
+      return { success: true };
     },
-    onSuccess: (data) => {
-      setApplicationId(data.id);
-      setCurrentStep(4); // Go to success step
+    onSuccess: () => {
+      setCurrentStep(4);
       queryClient.invalidateQueries({ queryKey: ["applications"] });
     },
     onError: (error: any) => {
@@ -462,11 +460,11 @@ const ApplyModal = ({
             </form>
           )}
 
-          {/* Step 4: Success with optional CV upload */}
-          {currentStep === 4 && applicationId && (
+          {/* Step 4: Success */}
+          {currentStep === 4 && (
             <ApplySuccessStep
               firstName={formData.firstName}
-              applicationId={applicationId}
+              applicationId={null}
               company={company}
               onClose={() => handleOpenChange(false)}
             />
