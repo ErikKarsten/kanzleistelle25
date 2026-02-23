@@ -26,7 +26,7 @@ export type Database = {
           first_name: string | null
           id: string
           is_archived: boolean
-          job_id: string
+          job_id: string | null
           last_name: string | null
           phone: string | null
           resume_url: string | null
@@ -44,7 +44,7 @@ export type Database = {
           first_name?: string | null
           id?: string
           is_archived?: boolean
-          job_id: string
+          job_id?: string | null
           last_name?: string | null
           phone?: string | null
           resume_url?: string | null
@@ -62,7 +62,7 @@ export type Database = {
           first_name?: string | null
           id?: string
           is_archived?: boolean
-          job_id?: string
+          job_id?: string | null
           last_name?: string | null
           phone?: string | null
           resume_url?: string | null
