@@ -96,22 +96,50 @@ const EmployerDashboard = () => {
     enabled: !!companyId,
   });
 
-  // Fetch applications for this company's jobs
+  // Fetch applications for this company's jobs - uses both company_id and job_id matching
   const { data: applications, isLoading: applicationsLoading } = useQuery({
-    queryKey: ["employer-applications", jobs],
+    queryKey: ["employer-applications", companyId],
     queryFn: async () => {
-      if (!jobs || jobs.length === 0) return [];
-      const jobIds = jobs.map((j) => j.id);
+      if (!companyId) return [];
+      
+      // First try company_id match, then fall back to job_id match
+      const jobIds = jobs?.map((j) => j.id) || [];
+      
       const { data, error } = await supabase
         .from("applications")
         .select("*, jobs(title)")
-        .in("job_id", jobIds)
+        .or(`company_id.eq.${companyId}${jobIds.length > 0 ? `,job_id.in.(${jobIds.join(",")})` : ""}`)
+        .eq("is_archived", false)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
-    enabled: !!jobs && jobs.length > 0,
+    enabled: !!companyId,
   });
+
+  // Realtime subscription for new applications
+  useEffect(() => {
+    if (!companyId) return;
+    
+    const channel = supabase
+      .channel("employer-applications-realtime")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "applications",
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["employer-applications", companyId] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [companyId, queryClient]);
 
   // Update company mutation
   const updateCompanyMutation = useMutation({
@@ -463,15 +491,22 @@ const EmployerDashboard = () => {
                                   </a>
                                 )}
                                 {app.resume_url && (
-                                  <a
-                                    href={app.resume_url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-1 hover:text-primary"
+                                  <button
+                                    onClick={async () => {
+                                      const { data, error } = await supabase.storage
+                                        .from("resumes")
+                                        .createSignedUrl(app.resume_url!, 60);
+                                      if (error) {
+                                        toast({ title: "Fehler", description: "Lebenslauf konnte nicht geladen werden", variant: "destructive" });
+                                        return;
+                                      }
+                                      window.open(data.signedUrl, "_blank");
+                                    }}
+                                    className="flex items-center gap-1 hover:text-primary text-sm"
                                   >
                                     <FileText className="h-3 w-3" />
                                     Lebenslauf
-                                  </a>
+                                  </button>
                                 )}
                               </div>
                               {app.applicant_role && (
