@@ -28,6 +28,8 @@ import {
   Loader2,
   FileText,
   AlertCircle,
+  Archive,
+  RotateCcw,
 } from "lucide-react";
 import {
   Select,
@@ -41,12 +43,144 @@ import { de } from "date-fns/locale";
 import EmployerJobModal from "@/components/employer/EmployerJobModal";
 import EmployerOnboarding from "@/components/employer/EmployerOnboarding";
 
+// Reusable application card for active/archived views
+const ApplicationCard = ({
+  app,
+  onStatusChange,
+  onArchiveToggle,
+  isArchived,
+  toast,
+}: {
+  app: any;
+  onStatusChange: (appId: string, status: string) => void;
+  onArchiveToggle: (appId: string) => void;
+  isArchived: boolean;
+  toast: any;
+}) => (
+  <div
+    className={`p-4 border rounded-lg transition-colors ${
+      !isArchived && app.status === "pending"
+        ? "border-orange-200 bg-orange-50/50"
+        : isArchived
+        ? "bg-muted/30 opacity-80"
+        : "hover:bg-secondary/50"
+    }`}
+  >
+    <div className="flex items-start justify-between gap-4">
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <h3 className="font-semibold text-foreground">
+            {app.first_name} {app.last_name}
+          </h3>
+          {!isArchived && app.status === "pending" && (
+            <Badge variant="outline" className="bg-orange-100 text-orange-700 border-orange-300">
+              Neu
+            </Badge>
+          )}
+          {isArchived && (
+            <Badge variant="outline" className="text-muted-foreground">
+              Archiviert
+            </Badge>
+          )}
+        </div>
+        <p className="text-sm text-primary mt-1">
+          {app.jobs?.title || "Unbekannte Stelle"}
+        </p>
+        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mt-2">
+          {app.email && (
+            <a href={`mailto:${app.email}`} className="flex items-center gap-1 hover:text-primary">
+              <Mail className="h-3 w-3" />
+              {app.email}
+            </a>
+          )}
+          {app.phone && (
+            <a href={`tel:${app.phone}`} className="flex items-center gap-1 hover:text-primary">
+              <Phone className="h-3 w-3" />
+              {app.phone}
+            </a>
+          )}
+          {app.resume_url && (
+            <button
+              onClick={async () => {
+                const { data, error } = await supabase.storage
+                  .from("resumes")
+                  .createSignedUrl(app.resume_url!, 60);
+                if (error) {
+                  toast({ title: "Fehler", description: "Lebenslauf konnte nicht geladen werden", variant: "destructive" });
+                  return;
+                }
+                window.open(data.signedUrl, "_blank");
+              }}
+              className="flex items-center gap-1 hover:text-primary text-sm"
+            >
+              <FileText className="h-3 w-3" />
+              Lebenslauf
+            </button>
+          )}
+        </div>
+        {app.applicant_role && (
+          <Badge variant="secondary" className="mt-2">
+            {app.applicant_role}
+          </Badge>
+        )}
+        {app.experience && (
+          <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+            <span className="font-medium">Erfahrung:</span> {app.experience}
+          </p>
+        )}
+      </div>
+      <div className="flex flex-col items-end gap-2">
+        <Select
+          value={app.status || "pending"}
+          onValueChange={(value) => onStatusChange(app.id, value)}
+        >
+          <SelectTrigger className="w-[160px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="pending">Neu</SelectItem>
+            <SelectItem value="reviewing">In Prüfung</SelectItem>
+            <SelectItem value="interview">Vorstellungsgespräch</SelectItem>
+            <SelectItem value="accepted">Angenommen</SelectItem>
+            <SelectItem value="rejected">Abgelehnt</SelectItem>
+          </SelectContent>
+        </Select>
+        <Button
+          variant={isArchived ? "outline" : "ghost"}
+          size="sm"
+          onClick={() => onArchiveToggle(app.id)}
+          className="text-xs"
+        >
+          {isArchived ? (
+            <>
+              <RotateCcw className="h-3 w-3 mr-1" />
+              Wiederherstellen
+            </>
+          ) : (
+            <>
+              <Archive className="h-3 w-3 mr-1" />
+              Archivieren
+            </>
+          )}
+        </Button>
+        {app.created_at && (
+          <p className="text-xs text-muted-foreground">
+            <Calendar className="h-3 w-3 inline mr-1" />
+            {format(new Date(app.created_at), "dd. MMM yyyy", { locale: de })}
+          </p>
+        )}
+      </div>
+    </div>
+  </div>
+);
+
 const EmployerDashboard = () => {
   const navigate = useNavigate();
   const { user, role, companyId, isLoading: authLoading, isAuthenticated, signOut } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("jobs");
+  const [applicationsTab, setApplicationsTab] = useState("active");
   const [jobModalOpen, setJobModalOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<any>(null);
 
@@ -102,14 +236,12 @@ const EmployerDashboard = () => {
     queryFn: async () => {
       if (!companyId) return [];
       
-      // First try company_id match, then fall back to job_id match
       const jobIds = jobs?.map((j) => j.id) || [];
       
       const { data, error } = await supabase
         .from("applications")
         .select("*, jobs(title)")
         .or(`company_id.eq.${companyId}${jobIds.length > 0 ? `,job_id.in.(${jobIds.join(",")})` : ""}`)
-        .eq("is_archived", false)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
@@ -188,8 +320,30 @@ const EmployerDashboard = () => {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["employer-applications"] });
+      queryClient.invalidateQueries({ queryKey: ["employer-applications", companyId] });
       toast({ title: "Status aktualisiert!" });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Fehler",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Archive/restore application
+  const archiveApplicationMutation = useMutation({
+    mutationFn: async ({ appId, archive }: { appId: string; archive: boolean }) => {
+      const { error } = await supabase
+        .from("applications")
+        .update({ is_archived: archive, updated_at: new Date().toISOString() })
+        .eq("id", appId);
+      if (error) throw error;
+    },
+    onSuccess: (_, { archive }) => {
+      queryClient.invalidateQueries({ queryKey: ["employer-applications", companyId] });
+      toast({ title: archive ? "Bewerbung archiviert" : "Bewerbung wiederhergestellt" });
     },
     onError: (error: any) => {
       toast({
@@ -233,7 +387,9 @@ const EmployerDashboard = () => {
   }
 
   const activeJobs = jobs?.filter((j) => j.is_active) || [];
-  const pendingApplications = applications?.filter((a) => a.status === "pending") || [];
+  const activeApplications = applications?.filter((a) => !a.is_archived) || [];
+  const archivedApplications = applications?.filter((a) => a.is_archived) || [];
+  const pendingApplications = activeApplications.filter((a) => a.status === "pending");
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -446,122 +602,78 @@ const EmployerDashboard = () => {
                     Bewerbungen auf Ihre Stellenanzeigen
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  {applicationsLoading ? (
-                    <div className="flex items-center justify-center py-8">
-                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                    </div>
-                  ) : applications && applications.length > 0 ? (
-                    <div className="space-y-4">
-                      {applications.map((app) => (
-                        <div
-                          key={app.id}
-                          className={`p-4 border rounded-lg transition-colors ${
-                            app.status === "pending" 
-                              ? "border-orange-200 bg-orange-50/50" 
-                              : "hover:bg-secondary/50"
-                          }`}
-                        >
-                          <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2">
-                                <h3 className="font-semibold text-foreground">
-                                  {app.first_name} {app.last_name}
-                                </h3>
-                                {app.status === "pending" && (
-                                  <Badge variant="outline" className="bg-orange-100 text-orange-700 border-orange-300">
-                                    Neu
-                                  </Badge>
-                                )}
-                              </div>
-                              <p className="text-sm text-primary mt-1">
-                                {(app as any).jobs?.title || "Unbekannte Stelle"}
-                              </p>
-                              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mt-2">
-                                {app.email && (
-                                  <a href={`mailto:${app.email}`} className="flex items-center gap-1 hover:text-primary">
-                                    <Mail className="h-3 w-3" />
-                                    {app.email}
-                                  </a>
-                                )}
-                                {app.phone && (
-                                  <a href={`tel:${app.phone}`} className="flex items-center gap-1 hover:text-primary">
-                                    <Phone className="h-3 w-3" />
-                                    {app.phone}
-                                  </a>
-                                )}
-                                {app.resume_url && (
-                                  <button
-                                    onClick={async () => {
-                                      const { data, error } = await supabase.storage
-                                        .from("resumes")
-                                        .createSignedUrl(app.resume_url!, 60);
-                                      if (error) {
-                                        toast({ title: "Fehler", description: "Lebenslauf konnte nicht geladen werden", variant: "destructive" });
-                                        return;
-                                      }
-                                      window.open(data.signedUrl, "_blank");
-                                    }}
-                                    className="flex items-center gap-1 hover:text-primary text-sm"
-                                  >
-                                    <FileText className="h-3 w-3" />
-                                    Lebenslauf
-                                  </button>
-                                )}
-                              </div>
-                              {app.applicant_role && (
-                                <Badge variant="secondary" className="mt-2">
-                                  {app.applicant_role}
-                                </Badge>
-                              )}
-                              {app.experience && (
-                                <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                                  <span className="font-medium">Erfahrung:</span> {app.experience}
-                                </p>
-                              )}
-                            </div>
-                            <div className="flex flex-col items-end gap-2">
-                              <Select
-                                value={app.status || "pending"}
-                                onValueChange={(value) =>
-                                  updateApplicationStatusMutation.mutate({
-                                    appId: app.id,
-                                    status: value,
-                                  })
-                                }
-                              >
-                                <SelectTrigger className="w-[160px]">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="pending">Neu</SelectItem>
-                                  <SelectItem value="reviewing">In Prüfung</SelectItem>
-                                  <SelectItem value="interview">Vorstellungsgespräch</SelectItem>
-                                  <SelectItem value="accepted">Angenommen</SelectItem>
-                                  <SelectItem value="rejected">Abgelehnt</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              {app.created_at && (
-                                <p className="text-xs text-muted-foreground">
-                                  <Calendar className="h-3 w-3 inline mr-1" />
-                                  {format(new Date(app.created_at), "dd. MMM yyyy", {
-                                    locale: de,
-                                  })}
-                                </p>
-                              )}
-                            </div>
-                          </div>
+                <CardContent className="space-y-4">
+                  {/* Inner Tabs: Aktiv / Archiv */}
+                  <Tabs value={applicationsTab} onValueChange={setApplicationsTab}>
+                    <TabsList>
+                      <TabsTrigger value="active" className="flex items-center gap-2">
+                        <Users className="h-4 w-4" />
+                        Aktiv
+                        {activeApplications.length > 0 && (
+                          <Badge variant="secondary" className="ml-1 text-xs">{activeApplications.length}</Badge>
+                        )}
+                      </TabsTrigger>
+                      <TabsTrigger value="archived" className="flex items-center gap-2">
+                        <Archive className="h-4 w-4" />
+                        Archiv
+                        {archivedApplications.length > 0 && (
+                          <Badge variant="outline" className="ml-1 text-xs">{archivedApplications.length}</Badge>
+                        )}
+                      </TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="active">
+                      {applicationsLoading ? (
+                        <div className="flex items-center justify-center py-8">
+                          <Loader2 className="h-6 w-6 animate-spin text-primary" />
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-12">
-                      <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground">
-                        Noch keine Bewerbungen eingegangen.
-                      </p>
-                    </div>
-                  )}
+                      ) : activeApplications.length > 0 ? (
+                        <div className="space-y-4">
+                          {activeApplications.map((app) => (
+                            <ApplicationCard
+                              key={app.id}
+                              app={app}
+                              onStatusChange={(appId, status) => updateApplicationStatusMutation.mutate({ appId, status })}
+                              onArchiveToggle={(appId) => archiveApplicationMutation.mutate({ appId, archive: true })}
+                              isArchived={false}
+                              toast={toast}
+                            />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-12">
+                          <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                          <p className="text-muted-foreground">Noch keine aktiven Bewerbungen.</p>
+                        </div>
+                      )}
+                    </TabsContent>
+
+                    <TabsContent value="archived">
+                      {applicationsLoading ? (
+                        <div className="flex items-center justify-center py-8">
+                          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                        </div>
+                      ) : archivedApplications.length > 0 ? (
+                        <div className="space-y-4">
+                          {archivedApplications.map((app) => (
+                            <ApplicationCard
+                              key={app.id}
+                              app={app}
+                              onStatusChange={(appId, status) => updateApplicationStatusMutation.mutate({ appId, status })}
+                              onArchiveToggle={(appId) => archiveApplicationMutation.mutate({ appId, archive: false })}
+                              isArchived={true}
+                              toast={toast}
+                            />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-12">
+                          <Archive className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                          <p className="text-muted-foreground">Keine archivierten Bewerbungen.</p>
+                        </div>
+                      )}
+                    </TabsContent>
+                  </Tabs>
                 </CardContent>
               </Card>
             </TabsContent>
