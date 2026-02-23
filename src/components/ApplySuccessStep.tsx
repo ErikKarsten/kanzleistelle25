@@ -121,6 +121,9 @@ const ApplySuccessStep = ({
         <p className="text-muted-foreground">
           Deine Bewerbung ist bei <span className="font-semibold text-primary">{company}</span> eingegangen!
         </p>
+        <p className="text-xs text-muted-foreground mt-3">
+          🔒 Deine Daten wurden sicher übermittelt und werden gemäß DSGVO nach 6 Monaten automatisch gelöscht.
+        </p>
       </div>
 
       {/* Chancen-Boost Box - only show if we have applicationId for upload */}
