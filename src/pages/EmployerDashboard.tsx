@@ -30,6 +30,8 @@ import {
   AlertCircle,
   Archive,
   RotateCcw,
+  Trash2,
+  Info,
 } from "lucide-react";
 import {
   Select,
@@ -48,15 +50,22 @@ const ApplicationCard = ({
   app,
   onStatusChange,
   onArchiveToggle,
+  onDelete,
   isArchived,
   toast,
 }: {
   app: any;
   onStatusChange: (appId: string, status: string) => void;
   onArchiveToggle: (appId: string) => void;
+  onDelete?: (appId: string) => void;
   isArchived: boolean;
   toast: any;
-}) => (
+}) => {
+  const deletionDate = app.created_at
+    ? new Date(new Date(app.created_at).getTime() + 6 * 30 * 24 * 60 * 60 * 1000)
+    : null;
+
+  return (
   <div
     className={`p-4 border rounded-lg transition-colors ${
       !isArchived && app.status === "pending"
@@ -163,17 +172,33 @@ const ApplicationCard = ({
             </>
           )}
         </Button>
+        {isArchived && onDelete && (
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => onDelete(app.id)}
+            className="text-xs"
+          >
+            <Trash2 className="h-3 w-3 mr-1" />
+            Endgültig löschen
+          </Button>
+        )}
         {app.created_at && (
           <p className="text-xs text-muted-foreground">
             <Calendar className="h-3 w-3 inline mr-1" />
             {format(new Date(app.created_at), "dd. MMM yyyy", { locale: de })}
           </p>
         )}
+        {isArchived && deletionDate && (
+          <p className="text-xs text-destructive">
+            Auto-Löschung: {format(deletionDate, "dd. MMM yyyy", { locale: de })}
+          </p>
+        )}
       </div>
     </div>
   </div>
-);
-
+  );
+};
 const EmployerDashboard = () => {
   const navigate = useNavigate();
   const { user, role, companyId, isLoading: authLoading, isAuthenticated, signOut } = useAuth();
@@ -348,6 +373,32 @@ const EmployerDashboard = () => {
     onError: (error: any) => {
       toast({
         title: "Fehler",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete application permanently (DSGVO)
+  const deleteApplicationMutation = useMutation({
+    mutationFn: async (appId: string) => {
+      const app = applications?.find((a: any) => a.id === appId);
+      if (app?.resume_url) {
+        await supabase.storage.from("resumes").remove([app.resume_url]);
+      }
+      const { error } = await supabase
+        .from("applications")
+        .delete()
+        .eq("id", appId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employer-applications", companyId] });
+      toast({ title: "Bewerbung endgültig gelöscht" });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Fehler beim Löschen",
         description: error.message,
         variant: "destructive",
       });
@@ -649,6 +700,10 @@ const EmployerDashboard = () => {
                     </TabsContent>
 
                     <TabsContent value="archived">
+                      <div className="flex items-start gap-2 mb-4 p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
+                        <Info className="h-4 w-4 mt-0.5 shrink-0" />
+                        <p>Archivierte Bewerber werden gemäß DSGVO nach 6 Monaten endgültig aus dem System entfernt. Bei einem Löschverlangen des Bewerbers können Sie die Daten sofort löschen.</p>
+                      </div>
                       {applicationsLoading ? (
                         <div className="flex items-center justify-center py-8">
                           <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -661,6 +716,7 @@ const EmployerDashboard = () => {
                               app={app}
                               onStatusChange={(appId, status) => updateApplicationStatusMutation.mutate({ appId, status })}
                               onArchiveToggle={(appId) => archiveApplicationMutation.mutate({ appId, archive: false })}
+                              onDelete={(appId) => deleteApplicationMutation.mutate(appId)}
                               isArchived={true}
                               toast={toast}
                             />
