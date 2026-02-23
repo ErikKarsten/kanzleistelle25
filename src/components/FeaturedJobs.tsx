@@ -62,6 +62,7 @@ const FeaturedJobs = () => {
           )
         `)
         .eq("is_active", true)
+        .eq("status", "published")
         .order("created_at", { ascending: false })
         .limit(6);
 

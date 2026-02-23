@@ -82,6 +82,7 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
           )
         `)
         .eq("is_active", true)
+        .eq("status", "published")
         .order("created_at", { ascending: false });
 
       if (searchFilters.title) {
