@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Building2, ArrowRight, CheckCircle2 } from "lucide-react";
+import LogoUpload from "@/components/employer/LogoUpload";
 
 const RegisterEmployer = () => {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ const RegisterEmployer = () => {
     location: "",
     description: "",
   });
+  const [logoFile, setLogoFile] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,13 +66,27 @@ const RegisterEmployer = () => {
         throw new Error("Benutzer konnte nicht erstellt werden");
       }
 
-      // 2. Create company entry (triggers auto-assignment of employer role)
+      // 2. Upload logo if selected
+      let logoUrl: string | null = null;
+      if (logoFile) {
+        const fileExt = logoFile.name.split(".").pop()?.toLowerCase() || "png";
+        const fileName = `${crypto.randomUUID()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from("logos")
+          .upload(fileName, logoFile, { contentType: logoFile.type });
+        if (uploadError) throw uploadError;
+        const { data: urlData } = supabase.storage.from("logos").getPublicUrl(fileName);
+        logoUrl = urlData.publicUrl;
+      }
+
+      // 3. Create company entry (triggers auto-assignment of employer role)
       const { error: companyError } = await supabase
         .from("companies")
         .insert({
           name: formData.companyName,
           location: formData.location || null,
           description: formData.description || null,
+          logo_url: logoUrl,
           user_id: authData.user.id,
         });
 
@@ -195,8 +211,15 @@ const RegisterEmployer = () => {
                   </div>
 
                   {/* Company Details */}
-                  <div className="space-y-4 pt-4 border-t">
+                    <div className="space-y-4 pt-4 border-t">
                     <h3 className="font-semibold text-foreground">Kanzlei-Informationen</h3>
+
+                    <LogoUpload
+                      companyName={formData.companyName}
+                      immediate={false}
+                      onFileSelect={(file) => setLogoFile(file)}
+                      onUploadComplete={() => {}}
+                    />
 
                     <div className="space-y-2">
                       <Label htmlFor="companyName">Kanzleiname *</Label>

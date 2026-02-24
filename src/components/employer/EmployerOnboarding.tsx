@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Building2, Loader2, ArrowRight } from "lucide-react";
 import { companySchema } from "@/lib/validations";
+import LogoUpload from "@/components/employer/LogoUpload";
 
 interface EmployerOnboardingProps {
   userId: string;
@@ -24,10 +25,24 @@ const EmployerOnboarding = ({ userId }: EmployerOnboardingProps) => {
     location: "",
     description: "",
   });
+  const [logoFile, setLogoFile] = useState<File | null>(null);
 
   const createCompanyMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
       const validated = companySchema.parse(data);
+
+      // Upload logo if selected
+      let logoUrl: string | null = null;
+      if (logoFile) {
+        const fileExt = logoFile.name.split(".").pop()?.toLowerCase() || "png";
+        const fileName = `${crypto.randomUUID()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage
+          .from("logos")
+          .upload(fileName, logoFile, { contentType: logoFile.type });
+        if (uploadError) throw uploadError;
+        const { data: urlData } = supabase.storage.from("logos").getPublicUrl(fileName);
+        logoUrl = urlData.publicUrl;
+      }
 
       const { data: company, error } = await supabase
         .from("companies")
@@ -35,6 +50,7 @@ const EmployerOnboarding = ({ userId }: EmployerOnboardingProps) => {
           name: validated.name,
           location: validated.location || null,
           description: validated.description || null,
+          logo_url: logoUrl,
           user_id: userId,
         })
         .select()
@@ -79,6 +95,13 @@ const EmployerOnboarding = ({ userId }: EmployerOnboardingProps) => {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
+          <LogoUpload
+            companyName={formData.name}
+            immediate={false}
+            onFileSelect={(file) => setLogoFile(file)}
+            onUploadComplete={() => {}}
+          />
+
           <div className="space-y-2">
             <Label htmlFor="name">Name Ihrer Kanzlei *</Label>
             <Input
