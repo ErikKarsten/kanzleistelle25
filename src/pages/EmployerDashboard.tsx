@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,6 +46,7 @@ import { de } from "date-fns/locale";
 import EmployerJobModal from "@/components/employer/EmployerJobModal";
 import LogoUpload from "@/components/employer/LogoUpload";
 import EmployerOnboarding from "@/components/employer/EmployerOnboarding";
+import NewApplicantModal, { useNewApplicantNotification } from "@/components/employer/NewApplicantModal";
 
 // Reusable application card for active/archived views
 const ApplicationCard = ({
@@ -210,6 +211,8 @@ const EmployerDashboard = () => {
   const [applicationsTab, setApplicationsTab] = useState("active");
   const [jobModalOpen, setJobModalOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<any>(null);
+  const { applicant: newApplicant, notify: notifyNewApplicant, dismiss: dismissNewApplicant } = useNewApplicantNotification();
+  const knownAppIds = useRef<Set<string>>(new Set());
 
   // Redirect if not authenticated or admin
   useEffect(() => {
@@ -276,7 +279,14 @@ const EmployerDashboard = () => {
     enabled: !!companyId,
   });
 
-  // Realtime subscription for new applications
+  // Seed known IDs once applications load
+  useEffect(() => {
+    if (applications) {
+      applications.forEach((a: any) => knownAppIds.current.add(a.id));
+    }
+  }, [applications]);
+
+  // Realtime subscription for new applications with confetti notification
   useEffect(() => {
     if (!companyId) return;
     
@@ -285,7 +295,61 @@ const EmployerDashboard = () => {
       .on(
         "postgres_changes",
         {
-          event: "*",
+          event: "INSERT",
+          schema: "public",
+          table: "applications",
+        },
+        async (payload) => {
+          const newRow = payload.new as any;
+          // Skip if already known (dedup)
+          if (knownAppIds.current.has(newRow.id)) return;
+          knownAppIds.current.add(newRow.id);
+
+          // Check if this application belongs to our company
+          const belongsToCompany = newRow.company_id === companyId;
+          let jobTitle: string | null = null;
+
+          if (!belongsToCompany && newRow.job_id) {
+            // Check if the job belongs to our company
+            const currentJobs = queryClient.getQueryData<any[]>(["employer-jobs", companyId]);
+            const match = currentJobs?.find((j) => j.id === newRow.job_id);
+            if (!match) return; // Not our application
+            jobTitle = match.title;
+          }
+
+          if (!jobTitle && newRow.job_id) {
+            const cachedJobs = queryClient.getQueryData<any[]>(["employer-jobs", companyId]);
+            jobTitle = cachedJobs?.find((j: any) => j.id === newRow.job_id)?.title || null;
+          }
+
+          // Invalidate queries to update counters & list
+          queryClient.invalidateQueries({ queryKey: ["employer-applications", companyId] });
+
+          // Trigger confetti + modal
+          notifyNewApplicant({
+            id: newRow.id,
+            first_name: newRow.first_name,
+            last_name: newRow.last_name,
+            jobTitle,
+            created_at: newRow.created_at,
+          });
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "applications",
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["employer-applications", companyId] });
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
           schema: "public",
           table: "applications",
         },
@@ -298,7 +362,7 @@ const EmployerDashboard = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [companyId, queryClient]);
+  }, [companyId, queryClient, notifyNewApplicant]);
 
   // Update company mutation
   const updateCompanyMutation = useMutation({
@@ -854,6 +918,16 @@ const EmployerDashboard = () => {
         job={selectedJob}
         companyId={companyId}
         companyName={company?.name || ""}
+      />
+
+      {/* New Applicant Notification Modal */}
+      <NewApplicantModal
+        applicant={newApplicant}
+        onDismiss={dismissNewApplicant}
+        onViewDetails={() => {
+          setActiveTab("applications");
+          setApplicationsTab("active");
+        }}
       />
     </div>
   );
