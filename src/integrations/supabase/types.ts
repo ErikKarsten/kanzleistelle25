@@ -147,11 +147,50 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_persons: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          phone: string
+          role: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          phone: string
+          role?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string
+          role?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_persons_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       jobs: {
         Row: {
           benefits: string[] | null
           company: string
           company_id: string | null
+          contact_person_id: string | null
           created_at: string | null
           description: string | null
           employer_id: string | null
@@ -172,6 +211,7 @@ export type Database = {
           benefits?: string[] | null
           company: string
           company_id?: string | null
+          contact_person_id?: string | null
           created_at?: string | null
           description?: string | null
           employer_id?: string | null
@@ -192,6 +232,7 @@ export type Database = {
           benefits?: string[] | null
           company?: string
           company_id?: string | null
+          contact_person_id?: string | null
           created_at?: string | null
           description?: string | null
           employer_id?: string | null
@@ -214,6 +255,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jobs_contact_person_id_fkey"
+            columns: ["contact_person_id"]
+            isOneToOne: false
+            referencedRelation: "contact_persons"
             referencedColumns: ["id"]
           },
         ]
