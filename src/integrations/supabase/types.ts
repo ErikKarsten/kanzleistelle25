@@ -25,6 +25,7 @@ export type Database = {
           experience: string | null
           first_name: string | null
           id: string
+          internal_notes: string | null
           is_archived: boolean
           job_id: string | null
           last_name: string | null
@@ -43,6 +44,7 @@ export type Database = {
           experience?: string | null
           first_name?: string | null
           id?: string
+          internal_notes?: string | null
           is_archived?: boolean
           job_id?: string | null
           last_name?: string | null
@@ -61,6 +63,7 @@ export type Database = {
           experience?: string | null
           first_name?: string | null
           id?: string
+          internal_notes?: string | null
           is_archived?: boolean
           job_id?: string | null
           last_name?: string | null

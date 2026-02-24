@@ -59,6 +59,7 @@ import EmployerOnboarding from "@/components/employer/EmployerOnboarding";
 import NewApplicantModal, { useNewApplicantNotification } from "@/components/employer/NewApplicantModal";
 import WelcomeBackModal from "@/components/employer/WelcomeBackModal";
 import CompanyBlockedScreen from "@/components/employer/CompanyBlockedScreen";
+import ApplicantDetailSheet from "@/components/employer/ApplicantDetailSheet";
 
 // Reusable application card for active/archived views
 const ApplicationCard = ({
@@ -68,6 +69,7 @@ const ApplicationCard = ({
   onDelete,
   isArchived,
   toast,
+  onClickDetail,
 }: {
   app: any;
   onStatusChange: (appId: string, status: string) => void;
@@ -75,6 +77,7 @@ const ApplicationCard = ({
   onDelete?: (appId: string) => void;
   isArchived: boolean;
   toast: any;
+  onClickDetail?: (app: any) => void;
 }) => {
   const deletionDate = app.created_at
     ? new Date(new Date(app.created_at).getTime() + 6 * 30 * 24 * 60 * 60 * 1000)
@@ -82,7 +85,8 @@ const ApplicationCard = ({
 
   return (
   <div
-    className={`p-4 border rounded-lg transition-colors ${
+    onClick={() => onClickDetail?.(app)}
+    className={`p-4 border rounded-lg transition-colors cursor-pointer ${
       !isArchived && app.status === "pending"
         ? "border-orange-200 bg-orange-50/50"
         : isArchived
@@ -227,6 +231,7 @@ const EmployerDashboard = () => {
   const knownAppIds = useRef<Set<string>>(new Set());
   const [reactivationModalOpen, setReactivationModalOpen] = useState(false);
   const [reactivationShown, setReactivationShown] = useState(false);
+  const [selectedApplicant, setSelectedApplicant] = useState<any>(null);
 
   // Redirect if not authenticated or admin
   useEffect(() => {
@@ -842,6 +847,7 @@ const EmployerDashboard = () => {
                               onArchiveToggle={(appId) => archiveApplicationMutation.mutate({ appId, archive: true })}
                               isArchived={false}
                               toast={toast}
+                              onClickDetail={(a) => setSelectedApplicant(a)}
                             />
                           ))}
                         </div>
@@ -873,6 +879,7 @@ const EmployerDashboard = () => {
                               onDelete={(appId) => deleteApplicationMutation.mutate(appId)}
                               isArchived={true}
                               toast={toast}
+                              onClickDetail={(a) => setSelectedApplicant(a)}
                             />
                           ))}
                         </div>
@@ -985,9 +992,12 @@ const EmployerDashboard = () => {
       <NewApplicantModal
         applicant={newApplicant}
         onDismiss={dismissNewApplicant}
-        onViewDetails={() => {
+        onViewDetails={(appId) => {
           setActiveTab("applications");
           setApplicationsTab("active");
+          // Find the application by ID and open it
+          const found = applications?.find((a: any) => a.id === appId);
+          if (found) setSelectedApplicant(found);
         }}
       />
 
@@ -1036,6 +1046,14 @@ const EmployerDashboard = () => {
           </Button>
         </DialogContent>
       </Dialog>
+      {/* Applicant Detail Sheet */}
+      <ApplicantDetailSheet
+        application={selectedApplicant}
+        open={!!selectedApplicant}
+        onOpenChange={(open) => { if (!open) setSelectedApplicant(null); }}
+        companyId={companyId}
+        companyName={company?.name || ""}
+      />
     </div>
   );
 };
