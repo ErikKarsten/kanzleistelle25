@@ -38,6 +38,7 @@ interface Company {
   created_at: string | null;
   is_active: boolean;
   website: string | null;
+  user_id: string | null;
 }
 
 const CompanyManagement = () => {

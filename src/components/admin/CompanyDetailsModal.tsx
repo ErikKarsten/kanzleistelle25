@@ -13,7 +13,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Building2, MapPin, Briefcase, Trash2, Save, Plus } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import {
+  Building2,
+  MapPin,
+  Briefcase,
+  Trash2,
+  Save,
+  Plus,
+  Loader2,
+  ShieldCheck,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -26,7 +37,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import JobCreateModal from "./JobCreateModal";
+import LogoUpload from "@/components/employer/LogoUpload";
 
 interface Company {
   id: string;
@@ -37,6 +56,7 @@ interface Company {
   created_at: string | null;
   is_active: boolean;
   website: string | null;
+  user_id: string | null;
 }
 
 interface Job {
@@ -66,8 +86,10 @@ const CompanyDetailsModal = ({
     description: "",
     logo_url: "",
     website: "",
+    is_active: true,
   });
   const [jobCreateOpen, setJobCreateOpen] = useState(false);
+  const [ownerEmail, setOwnerEmail] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -78,7 +100,19 @@ const CompanyDetailsModal = ({
         description: company.description || "",
         logo_url: company.logo_url || "",
         website: company.website || "",
+        is_active: company.is_active,
       });
+      // Fetch owner email from profiles
+      if (company.user_id) {
+        supabase
+          .from("profiles")
+          .select("email")
+          .eq("id", company.user_id)
+          .maybeSingle()
+          .then(({ data }) => setOwnerEmail(data?.email || null));
+      } else {
+        setOwnerEmail(null);
+      }
     }
   }, [company]);
 
@@ -91,7 +125,6 @@ const CompanyDetailsModal = ({
         .select("id, title, employment_type, is_active, location")
         .eq("company_id", company.id)
         .order("created_at", { ascending: false });
-
       if (error) throw error;
       return data as Job[];
     },
@@ -109,9 +142,9 @@ const CompanyDetailsModal = ({
           description: data.description || null,
           logo_url: data.logo_url || null,
           website: data.website || null,
+          is_active: data.is_active,
         } as any)
         .eq("id", company.id);
-
       if (error) throw error;
     },
     onSuccess: () => {
@@ -148,48 +181,63 @@ const CompanyDetailsModal = ({
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Edit Form */}
+          {/* Section 1: Zugangsdaten (read-only) */}
           <div className="space-y-4">
+            <h3 className="font-semibold text-foreground">Zugangsdaten</h3>
             <div className="space-y-2">
-              <Label htmlFor="name">Name *</Label>
+              <Label>E-Mail-Adresse (Inhaber)</Label>
               <Input
-                id="name"
+                value={ownerEmail || "Kein Nutzer zugewiesen"}
+                readOnly
+                disabled
+                className="bg-muted"
+              />
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Section 2: Kanzlei-Informationen */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-foreground">Kanzlei-Informationen</h3>
+
+            {/* Logo Upload */}
+            <LogoUpload
+              currentLogoUrl={formData.logo_url || null}
+              companyName={formData.name}
+              onUploadComplete={(url) =>
+                setFormData({ ...formData, logo_url: url })
+              }
+            />
+
+            <div className="space-y-2">
+              <Label htmlFor="admin-company-name">Kanzleiname *</Label>
+              <Input
+                id="admin-company-name"
                 value={formData.name}
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                placeholder="Kanzleiname"
+                placeholder="Muster Steuerberatung GmbH"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="location">Standort</Label>
+              <Label htmlFor="admin-company-location">Standort</Label>
               <Input
-                id="location"
+                id="admin-company-location"
                 value={formData.location}
                 onChange={(e) =>
                   setFormData({ ...formData, location: e.target.value })
                 }
-                placeholder="z.B. Berlin, Hamburg"
+                placeholder="z.B. München, Berlin, Hamburg"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="logo_url">Logo URL</Label>
+              <Label htmlFor="admin-company-website">Website</Label>
               <Input
-                id="logo_url"
-                value={formData.logo_url}
-                onChange={(e) =>
-                  setFormData({ ...formData, logo_url: e.target.value })
-                }
-                placeholder="https://..."
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="website">Website</Label>
-              <Input
-                id="website"
+                id="admin-company-website"
                 type="url"
                 value={formData.website}
                 onChange={(e) =>
@@ -200,14 +248,14 @@ const CompanyDetailsModal = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Beschreibung</Label>
+              <Label htmlFor="admin-company-description">Kurzbeschreibung</Label>
               <Textarea
-                id="description"
+                id="admin-company-description"
                 value={formData.description}
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
-                placeholder="Kurze Beschreibung der Kanzlei..."
+                placeholder="Erzählen Sie potenziellen Bewerbern etwas über diese Kanzlei..."
                 rows={3}
               />
             </div>
@@ -215,12 +263,12 @@ const CompanyDetailsModal = ({
 
           <Separator />
 
-          {/* Jobs Section */}
+          {/* Section 3: Offene Stellen */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-foreground flex items-center gap-2">
                 <Briefcase className="h-4 w-4 text-primary" />
-                Offene Stellen dieser Kanzlei ({openJobs.length})
+                Offene Stellen ({openJobs.length})
               </h3>
               <Button
                 variant="outline"
@@ -228,7 +276,7 @@ const CompanyDetailsModal = ({
                 onClick={() => setJobCreateOpen(true)}
               >
                 <Plus className="h-4 w-4 mr-1" />
-                Neue Stelle schalten
+                Neue Stelle
               </Button>
             </div>
 
@@ -259,13 +307,43 @@ const CompanyDetailsModal = ({
 
           <Separator />
 
-          {/* Actions */}
-          <div className="flex items-center justify-between">
+          {/* Section 4: Admin-Aktionen */}
+          <div className="space-y-4 bg-muted/30 rounded-xl p-4 border">
+            <h3 className="font-semibold text-foreground flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-primary" />
+              Admin-Aktionen
+            </h3>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>Status</Label>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Gesperrte Kanzleien und ihre Stellen werden nicht angezeigt.
+                </p>
+              </div>
+              <Select
+                value={formData.is_active ? "active" : "blocked"}
+                onValueChange={(v) =>
+                  setFormData({ ...formData, is_active: v === "active" })
+                }
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">✅ Freigegeben</SelectItem>
+                  <SelectItem value="blocked">🚫 Gesperrt</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Separator />
+
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="destructive" size="sm">
                   <Trash2 className="h-4 w-4 mr-1" />
-                  Löschen
+                  Kanzlei endgültig löschen
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
@@ -287,10 +365,23 @@ const CompanyDetailsModal = ({
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
+          </div>
 
+          <Separator />
+
+          {/* Action Buttons */}
+          <div className="flex items-center justify-end gap-3">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              <X className="h-4 w-4 mr-1" />
+              Abbrechen
+            </Button>
             <Button onClick={handleSave} disabled={updateMutation.isPending}>
-              <Save className="h-4 w-4 mr-1" />
-              Speichern
+              {updateMutation.isPending ? (
+                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4 mr-1" />
+              )}
+              Änderungen speichern
             </Button>
           </div>
         </div>
