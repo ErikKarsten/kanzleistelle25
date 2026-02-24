@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Briefcase, User, LayoutDashboard, LogOut } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Menu, X, Briefcase, User, LayoutDashboard, LogOut, Building2, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   DropdownMenu,
@@ -14,7 +15,7 @@ import {
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const { user, role, companyName, isLoading, isAuthenticated, signOut } = useAuth();
+  const { user, role, companyName, companyLogoUrl, isLoading, isAuthenticated, signOut } = useAuth();
 
   const handleSignOut = async () => {
     await signOut();
@@ -60,18 +61,39 @@ const Header = () => {
           ) : isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <User className="h-4 w-4 mr-2" />
-                  {companyName || user?.email?.split("@")[0] || "Konto"}
+                <Button variant="ghost" size="sm" className="gap-2 px-2">
+                  <Avatar className="h-8 w-8">
+                    {companyLogoUrl ? (
+                      <AvatarImage src={companyLogoUrl} alt={companyName || "Logo"} className="object-cover" />
+                    ) : null}
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                      {companyName ? companyName.substring(0, 2).toUpperCase() : <Building2 className="h-4 w-4" />}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden lg:inline text-sm font-medium max-w-[150px] truncate">
+                    {companyName || user?.email?.split("@")[0] || "Konto"}
+                  </span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end" className="w-52 bg-popover border border-border shadow-lg z-50">
+                <div className="px-3 py-2 border-b border-border">
+                  <p className="text-sm font-medium truncate">{companyName || "Mein Konto"}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                </div>
                 <DropdownMenuItem asChild>
                   <Link to={getDashboardLink()} className="flex items-center cursor-pointer">
                     <LayoutDashboard className="h-4 w-4 mr-2" />
-                    {role === "admin" ? "Admin-Dashboard" : "Zum Dashboard"}
+                    {role === "admin" ? "Admin-Dashboard" : "Dashboard"}
                   </Link>
                 </DropdownMenuItem>
+                {role === "employer" && (
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard?tab=profile" className="flex items-center cursor-pointer">
+                      <Settings className="h-4 w-4 mr-2" />
+                      Kanzlei-Einstellungen
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="text-destructive cursor-pointer">
                   <LogOut className="h-4 w-4 mr-2" />

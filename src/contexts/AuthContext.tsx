@@ -10,6 +10,7 @@ interface AuthContextType {
   role: UserRole;
   companyId: string | null;
   companyName: string | null;
+  companyLogoUrl: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   signOut: () => Promise<void>;
@@ -36,6 +37,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [role, setRole] = useState<UserRole>(null);
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [companyName, setCompanyName] = useState<string | null>(null);
+  const [companyLogoUrl, setCompanyLogoUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchUserData = async (userId: string) => {
@@ -66,7 +68,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (isEmployer || !roles || roles.length === 0) {
         const { data: company, error: companyError } = await supabase
           .from("companies")
-          .select("id, name")
+          .select("id, name, logo_url")
           .eq("user_id", userId)
           .maybeSingle();
 
@@ -77,13 +79,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         if (company) {
           setCompanyId(company.id);
           setCompanyName(company.name);
-          // If user has a company but no employer role, they should still be treated as employer
+          setCompanyLogoUrl(company.logo_url || null);
           if (!isEmployer && !isAdmin) {
             setRole("employer");
           }
         } else {
           setCompanyId(null);
           setCompanyName(null);
+          setCompanyLogoUrl(null);
         }
       }
     } catch (error) {
@@ -111,6 +114,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           setSession(null);
           setRole(null);
           setCompanyId(null);
+          setCompanyLogoUrl(null);
           setIsLoading(false);
           return;
         }
@@ -129,6 +133,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           setSession(null);
           setRole(null);
           setCompanyId(null);
+          setCompanyLogoUrl(null);
           setIsLoading(false);
         }
       }
@@ -165,6 +170,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setRole(null);
     setCompanyId(null);
     setCompanyName(null);
+    setCompanyLogoUrl(null);
   };
 
   const value: AuthContextType = {
@@ -173,6 +179,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     role,
     companyId,
     companyName,
+    companyLogoUrl,
     isLoading,
     isAuthenticated: !!user,
     signOut,
