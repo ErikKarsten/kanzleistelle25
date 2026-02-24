@@ -150,7 +150,7 @@ const ApplyModal = ({
         first_name: validated.firstName,
         last_name: validated.lastName,
         email: validated.email,
-        phone: validated.phone || null,
+        phone: validated.phone,
         applicant_role: validated.role,
         experience: validated.experience,
       };
@@ -193,7 +193,7 @@ const ApplyModal = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim()) {
+    if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim() || !formData.phone.trim()) {
       toast({
         title: "Fehlende Angaben",
         description: "Bitte füllen Sie alle Pflichtfelder aus.",
@@ -429,7 +429,7 @@ const ApplyModal = ({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">Telefon (optional)</Label>
+                <Label htmlFor="phone">Telefonnummer *</Label>
                 <Input
                   id="phone"
                   type="tel"
@@ -438,7 +438,11 @@ const ApplyModal = ({
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, phone: e.target.value }))
                   }
+                  required
                 />
+                {formData.phone && !/^[+\d\s\-()\/]+$/.test(formData.phone) && (
+                  <p className="text-xs text-destructive">Bitte eine gültige Telefonnummer eingeben.</p>
+                )}
               </div>
 
               <div className="bg-muted/50 rounded-lg p-3 text-sm text-muted-foreground">

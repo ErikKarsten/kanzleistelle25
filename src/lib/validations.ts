@@ -10,7 +10,7 @@ export const applicationSchema = z.object({
   firstName: z.string().trim().min(1, "Vorname ist erforderlich").max(100, "Vorname darf max. 100 Zeichen lang sein"),
   lastName: z.string().trim().min(1, "Nachname ist erforderlich").max(100, "Nachname darf max. 100 Zeichen lang sein"),
   email: z.string().trim().email("Ungültige E-Mail-Adresse").max(255, "E-Mail darf max. 255 Zeichen lang sein"),
-  phone: z.string().trim().max(30, "Telefonnummer darf max. 30 Zeichen lang sein").optional().or(z.literal("")),
+  phone: z.string().trim().min(1, "Telefonnummer ist erforderlich").max(30, "Telefonnummer darf max. 30 Zeichen lang sein").regex(/^[+\d\s\-()\/]+$/, "Bitte eine gültige Telefonnummer eingeben"),
   role: z.enum(validRoles, { errorMap: () => ({ message: "Bitte wählen Sie eine gültige Rolle" }) }),
   experience: z.enum(validExperience, { errorMap: () => ({ message: "Bitte wählen Sie eine gültige Erfahrungsstufe" }) }),
 });
