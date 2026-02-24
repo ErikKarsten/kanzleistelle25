@@ -31,6 +31,7 @@ interface ApplicationWithJob {
     id: string;
     title: string;
     company: string;
+    company_id: string | null;
     employment_type: string | null;
     location: string | null;
   } | null;
@@ -47,6 +48,8 @@ const AdminDashboardContent = () => {
   const [activeTab, setActiveTab] = useState("active");
   const [selectedJob, setSelectedJob] = useState("all");
   const [selectedType, setSelectedType] = useState("all");
+  const [selectedCompany, setSelectedCompany] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedApplication, setSelectedApplication] = useState<ApplicationWithJob | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [navigateToCompanyId, setNavigateToCompanyId] = useState<string | null>(null);
@@ -75,6 +78,7 @@ const AdminDashboardContent = () => {
             id,
             title,
             company,
+            company_id,
             employment_type,
             location
           )
@@ -94,9 +98,21 @@ const AdminDashboardContent = () => {
         .from("jobs")
         .select("id, title, employment_type, is_active")
         .order("title");
-
       if (error) throw error;
       return data as Job[];
+    },
+  });
+
+  // Fetch companies for filter
+  const { data: companies } = useQuery({
+    queryKey: ["admin-dashboard-companies"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("companies")
+        .select("id, name")
+        .order("name");
+      if (error) throw error;
+      return data as { id: string; name: string }[];
     },
   });
 
@@ -190,24 +206,24 @@ const AdminDashboardContent = () => {
     if (!applications) return [];
 
     return applications.filter((app) => {
-      // Filter by archived status based on tab
       const isArchived = app.is_archived ?? false;
       if (activeTab === "active" && isArchived) return false;
       if (activeTab === "archived" && !isArchived) return false;
 
-      // Filter by job
-      if (selectedJob !== "all" && app.jobs?.id !== selectedJob) {
-        return false;
-      }
+      if (selectedJob !== "all" && app.jobs?.id !== selectedJob) return false;
+      if (selectedType !== "all" && app.jobs?.employment_type !== selectedType) return false;
+      if (selectedCompany !== "all" && app.jobs?.company_id !== selectedCompany) return false;
 
-      // Filter by employment type
-      if (selectedType !== "all" && app.jobs?.employment_type !== selectedType) {
-        return false;
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const fullName = [app.first_name, app.last_name].filter(Boolean).join(" ").toLowerCase();
+        const email = (app.email || "").toLowerCase();
+        if (!fullName.includes(q) && !email.includes(q)) return false;
       }
 
       return true;
     });
-  }, [applications, activeTab, selectedJob, selectedType]);
+  }, [applications, activeTab, selectedJob, selectedType, selectedCompany, searchQuery]);
 
   const handleViewDetails = (application: ApplicationWithJob) => {
     setSelectedApplication(application);
@@ -270,10 +286,16 @@ const AdminDashboardContent = () => {
                 {jobs && (
                   <ApplicationFilters
                     jobs={jobs}
+                    companies={companies}
                     selectedJob={selectedJob}
                     selectedType={selectedType}
+                    selectedCompany={selectedCompany}
+                    searchQuery={searchQuery}
                     onJobChange={setSelectedJob}
                     onTypeChange={setSelectedType}
+                    onCompanyChange={setSelectedCompany}
+                    onSearchChange={setSearchQuery}
+                    onReset={() => { setSelectedJob("all"); setSelectedType("all"); setSelectedCompany("all"); setSearchQuery(""); }}
                   />
                 )}
 
@@ -297,10 +319,16 @@ const AdminDashboardContent = () => {
                 {jobs && (
                   <ApplicationFilters
                     jobs={jobs}
+                    companies={companies}
                     selectedJob={selectedJob}
                     selectedType={selectedType}
+                    selectedCompany={selectedCompany}
+                    searchQuery={searchQuery}
                     onJobChange={setSelectedJob}
                     onTypeChange={setSelectedType}
+                    onCompanyChange={setSelectedCompany}
+                    onSearchChange={setSearchQuery}
+                    onReset={() => { setSelectedJob("all"); setSelectedType("all"); setSelectedCompany("all"); setSearchQuery(""); }}
                   />
                 )}
 
