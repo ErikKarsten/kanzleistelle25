@@ -7,9 +7,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Building2, CheckCircle, XCircle, Clock, AlertTriangle } from "lucide-react";
+import { Building2, CheckCircle, XCircle, Clock, AlertTriangle, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
@@ -17,6 +16,7 @@ import { de } from "date-fns/locale";
 interface ReactivationRequestsProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onNavigateToCompany?: (companyId: string) => void;
 }
 
 interface CompanyRequest {
@@ -24,6 +24,7 @@ interface CompanyRequest {
   name: string;
   location: string | null;
   reactivation_requested_at: string | null;
+  reactivation_notes: string | null;
 }
 
 export const useReactivationRequests = () => {
@@ -32,7 +33,7 @@ export const useReactivationRequests = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("companies")
-        .select("id, name, location, reactivation_requested_at")
+        .select("id, name, location, reactivation_requested_at, reactivation_notes")
         .eq("reactivation_requested", true)
         .eq("is_active", false)
         .order("reactivation_requested_at", { ascending: false });
@@ -40,11 +41,11 @@ export const useReactivationRequests = () => {
       if (error) throw error;
       return data as CompanyRequest[];
     },
-    refetchInterval: 30000, // Poll every 30s
+    refetchInterval: 30000,
   });
 };
 
-const ReactivationRequests = ({ open, onOpenChange }: ReactivationRequestsProps) => {
+const ReactivationRequests = ({ open, onOpenChange, onNavigateToCompany }: ReactivationRequestsProps) => {
   const queryClient = useQueryClient();
   const { data: requests } = useReactivationRequests();
 
@@ -87,13 +88,17 @@ const ReactivationRequests = ({ open, onOpenChange }: ReactivationRequestsProps)
     },
   });
 
+  const handleNavigateToCompany = (companyId: string) => {
+    onOpenChange(false);
+    onNavigateToCompany?.(companyId);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <AlertTriangle className="h-5 w-5 text-orange-500" />
-            Reaktivierungsanfragen
+            🔔 Offene Reaktivierungs-Anfragen
           </DialogTitle>
         </DialogHeader>
 
@@ -106,26 +111,33 @@ const ReactivationRequests = ({ open, onOpenChange }: ReactivationRequestsProps)
             requests.map((req) => (
               <Card key={req.id} className="border">
                 <CardContent className="p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-primary" />
-                        <span className="font-semibold">{req.name}</span>
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <Building2 className="h-4 w-4 text-primary" />
+                          <span className="font-semibold">{req.name}</span>
+                        </div>
+                        {req.location && (
+                          <p className="text-xs text-muted-foreground">{req.location}</p>
+                        )}
+                        {req.reactivation_requested_at && (
+                          <p className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {formatDistanceToNow(new Date(req.reactivation_requested_at), {
+                              addSuffix: true,
+                              locale: de,
+                            })}
+                          </p>
+                        )}
+                        {req.reactivation_notes && (
+                          <p className="text-xs text-muted-foreground italic mt-1">
+                            „{req.reactivation_notes}"
+                          </p>
+                        )}
                       </div>
-                      {req.location && (
-                        <p className="text-xs text-muted-foreground">{req.location}</p>
-                      )}
-                      {req.reactivation_requested_at && (
-                        <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {formatDistanceToNow(new Date(req.reactivation_requested_at), {
-                            addSuffix: true,
-                            locale: de,
-                          })}
-                        </p>
-                      )}
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <Button
                         size="sm"
                         onClick={() => approveMutation.mutate(req.id)}
@@ -145,6 +157,17 @@ const ReactivationRequests = ({ open, onOpenChange }: ReactivationRequestsProps)
                         <XCircle className="h-3.5 w-3.5" />
                         Ablehnen
                       </Button>
+                      {onNavigateToCompany && (
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          onClick={() => handleNavigateToCompany(req.id)}
+                          className="gap-1"
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" />
+                          Direkt zur Kanzlei
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </CardContent>

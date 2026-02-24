@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
@@ -7,14 +7,27 @@ import { Badge } from "@/components/ui/badge";
 import { LogOut, Briefcase, Home, Bell } from "lucide-react";
 import ReactivationRequests, { useReactivationRequests } from "./ReactivationRequests";
 
-const AdminHeader = () => {
+interface AdminHeaderProps {
+  onNavigateToCompany?: (companyId: string) => void;
+}
+
+const AdminHeader = ({ onNavigateToCompany }: AdminHeaderProps) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { signOut } = useAuth();
   const { data: requests } = useReactivationRequests();
   const [requestsOpen, setRequestsOpen] = useState(false);
+  const [autoOpened, setAutoOpened] = useState(false);
 
   const requestCount = requests?.length ?? 0;
+
+  // Auto-open modal on first load if there are pending requests
+  useEffect(() => {
+    if (requestCount > 0 && !autoOpened) {
+      setRequestsOpen(true);
+      setAutoOpened(true);
+    }
+  }, [requestCount, autoOpened]);
 
   const handleLogout = async () => {
     await signOut();
@@ -70,7 +83,7 @@ const AdminHeader = () => {
         </div>
       </header>
 
-      <ReactivationRequests open={requestsOpen} onOpenChange={setRequestsOpen} />
+      <ReactivationRequests open={requestsOpen} onOpenChange={setRequestsOpen} onNavigateToCompany={onNavigateToCompany} />
     </>
   );
 };

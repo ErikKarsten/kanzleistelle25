@@ -49,6 +49,7 @@ const AdminDashboardContent = () => {
   const [selectedType, setSelectedType] = useState("all");
   const [selectedApplication, setSelectedApplication] = useState<ApplicationWithJob | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [navigateToCompanyId, setNavigateToCompanyId] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   // Fetch applications
@@ -218,7 +219,7 @@ const AdminDashboardContent = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <AdminHeader />
+      <AdminHeader onNavigateToCompany={(id) => setNavigateToCompanyId(id)} />
       
       <div className="container max-w-7xl py-8 px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Page Title */}
@@ -325,7 +326,7 @@ const AdminDashboardContent = () => {
         <JobManagement />
 
         {/* Company Management */}
-        <CompanyManagement />
+        <CompanyManagement navigateToCompanyId={navigateToCompanyId} onNavigated={() => setNavigateToCompanyId(null)} />
 
         {/* Details Modal */}
         <ApplicationDetailsModal
