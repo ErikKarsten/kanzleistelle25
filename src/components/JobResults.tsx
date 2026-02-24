@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -55,6 +56,7 @@ const employmentTypeBadgeStyles: Record<string, string> = {
 };
 
 const JobResults = ({ searchFilters }: JobResultsProps) => {
+  const navigate = useNavigate();
   const [selectedJob, setSelectedJob] = useState<JobWithCompany | null>(null);
   const [localTitleFilter, setLocalTitleFilter] = useState("");
   const [localLocationFilter, setLocalLocationFilter] = useState("");
@@ -219,7 +221,7 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
               <Card
                 key={job.id}
                 className="group overflow-hidden hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer"
-                onClick={() => setSelectedJob(job)}
+                onClick={() => navigate(`/jobs/${job.id}`)}
               >
                 <div className="flex flex-col md:flex-row">
                   {/* Company Logo */}
