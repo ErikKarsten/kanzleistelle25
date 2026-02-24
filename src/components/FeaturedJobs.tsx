@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MapPin, Clock, Star, Building2, Send, Zap } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
@@ -37,6 +37,7 @@ const employmentTypeLabels: Record<string, string> = {
 };
 
 const FeaturedJobs = () => {
+  const navigate = useNavigate();
   const [selectedJob, setSelectedJob] = useState<JobWithCompany | null>(null);
 
   const { data: jobs, isLoading, error } = useQuery({
@@ -126,7 +127,7 @@ const FeaturedJobs = () => {
               <Card
                 key={job.id}
                 className="group overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer relative border border-border"
-                onClick={() => setSelectedJob(job)}
+                onClick={() => navigate(`/jobs/${job.id}`)}
               >
                 {/* Express Badge */}
                 <div className="absolute top-3 left-3 bg-primary text-primary-foreground px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-md z-10">
