@@ -142,7 +142,10 @@ const ApplyModal = ({
 
       const validated = applicationSchema.parse(formData);
 
+      const generatedId = crypto.randomUUID();
+
       const insertData: Record<string, any> = {
+        id: generatedId,
         job_id: jobId,
         first_name: validated.firstName,
         last_name: validated.lastName,
@@ -157,14 +160,14 @@ const ApplyModal = ({
 
       console.log('[ApplyModal] Sende Insert:', JSON.stringify(insertData, null, 2));
       
-      const { data, error } = await supabase.from("applications").insert(insertData as any).select("id").single();
+      const { error } = await supabase.from("applications").insert(insertData as any);
       
       if (error) {
         console.dir(error, { depth: null });
         throw error;
       }
       
-      return { success: true, applicationId: data.id };
+      return { success: true, applicationId: generatedId };
     },
     onSuccess: (result) => {
       setApplicationId(result.applicationId);
