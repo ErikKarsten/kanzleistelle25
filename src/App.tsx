@@ -18,6 +18,7 @@ import UeberUns from "./pages/UeberUns";
 import RegisterEmployer from "./pages/RegisterEmployer";
 import Login from "./pages/Login";
 import EmployerDashboard from "./pages/EmployerDashboard";
+import EmployerSettings from "./pages/EmployerSettings";
 import JobDetail from "./pages/JobDetail";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ const App = () => (
             <Route path="/register-employer" element={<RegisterEmployer />} />
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<EmployerDashboard />} />
+            <Route path="/dashboard/settings" element={<EmployerSettings />} />
             <Route path="/admin-upload" element={<AdminUpload />} />
             <Route path="/admin-applications" element={<AdminApplications />} />
             <Route path="/admin-dashboard" element={<AdminDashboardLegacy />} />
