@@ -536,7 +536,7 @@ const EmployerDashboard = () => {
                 <Plus className="h-5 w-5 mr-2" />
                 Neue Stelle schalten
               </Button>
-              <Button variant="outline" onClick={signOut}>
+              <Button variant="outline" onClick={async () => { await signOut(); queryClient.clear(); navigate("/"); }}>
                 <LogOut className="h-4 w-4 mr-2" />
                 Abmelden
               </Button>

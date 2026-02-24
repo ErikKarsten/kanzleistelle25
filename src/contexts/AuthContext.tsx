@@ -171,6 +171,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setCompanyId(null);
     setCompanyName(null);
     setCompanyLogoUrl(null);
+    // Clear welcome-back session flag
+    sessionStorage.removeItem("kanzlei_welcome_shown");
+    // Signal for post-logout toast
+    sessionStorage.setItem("logout_success", "1");
   };
 
   const value: AuthContextType = {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import VisualFeatureCards from "@/components/VisualFeatureCards";
@@ -10,10 +10,21 @@ import WhyKanzleistelle from "@/components/WhyKanzleistelle";
 import ValueProposition from "@/components/ValueProposition";
 import Footer from "@/components/Footer";
 import { useJobsRealtime } from "@/hooks/useJobsRealtime";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   // Subscribe to realtime job changes for automatic cache invalidation
   useJobsRealtime();
+
+  const { toast } = useToast();
+
+  // Show logout success toast (once)
+  useEffect(() => {
+    if (sessionStorage.getItem("logout_success")) {
+      sessionStorage.removeItem("logout_success");
+      toast({ title: "Erfolgreich abgemeldet", description: "Bis bald! 👋" });
+    }
+  }, []);
   
   const [searchFilters, setSearchFilters] = useState<{
     title?: string;
