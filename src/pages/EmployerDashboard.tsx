@@ -61,6 +61,7 @@ import NewApplicantModal, { useNewApplicantNotification } from "@/components/emp
 import WelcomeBackModal from "@/components/employer/WelcomeBackModal";
 import CompanyBlockedScreen from "@/components/employer/CompanyBlockedScreen";
 import ApplicantDetailSheet from "@/components/employer/ApplicantDetailSheet";
+import EmployerJobDetailsModal from "@/components/employer/EmployerJobDetailsModal";
 
 // Reusable application card for active/archived views
 const ApplicationCard = ({
@@ -233,6 +234,8 @@ const EmployerDashboard = () => {
   const [reactivationModalOpen, setReactivationModalOpen] = useState(false);
   const [reactivationShown, setReactivationShown] = useState(false);
   const [selectedApplicant, setSelectedApplicant] = useState<any>(null);
+  const [jobDetailsOpen, setJobDetailsOpen] = useState(false);
+  const [jobDetailsJob, setJobDetailsJob] = useState<any>(null);
 
   // Redirect if not authenticated or admin
   useEffect(() => {
@@ -539,6 +542,19 @@ const EmployerDashboard = () => {
     clearReactivationFlag.mutate();
   };
 
+  // Listen for edit event from EmployerJobDetailsModal
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (detail) {
+        setSelectedJob(detail);
+        setJobModalOpen(true);
+      }
+    };
+    window.addEventListener("open-job-edit", handler);
+    return () => window.removeEventListener("open-job-edit", handler);
+  }, []);
+
   // Loading state
   if (authLoading) {
     return (
@@ -722,7 +738,8 @@ const EmployerDashboard = () => {
                         return (
                         <div
                           key={job.id}
-                          className={`flex items-center justify-between p-4 border rounded-lg transition-colors ${
+                          onClick={() => { setJobDetailsJob(job); setJobDetailsOpen(true); }}
+                          className={`flex items-center justify-between p-4 border rounded-lg transition-colors cursor-pointer ${
                             isPending
                               ? "border-muted bg-muted/20"
                               : job.is_active 
@@ -992,7 +1009,19 @@ const EmployerDashboard = () => {
         companyName={company?.name || ""}
       />
 
-      {/* New Applicant Notification Modal */}
+      {/* Job Details Modal (view + applicants) */}
+      <EmployerJobDetailsModal
+        open={jobDetailsOpen}
+        onOpenChange={setJobDetailsOpen}
+        job={jobDetailsJob}
+        companyId={companyId}
+        companyName={company?.name || ""}
+        onOpenApplicant={(app) => {
+          setJobDetailsOpen(false);
+          setSelectedApplicant(app);
+        }}
+      />
+
       <NewApplicantModal
         applicant={newApplicant}
         onDismiss={dismissNewApplicant}
