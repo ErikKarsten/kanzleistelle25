@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import confetti from "canvas-confetti";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,6 +14,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import {
   Briefcase,
@@ -33,6 +41,8 @@ import {
   RotateCcw,
   Trash2,
   Info,
+  Sparkles,
+  ArrowRight,
 } from "lucide-react";
 import {
   Select,
@@ -215,6 +225,8 @@ const EmployerDashboard = () => {
   const [selectedJob, setSelectedJob] = useState<any>(null);
   const { applicant: newApplicant, notify: notifyNewApplicant, dismiss: dismissNewApplicant } = useNewApplicantNotification();
   const knownAppIds = useRef<Set<string>>(new Set());
+  const [reactivationModalOpen, setReactivationModalOpen] = useState(false);
+  const [reactivationShown, setReactivationShown] = useState(false);
 
   // Redirect if not authenticated or admin
   useEffect(() => {
@@ -483,6 +495,42 @@ const EmployerDashboard = () => {
       location: formData.get("location") as string,
       description: formData.get("description") as string,
     });
+  };
+
+  // Check if company was just reactivated
+  const justReactivated = company?.just_reactivated === true;
+
+  const clearReactivationFlag = useMutation({
+    mutationFn: async () => {
+      if (!companyId) return;
+      const { error } = await supabase
+        .from("companies")
+        .update({ just_reactivated: false } as any)
+        .eq("id", companyId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employer-company", companyId] });
+    },
+  });
+
+  useEffect(() => {
+    if (justReactivated && !reactivationShown) {
+      setReactivationModalOpen(true);
+      setReactivationShown(true);
+      const end = Date.now() + 2000;
+      const frame = () => {
+        confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0, y: 0.6 } });
+        confetti({ particleCount: 4, angle: 120, spread: 55, origin: { x: 1, y: 0.6 } });
+        if (Date.now() < end) requestAnimationFrame(frame);
+      };
+      frame();
+    }
+  }, [justReactivated, reactivationShown]);
+
+  const handleCloseReactivationModal = () => {
+    setReactivationModalOpen(false);
+    clearReactivationFlag.mutate();
   };
 
   // Loading state
@@ -952,6 +1000,42 @@ const EmployerDashboard = () => {
           setApplicationsTab("active");
         }}
       />
+
+      {/* Reactivation Welcome Modal */}
+      <Dialog open={reactivationModalOpen} onOpenChange={handleCloseReactivationModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader className="text-center sm:text-center">
+            <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+              <Sparkles className="h-8 w-8 text-primary" />
+            </div>
+            <DialogTitle className="text-xl">Schön, dass Sie wieder dabei sind! ✨</DialogTitle>
+            <DialogDescription className="text-base mt-2">
+              Ihr Account wurde erfolgreich reaktiviert. Ihre Stellenanzeigen sind ab sofort wieder für Bewerber sichtbar. Viel Erfolg bei der Personalsuche!
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="bg-secondary/50 rounded-xl p-4 text-center">
+            <p className="text-sm text-muted-foreground">Aktuell online</p>
+            <p className="text-3xl font-bold text-primary">{activeJobs.length}</p>
+            <p className="text-sm text-muted-foreground">
+              {activeJobs.length === 1 ? "Stellenanzeige" : "Stellenanzeigen"}
+            </p>
+          </div>
+
+          <Button
+            className="w-full mt-2"
+            size="lg"
+            onClick={() => {
+              handleCloseReactivationModal();
+              setActiveTab("jobs");
+            }}
+          >
+            <Briefcase className="h-4 w-4 mr-2" />
+            Zu meinen Stellenanzeigen
+            <ArrowRight className="h-4 w-4 ml-1" />
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
