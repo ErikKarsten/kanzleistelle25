@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -9,9 +9,10 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import {
   Building2,
   MapPin,
@@ -24,6 +25,9 @@ import {
   StickyNote,
   ShieldCheck,
   ExternalLink,
+  AlertTriangle,
+  Clock,
+  Users,
 } from "lucide-react";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
@@ -51,6 +55,48 @@ interface Job {
   location: string | null;
 }
 
+interface Application {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  email: string | null;
+  status: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  is_archived: boolean;
+  jobs: { title: string } | null;
+}
+
+type SlaLevel = "ok" | "warning" | "critical";
+
+const getSlaLevel = (app: Application): SlaLevel => {
+  if (!app.created_at) return "ok";
+  const isPending = !app.status || app.status === "pending" || app.status === "neu" || app.status === "eingegangen";
+  if (!isPending) return "ok";
+  const days = Math.floor((Date.now() - new Date(app.created_at).getTime()) / (1000 * 60 * 60 * 24));
+  if (days >= 14) return "critical";
+  if (days >= 7) return "warning";
+  return "ok";
+};
+
+const getDaysSinceCreation = (createdAt: string | null): number => {
+  if (!createdAt) return 0;
+  return Math.floor((Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24));
+};
+
+const calcAvgResponseTime = (applications: Application[]): number | null => {
+  const responded = applications.filter((a) => {
+    const isPending = !a.status || a.status === "pending" || a.status === "neu" || a.status === "eingegangen";
+    return !isPending && a.created_at && a.updated_at;
+  });
+  if (responded.length === 0) return null;
+  const total = responded.reduce((sum, a) => {
+    const diff = new Date(a.updated_at!).getTime() - new Date(a.created_at!).getTime();
+    return sum + diff;
+  }, 0);
+  return Math.round(total / responded.length / (1000 * 60 * 60 * 24) * 10) / 10;
+};
+
 interface CompanyDetailsModalProps {
   company: Company | null;
   open: boolean;
@@ -67,13 +113,12 @@ const CompanyDetailsModal = ({
   const [adminNotes, setAdminNotes] = useState("");
   const [editOpen, setEditOpen] = useState(false);
   const [ownerEmail, setOwnerEmail] = useState<string | null>(null);
+  const [showOverdueOnly, setShowOverdueOnly] = useState(false);
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const queryClient = useQueryClient();
 
-  // Load admin notes and owner email when company changes
   useEffect(() => {
     if (company) {
-      // Fetch admin_notes
       supabase
         .from("companies")
         .select("admin_notes")
@@ -109,7 +154,37 @@ const CompanyDetailsModal = ({
     enabled: !!company,
   });
 
-  // Save admin notes mutation
+  // Fetch applications for this company
+  const { data: applications } = useQuery({
+    queryKey: ["company-applications", company?.id],
+    queryFn: async () => {
+      if (!company) return [];
+      const { data, error } = await supabase
+        .from("applications")
+        .select("id, first_name, last_name, email, status, created_at, updated_at, is_archived, jobs(title)")
+        .eq("company_id", company.id)
+        .eq("is_archived", false)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return data as Application[];
+    },
+    enabled: !!company,
+  });
+
+  const slaStats = useMemo(() => {
+    if (!applications) return { warning: 0, critical: 0, avgResponseTime: null as number | null };
+    const warning = applications.filter((a) => getSlaLevel(a) === "warning").length;
+    const critical = applications.filter((a) => getSlaLevel(a) === "critical").length;
+    const avgResponseTime = calcAvgResponseTime(applications);
+    return { warning, critical, avgResponseTime };
+  }, [applications]);
+
+  const filteredApplications = useMemo(() => {
+    if (!applications) return [];
+    if (!showOverdueOnly) return applications;
+    return applications.filter((a) => getSlaLevel(a) !== "ok");
+  }, [applications, showOverdueOnly]);
+
   const notesMutation = useMutation({
     mutationFn: async (notes: string) => {
       if (!company) return;
@@ -127,7 +202,6 @@ const CompanyDetailsModal = ({
     },
   });
 
-  // Debounced auto-save for admin notes
   const handleNotesChange = useCallback(
     (value: string) => {
       setAdminNotes(value);
@@ -139,7 +213,6 @@ const CompanyDetailsModal = ({
     [notesMutation]
   );
 
-  // Cleanup timer
   useEffect(() => {
     return () => {
       if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
@@ -160,7 +233,6 @@ const CompanyDetailsModal = ({
     const margin = 20;
     let y = margin;
 
-    // Title
     doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
     doc.text("Kanzlei-Dossier", margin, y);
@@ -173,22 +245,17 @@ const CompanyDetailsModal = ({
     doc.setTextColor(0, 0, 0);
     y += 14;
 
-    // Separator line
     doc.setDrawColor(200, 200, 200);
     doc.line(margin, y, 190, y);
     y += 10;
 
-    // Company info
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
     doc.text("Stammdaten", margin, y);
     y += 8;
 
     const addField = (label: string, value: string) => {
-      if (y > 270) {
-        doc.addPage();
-        y = margin;
-      }
+      if (y > 270) { doc.addPage(); y = margin; }
       doc.setFontSize(9);
       doc.setFont("helvetica", "bold");
       doc.setTextColor(100, 100, 100);
@@ -214,6 +281,47 @@ const CompanyDetailsModal = ({
       addField("Beschreibung", company.description);
     }
 
+    // SLA Performance section
+    y += 4;
+    if (y > 240) { doc.addPage(); y = margin; }
+    doc.setDrawColor(200, 200, 200);
+    doc.line(margin, y, 190, y);
+    y += 10;
+
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("SLA-Performance", margin, y);
+    y += 8;
+
+    addField("Ø Reaktionszeit", slaStats.avgResponseTime !== null ? `${slaStats.avgResponseTime} Tage` : "Keine Daten");
+    addField("Überfällige Bewerbungen (7+ Tage)", String(slaStats.warning));
+    addField("Kritische Bewerbungen (14+ Tage)", String(slaStats.critical));
+
+    // List overdue applications
+    if (applications) {
+      const overdue = applications.filter((a) => getSlaLevel(a) !== "ok");
+      if (overdue.length > 0) {
+        y += 2;
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "bold");
+        doc.text("Überfällige Bewerbungen:", margin, y);
+        y += 6;
+
+        overdue.forEach((app) => {
+          if (y > 265) { doc.addPage(); y = margin; }
+          const level = getSlaLevel(app);
+          const days = getDaysSinceCreation(app.created_at);
+          const name = [app.first_name, app.last_name].filter(Boolean).join(" ") || app.email || "Unbekannt";
+          doc.setFontSize(9);
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(level === "critical" ? 220 : 180, level === "critical" ? 50 : 130, level === "critical" ? 50 : 0);
+          doc.text(`• ${name} — ${days} Tage (${level === "critical" ? "Kritisch" : "Überfällig"}) — ${app.jobs?.title || "—"}`, margin + 2, y);
+          doc.setTextColor(0, 0, 0);
+          y += 6;
+        });
+      }
+    }
+
     // Jobs section
     if (jobs && jobs.length > 0) {
       y += 4;
@@ -228,10 +336,7 @@ const CompanyDetailsModal = ({
       y += 8;
 
       jobs.forEach((job) => {
-        if (y > 265) {
-          doc.addPage();
-          y = margin;
-        }
+        if (y > 265) { doc.addPage(); y = margin; }
         doc.setFontSize(10);
         doc.setFont("helvetica", "bold");
         doc.text(`• ${job.title}`, margin + 2, y);
@@ -248,10 +353,7 @@ const CompanyDetailsModal = ({
     // Admin notes
     if (adminNotes.trim()) {
       y += 4;
-      if (y > 240) {
-        doc.addPage();
-        y = margin;
-      }
+      if (y > 240) { doc.addPage(); y = margin; }
       doc.setDrawColor(200, 200, 200);
       doc.line(margin, y, 190, y);
       y += 10;
@@ -287,21 +389,11 @@ const CompanyDetailsModal = ({
                 Kanzlei-Profil
               </DialogTitle>
               <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleExportPDF}
-                  title="Kanzlei-Dossier exportieren (PDF)"
-                >
+                <Button variant="outline" size="sm" onClick={handleExportPDF} title="Kanzlei-Dossier exportieren (PDF)">
                   <FileDown className="h-4 w-4 mr-1" />
                   PDF
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setEditOpen(true)}
-                  title="Kanzlei bearbeiten"
-                >
+                <Button variant="outline" size="sm" onClick={() => setEditOpen(true)} title="Kanzlei bearbeiten">
                   <Pencil className="h-4 w-4 mr-1" />
                   Bearbeiten
                 </Button>
@@ -313,20 +405,14 @@ const CompanyDetailsModal = ({
             {/* Header with logo and status */}
             <div className="flex items-start gap-4">
               {company.logo_url ? (
-                <img
-                  src={company.logo_url}
-                  alt={company.name}
-                  className="h-16 w-16 rounded-lg object-contain border bg-background"
-                />
+                <img src={company.logo_url} alt={company.name} className="h-16 w-16 rounded-lg object-contain border bg-background" />
               ) : (
                 <div className="h-16 w-16 rounded-lg border bg-muted flex items-center justify-center">
                   <Building2 className="h-8 w-8 text-muted-foreground" />
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <h2 className="text-lg font-semibold text-foreground truncate">
-                  {company.name}
-                </h2>
+                <h2 className="text-lg font-semibold text-foreground truncate">{company.name}</h2>
                 <div className="flex flex-wrap items-center gap-2 mt-1">
                   <Badge variant={company.is_active ? "default" : "destructive"}>
                     {company.is_active ? "Freigegeben" : "Gesperrt"}
@@ -342,35 +428,37 @@ const CompanyDetailsModal = ({
 
             <Separator />
 
+            {/* Performance Quick Stats */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <MiniStat label="Aktive Stellen" value={String(openJobs.length)} icon={<Briefcase className="h-4 w-4" />} />
+              <MiniStat label="Bewerbungen" value={String(applications?.length || 0)} icon={<Users className="h-4 w-4" />} />
+              <MiniStat
+                label="Überfällig"
+                value={String(slaStats.warning + slaStats.critical)}
+                icon={<AlertTriangle className="h-4 w-4" />}
+                variant={slaStats.critical > 0 ? "critical" : slaStats.warning > 0 ? "warning" : "default"}
+              />
+              <MiniStat
+                label="Ø Reaktionszeit"
+                value={slaStats.avgResponseTime !== null ? `${slaStats.avgResponseTime}d` : "—"}
+                icon={<Clock className="h-4 w-4" />}
+              />
+            </div>
+
+            <Separator />
+
             {/* Read-only company info */}
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                Stammdaten
-              </h3>
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Stammdaten</h3>
               <div className="grid gap-3">
-                <InfoRow
-                  icon={<MapPin className="h-4 w-4" />}
-                  label="Standort"
-                  value={company.location}
-                />
-                <InfoRow
-                  icon={<Globe className="h-4 w-4" />}
-                  label="Website"
-                  value={company.website}
-                  isLink
-                />
-                <InfoRow
-                  icon={<Mail className="h-4 w-4" />}
-                  label="Inhaber"
-                  value={ownerEmail || "Kein Nutzer zugewiesen"}
-                />
+                <InfoRow icon={<MapPin className="h-4 w-4" />} label="Standort" value={company.location} />
+                <InfoRow icon={<Globe className="h-4 w-4" />} label="Website" value={company.website} isLink />
+                <InfoRow icon={<Mail className="h-4 w-4" />} label="Inhaber" value={ownerEmail || "Kein Nutzer zugewiesen"} />
               </div>
               {company.description && (
                 <div className="mt-3">
                   <p className="text-xs font-medium text-muted-foreground mb-1">Beschreibung</p>
-                  <p className="text-sm text-foreground leading-relaxed bg-muted/30 rounded-lg p-3">
-                    {company.description}
-                  </p>
+                  <p className="text-sm text-foreground leading-relaxed bg-muted/30 rounded-lg p-3">{company.description}</p>
                 </div>
               )}
             </div>
@@ -384,16 +472,39 @@ const CompanyDetailsModal = ({
                 Stellenanzeigen ({jobs?.length || 0})
               </h3>
               {openJobs.length === 0 && inactiveJobs.length === 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  Keine Stellenanzeigen vorhanden.
-                </p>
+                <p className="text-sm text-muted-foreground">Keine Stellenanzeigen vorhanden.</p>
               ) : (
                 <div className="space-y-2">
-                  {openJobs.map((job) => (
-                    <JobRow key={job.id} job={job} />
-                  ))}
-                  {inactiveJobs.map((job) => (
-                    <JobRow key={job.id} job={job} inactive />
+                  {openJobs.map((job) => (<JobRow key={job.id} job={job} />))}
+                  {inactiveJobs.map((job) => (<JobRow key={job.id} job={job} inactive />))}
+                </div>
+              )}
+            </div>
+
+            <Separator />
+
+            {/* Applications with SLA */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  Bewerbungen ({applications?.length || 0})
+                </h3>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="overdue-filter" className="text-xs text-muted-foreground cursor-pointer">
+                    Nur überfällige
+                  </Label>
+                  <Switch id="overdue-filter" checked={showOverdueOnly} onCheckedChange={setShowOverdueOnly} />
+                </div>
+              </div>
+              {filteredApplications.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  {showOverdueOnly ? "Keine überfälligen Bewerbungen." : "Keine Bewerbungen vorhanden."}
+                </p>
+              ) : (
+                <div className="space-y-1.5 max-h-[300px] overflow-y-auto">
+                  {filteredApplications.map((app) => (
+                    <ApplicationSlaRow key={app.id} application={app} />
                   ))}
                 </div>
               )}
@@ -401,7 +512,7 @@ const CompanyDetailsModal = ({
 
             <Separator />
 
-            {/* Admin Notes - exclusive section */}
+            {/* Admin Notes */}
             <div className="space-y-3 bg-muted/30 rounded-xl p-4 border">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
@@ -409,24 +520,14 @@ const CompanyDetailsModal = ({
                   Interne Admin-Notiz
                 </h3>
                 <div className="flex items-center gap-2">
-                  {notesMutation.isPending && (
-                    <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleSaveNotes}
-                    disabled={notesMutation.isPending}
-                    className="h-7 text-xs"
-                  >
+                  {notesMutation.isPending && <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />}
+                  <Button variant="ghost" size="sm" onClick={handleSaveNotes} disabled={notesMutation.isPending} className="h-7 text-xs">
                     <StickyNote className="h-3 w-3 mr-1" />
                     Speichern
                   </Button>
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground -mt-1">
-                Nur für Admins sichtbar – niemals für die Kanzlei einsehbar.
-              </p>
+              <p className="text-xs text-muted-foreground -mt-1">Nur für Admins sichtbar – niemals für die Kanzlei einsehbar.</p>
               <Textarea
                 value={adminNotes}
                 onChange={(e) => handleNotesChange(e.target.value)}
@@ -439,41 +540,79 @@ const CompanyDetailsModal = ({
         </DialogContent>
       </Dialog>
 
-      {/* Edit Modal */}
-      <CompanyEditModal
-        company={company}
-        open={editOpen}
-        onOpenChange={setEditOpen}
-        onDelete={onDelete}
-      />
+      <CompanyEditModal company={company} open={editOpen} onOpenChange={setEditOpen} onDelete={onDelete} />
     </>
   );
 };
 
-// Helper components
-const InfoRow = ({
-  icon,
+// --- Helper components ---
+
+const MiniStat = ({
   label,
   value,
-  isLink,
+  icon,
+  variant = "default",
 }: {
-  icon: React.ReactNode;
   label: string;
-  value: string | null;
-  isLink?: boolean;
-}) => (
+  value: string;
+  icon: React.ReactNode;
+  variant?: "default" | "warning" | "critical";
+}) => {
+  const variantClasses = {
+    default: "bg-muted/30 text-foreground",
+    warning: "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20",
+    critical: "bg-destructive/10 text-destructive border-destructive/20",
+  };
+  return (
+    <div className={`rounded-lg border p-3 text-center ${variantClasses[variant]}`}>
+      <div className="flex items-center justify-center gap-1.5 mb-1 text-muted-foreground">{icon}<span className="text-xs">{label}</span></div>
+      <p className="text-lg font-bold">{value}</p>
+    </div>
+  );
+};
+
+const ApplicationSlaRow = ({ application }: { application: Application }) => {
+  const sla = getSlaLevel(application);
+  const days = getDaysSinceCreation(application.created_at);
+  const name = [application.first_name, application.last_name].filter(Boolean).join(" ") || application.email || "Unbekannt";
+
+  return (
+    <div className={`flex items-center justify-between p-2.5 rounded-lg text-sm ${
+      sla === "critical" ? "bg-destructive/10 border border-destructive/20" :
+      sla === "warning" ? "bg-yellow-500/10 border border-yellow-500/20" :
+      "bg-muted/20"
+    }`}>
+      <div className="flex items-center gap-2 min-w-0">
+        {sla === "critical" && <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />}
+        {sla === "warning" && <AlertTriangle className="h-4 w-4 text-yellow-500 shrink-0" />}
+        <div className="min-w-0">
+          <p className="font-medium truncate">{name}</p>
+          <p className="text-xs text-muted-foreground truncate">{application.jobs?.title || "—"}</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2 shrink-0 ml-2">
+        {sla === "critical" && (
+          <Badge variant="destructive" className="text-xs whitespace-nowrap">Kritisch · {days}d</Badge>
+        )}
+        {sla === "warning" && (
+          <Badge className="text-xs bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border-yellow-500/30 whitespace-nowrap">Überfällig · {days}d</Badge>
+        )}
+        {sla === "ok" && (
+          <span className="text-xs text-muted-foreground">{days}d</span>
+        )}
+        <Badge variant="secondary" className="text-xs">{application.status || "Neu"}</Badge>
+      </div>
+    </div>
+  );
+};
+
+const InfoRow = ({ icon, label, value, isLink }: { icon: React.ReactNode; label: string; value: string | null; isLink?: boolean }) => (
   <div className="flex items-center gap-3 text-sm">
     <span className="text-muted-foreground">{icon}</span>
     <span className="text-muted-foreground w-20 shrink-0">{label}</span>
     {isLink && value ? (
-      <a
-        href={value.startsWith("http") ? value : `https://${value}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-primary hover:underline flex items-center gap-1 truncate"
-      >
-        {value}
-        <ExternalLink className="h-3 w-3 shrink-0" />
+      <a href={value.startsWith("http") ? value : `https://${value}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1 truncate">
+        {value}<ExternalLink className="h-3 w-3 shrink-0" />
       </a>
     ) : (
       <span className="text-foreground truncate">{value || "—"}</span>
@@ -481,13 +620,12 @@ const InfoRow = ({
   </div>
 );
 
-const JobRow = ({ job, inactive }: { job: { id: string; title: string; employment_type: string | null; location: string | null; is_active: boolean | null }; inactive?: boolean }) => (
+const JobRow = ({ job, inactive }: { job: Job; inactive?: boolean }) => (
   <div className={`flex items-center justify-between p-3 rounded-lg ${inactive ? "bg-muted/20 opacity-60" : "bg-muted/30"}`}>
     <div>
       <p className={`font-medium text-sm ${inactive ? "text-muted-foreground" : "text-foreground"}`}>{job.title}</p>
       <div className="flex items-center gap-1 text-xs text-muted-foreground">
-        <MapPin className="h-3 w-3" />
-        {job.location || "Remote"}
+        <MapPin className="h-3 w-3" />{job.location || "Remote"}
       </div>
     </div>
     <div className="flex items-center gap-2">
@@ -496,5 +634,8 @@ const JobRow = ({ job, inactive }: { job: { id: string; title: string; employmen
     </div>
   </div>
 );
+
+// Export SLA helpers for use in CompanyManagement
+export { getSlaLevel, type Application, type SlaLevel };
 
 export default CompanyDetailsModal;

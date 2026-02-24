@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +16,7 @@ import {
 import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Building2, MapPin, Plus, Trash2, Pencil, Archive, ArchiveRestore, Bell, AlertTriangle } from "lucide-react";
+import { Building2, MapPin, Plus, Trash2, Pencil, Archive, ArchiveRestore, Bell, AlertTriangle, Siren } from "lucide-react";
 import { toast } from "sonner";
 import CompanyDetailsModal from "./CompanyDetailsModal";
 import CompanyCreateModal from "./CompanyCreateModal";
@@ -63,6 +63,35 @@ const CompanyManagement = ({ navigateToCompanyId, onNavigated }: CompanyManageme
       return data as Company[];
     },
   });
+
+  // Fetch all pending applications to compute SLA alarm per company
+  const { data: pendingApplications } = useQuery({
+    queryKey: ["admin-sla-applications"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("applications")
+        .select("id, company_id, status, created_at")
+        .eq("is_archived", false)
+        .in("status", ["pending", "neu", "eingegangen"]);
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  // Companies with 3+ critical (14d+) pending applications
+  const criticalCompanyIds = useMemo(() => {
+    if (!pendingApplications) return new Set<string>();
+    const counts: Record<string, number> = {};
+    const now = Date.now();
+    pendingApplications.forEach((app) => {
+      if (!app.company_id || !app.created_at) return;
+      const days = Math.floor((now - new Date(app.created_at).getTime()) / (1000 * 60 * 60 * 24));
+      if (days >= 14) {
+        counts[app.company_id] = (counts[app.company_id] || 0) + 1;
+      }
+    });
+    return new Set(Object.entries(counts).filter(([, c]) => c >= 3).map(([id]) => id));
+  }, [pendingApplications]);
 
   // Navigate to a specific company when requested from reactivation popup
   useEffect(() => {
@@ -181,6 +210,18 @@ const CompanyManagement = ({ navigateToCompanyId, onNavigated }: CompanyManageme
                           </TooltipTrigger>
                           <TooltipContent>
                             <p>Letzter Login vor {daysInactive} Tagen – automatische Archivierung bei 90 Tagen</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+                      {criticalCompanyIds.has(company.id) && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="inline-flex items-center">
+                              <Siren className="h-4 w-4 text-destructive animate-pulse" />
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>3+ kritische Bewerbungen ohne Reaktion seit 14+ Tagen</p>
                           </TooltipContent>
                         </Tooltip>
                       )}
