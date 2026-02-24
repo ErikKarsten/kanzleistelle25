@@ -98,6 +98,7 @@ export type Database = {
       }
       companies: {
         Row: {
+          admin_notes: string | null
           created_at: string | null
           description: string | null
           id: string
@@ -114,6 +115,7 @@ export type Database = {
           website: string | null
         }
         Insert: {
+          admin_notes?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -130,6 +132,7 @@ export type Database = {
           website?: string | null
         }
         Update: {
+          admin_notes?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
