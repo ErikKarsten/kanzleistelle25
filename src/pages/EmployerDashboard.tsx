@@ -27,6 +27,7 @@ import {
   Calendar,
   Loader2,
   FileText,
+  Paperclip,
   AlertCircle,
   Archive,
   RotateCcw,
@@ -121,10 +122,10 @@ const ApplicationCard = ({
                 }
                 window.open(data.signedUrl, "_blank");
               }}
-              className="flex items-center gap-1 hover:text-primary text-sm"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-sm font-medium"
             >
-              <FileText className="h-3 w-3" />
-              Lebenslauf
+              <Paperclip className="h-3.5 w-3.5" />
+              Lebenslauf öffnen
             </button>
           )}
         </div>
