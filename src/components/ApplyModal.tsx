@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { applicationSchema } from "@/lib/validations";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ApplySuccessStep from "./ApplySuccessStep";
 
 interface ApplyModalProps {
@@ -95,6 +96,21 @@ const ApplyModal = ({
     lastName: "",
     email: "",
     phone: "",
+  });
+
+  // Fetch company logo
+  const { data: companyData } = useQuery({
+    queryKey: ["company-logo", companyId],
+    queryFn: async () => {
+      if (!companyId) return null;
+      const { data } = await supabase
+        .from("companies")
+        .select("logo_url, name")
+        .eq("id", companyId)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!companyId,
   });
 
   const resetForm = () => {
@@ -472,9 +488,19 @@ const ApplyModal = ({
 
           {/* Job info footer - hide on success step */}
           {currentStep !== 4 && (
-            <div className="mt-6 pt-4 border-t text-center text-sm text-muted-foreground">
-              Bewerbung für <span className="font-medium text-foreground">{jobTitle}</span> bei{" "}
-              <span className="font-medium text-foreground">{company}</span>
+            <div className="mt-6 pt-4 border-t flex items-center justify-center gap-3 text-sm text-muted-foreground">
+              <Avatar className="h-8 w-8 rounded-lg border border-border">
+                {companyData?.logo_url ? (
+                  <AvatarImage src={companyData.logo_url} alt={company} className="object-cover" />
+                ) : null}
+                <AvatarFallback className="rounded-lg bg-primary/10 text-primary text-xs font-semibold">
+                  {company.substring(0, 2).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <span>
+                Bewerbung für <span className="font-medium text-foreground">{jobTitle}</span> bei{" "}
+                <span className="font-medium text-foreground">{company}</span>
+              </span>
             </div>
           )}
         </div>

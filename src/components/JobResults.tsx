@@ -224,7 +224,7 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
                 <div className="flex flex-col md:flex-row">
                   {/* Company Logo */}
                   <div className="hidden md:flex items-center justify-center p-6 bg-secondary/30 border-r border-border">
-                    <Avatar className="h-16 w-16 rounded-lg">
+                    <Avatar className="h-16 w-16 rounded-lg border border-border">
                       {job.companies?.logo_url ? (
                         <AvatarImage 
                           src={job.companies.logo_url} 
@@ -243,7 +243,7 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
                     <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
                       <div className="flex items-center gap-3">
                         {/* Mobile Logo */}
-                        <Avatar className="h-10 w-10 rounded-lg md:hidden">
+                        <Avatar className="h-10 w-10 rounded-lg md:hidden border border-border">
                           {job.companies?.logo_url ? (
                             <AvatarImage 
                               src={job.companies.logo_url} 

@@ -141,7 +141,7 @@ const FeaturedJobs = () => {
                   </div>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     {job.companies?.logo_url ? (
-                      <Avatar className="h-5 w-5">
+                      <Avatar className="h-5 w-5 border border-border">
                         <AvatarImage src={job.companies.logo_url} alt={job.companies.name || job.company} />
                         <AvatarFallback className="text-[10px]">
                           {(job.companies.name || job.company).substring(0, 2).toUpperCase()}
