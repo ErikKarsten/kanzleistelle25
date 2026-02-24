@@ -1,8 +1,9 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "@/hooks/use-toast";
+import confetti from "canvas-confetti";
 import {
   CheckCircle2,
   Upload,
@@ -10,6 +11,7 @@ import {
   Loader2,
   Rocket,
   ShieldCheck,
+  Sparkles,
 } from "lucide-react";
 
 interface ApplySuccessStepProps {
@@ -31,6 +33,22 @@ const ApplySuccessStep = ({
   const [skipped, setSkipped] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 🎉 Confetti on mount
+  useEffect(() => {
+    const end = Date.now() + 1500;
+    const frame = () => {
+      confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0, y: 0.6 } });
+      confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1, y: 0.6 } });
+      if (Date.now() < end) requestAnimationFrame(frame);
+    };
+    frame();
+  }, []);
+
+  // Second confetti burst after upload
+  const celebrateUpload = () => {
+    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+  };
 
   const sanitizeFileName = (name: string): string => {
     return name
@@ -58,7 +76,6 @@ const ApplySuccessStep = ({
     setIsUploading(true);
     setUploadProgress(0);
 
-    // Simulate progress since Supabase SDK doesn't expose upload progress
     const progressInterval = setInterval(() => {
       setUploadProgress((prev) => Math.min(prev + 12, 90));
     }, 200);
@@ -82,6 +99,7 @@ const ApplySuccessStep = ({
       clearInterval(progressInterval);
       setUploadProgress(100);
       setUploadedFile(file.name);
+      celebrateUpload();
       toast({ title: "Lebenslauf hochgeladen! 🎉", description: "Deine Bewerbung ist jetzt komplett." });
     } catch (error) {
       console.error("Upload error:", error);
@@ -124,9 +142,8 @@ const ApplySuccessStep = ({
         <div className="mx-auto w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4 animate-bounce">
           <CheckCircle2 className="h-10 w-10 text-green-600" />
         </div>
-        <div className="text-3xl mb-2">🎉</div>
-        <h3 className="text-xl font-bold text-foreground mb-2">
-          Vielen Dank, {firstName}!
+        <h3 className="text-xl font-bold text-foreground mb-1">
+          Geschafft, {firstName}! 🎉
         </h3>
         <p className="text-muted-foreground">
           Deine Bewerbung ist bei <span className="font-semibold text-primary">{company}</span> eingegangen!
@@ -135,13 +152,13 @@ const ApplySuccessStep = ({
 
       {/* Upload Area */}
       {showUploadArea && (
-        <div className="bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20 rounded-xl p-5 space-y-4">
+        <div className="bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20 rounded-xl p-5 space-y-4 animate-fade-in">
           <div className="flex items-center gap-2">
             <Rocket className="h-5 w-5 text-primary" />
-            <h4 className="font-bold text-foreground">Dein Chancen-Boost: Jetzt Lebenslauf hochladen</h4>
+            <h4 className="font-bold text-foreground">🚀 Verdopple jetzt deine Chancen!</h4>
           </div>
           <p className="text-sm text-muted-foreground">
-            Kanzleien bevorzugen Bewerbungen mit Lebenslauf. Lade dein PDF hoch und erhöhe deine Chancen deutlich!
+            Lade hier noch schnell deinen Lebenslauf (PDF) hoch – Kanzleien bevorzugen komplette Bewerbungen.
           </p>
 
           <input ref={fileInputRef} type="file" accept=".pdf,application/pdf" onChange={handleFileChange} className="hidden" />
@@ -181,17 +198,23 @@ const ApplySuccessStep = ({
 
       {/* Upload Success */}
       {uploadedFile && (
-        <div className="flex items-center gap-3 bg-green-50 dark:bg-green-950/30 rounded-xl p-4 border border-green-200 dark:border-green-800">
-          <FileText className="h-8 w-8 text-primary shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground truncate">{uploadedFile}</p>
-            <p className="text-xs text-green-600 font-medium">✅ Lebenslauf erfolgreich hinzugefügt!</p>
+        <div className="rounded-xl p-5 space-y-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 animate-fade-in">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-green-600" />
+            <h4 className="font-bold text-foreground">Perfekt! Dein Profil sticht hervor ✨</h4>
           </div>
-          <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
+          <div className="flex items-center gap-3">
+            <FileText className="h-8 w-8 text-primary shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground truncate">{uploadedFile}</p>
+              <p className="text-xs text-green-600 font-medium">✅ Lebenslauf erfolgreich verknüpft!</p>
+            </div>
+            <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
+          </div>
         </div>
       )}
 
-      {/* DSGVO note (always visible) */}
+      {/* DSGVO note */}
       <p className="text-xs text-center text-muted-foreground">
         🔒 Deine Daten wurden sicher übermittelt und werden gemäß DSGVO nach 6 Monaten automatisch gelöscht.
       </p>
