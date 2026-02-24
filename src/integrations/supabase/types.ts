@@ -99,6 +99,7 @@ export type Database = {
           description: string | null
           id: string
           is_active: boolean
+          just_reactivated: boolean
           last_sign_in_at: string | null
           location: string | null
           logo_url: string | null
@@ -114,6 +115,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean
+          just_reactivated?: boolean
           last_sign_in_at?: string | null
           location?: string | null
           logo_url?: string | null
@@ -129,6 +131,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean
+          just_reactivated?: boolean
           last_sign_in_at?: string | null
           location?: string | null
           logo_url?: string | null
