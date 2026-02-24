@@ -78,13 +78,15 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
           salary_max,
           created_at,
           is_active,
-          companies (
+          companies!inner (
             name,
-            logo_url
+            logo_url,
+            is_active
           )
         `)
         .eq("is_active", true)
         .eq("status", "published")
+        .eq("companies.is_active", true)
         .order("created_at", { ascending: false });
 
       if (searchFilters.title) {

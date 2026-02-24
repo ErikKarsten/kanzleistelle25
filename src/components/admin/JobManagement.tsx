@@ -66,6 +66,7 @@ interface JobWithCompany {
   companies: {
     name: string;
     logo_url: string | null;
+    is_active: boolean;
   } | null;
 }
 
@@ -102,7 +103,8 @@ const JobManagement = () => {
           created_at,
           companies (
             name,
-            logo_url
+            logo_url,
+            is_active
           )
         `)
         .order("created_at", { ascending: false });
@@ -469,7 +471,7 @@ const JobsTable = ({
                 <Badge variant="outline">{applicationCounts?.[job.id] || 0}</Badge>
               </TableCell>
               <TableCell>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1.5 flex-wrap">
                   <Badge
                     className={
                       job.is_active
@@ -483,6 +485,11 @@ const JobsTable = ({
                     <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border" style={{ color: "#D4AF37", borderColor: "#D4AF37" }}>
                       ✨ Freigegeben
                     </span>
+                  )}
+                  {!job.is_active && job.companies && !job.companies.is_active && (
+                    <Badge variant="outline" className="text-xs border-destructive text-destructive">
+                      🚫 Kanzlei gesperrt
+                    </Badge>
                   )}
                 </div>
               </TableCell>

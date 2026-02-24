@@ -50,17 +50,19 @@ const JobDetail = () => {
         .from("jobs")
         .select(`
           *,
-          companies (
+          companies!inner (
             name,
             logo_url,
             location,
             description,
-            website
+            website,
+            is_active
           )
         `)
         .eq("id", id)
         .eq("is_active", true)
         .eq("status", "published")
+        .eq("companies.is_active", true)
         .single();
 
       if (error) throw error;
