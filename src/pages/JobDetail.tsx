@@ -20,6 +20,8 @@ import {
   Globe,
   CheckCircle2,
   Star,
+  Phone,
+  User,
 } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -57,6 +59,12 @@ const JobDetail = () => {
             description,
             website,
             is_active
+          ),
+          contact_persons (
+            name,
+            phone,
+            email,
+            role
           )
         `)
         .eq("id", id)
@@ -327,6 +335,28 @@ const JobDetail = () => {
                   )}
                 </CardContent>
               </Card>
+
+              {/* Contact Person */}
+              {job.contact_persons && (
+                <Card className="border-primary/20">
+                  <CardContent className="pt-6 space-y-2">
+                    <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                      <User className="h-4 w-4 text-primary" />
+                      Ihre Ansprechperson
+                    </h3>
+                    <p className="font-medium text-foreground">{job.contact_persons.name}</p>
+                    {job.contact_persons.role && job.contact_persons.role !== "Ansprechpartner" && (
+                      <p className="text-xs text-muted-foreground">{job.contact_persons.role}</p>
+                    )}
+                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                      <Phone className="h-3.5 w-3.5" />
+                      <a href={`tel:${job.contact_persons.phone}`} className="hover:text-primary transition-colors">
+                        {job.contact_persons.phone}
+                      </a>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Job Meta */}
               <Card>

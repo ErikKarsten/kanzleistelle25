@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
@@ -63,6 +63,7 @@ const EmployerJobModal = ({
     working_model: "vor_ort",
     description: "",
     salary_range: "",
+    contact_person_id: "",
   });
   const [requirements, setRequirements] = useState<string[]>([]);
   const [benefits, setBenefits] = useState<string[]>([]);
@@ -78,6 +79,7 @@ const EmployerJobModal = ({
         working_model: job.working_model || "vor_ort",
         description: job.description || "",
         salary_range: job.salary_range || (job.salary_min && job.salary_max ? `${job.salary_min} - ${job.salary_max} €` : ""),
+        contact_person_id: job.contact_person_id || "",
       });
       // Parse requirements from string or array
       if (job.requirements) {
@@ -99,6 +101,7 @@ const EmployerJobModal = ({
         working_model: "vor_ort",
         description: "",
         salary_range: "",
+        contact_person_id: "",
       });
       setRequirements([]);
       setBenefits([]);
@@ -106,6 +109,22 @@ const EmployerJobModal = ({
     setRequirementInput("");
     setBenefitInput("");
   }, [job, open]);
+
+  // Fetch contact persons for this company
+  const { data: contactPersons } = useQuery({
+    queryKey: ["contact-persons", companyId],
+    queryFn: async () => {
+      if (!companyId) return [];
+      const { data, error } = await supabase
+        .from("contact_persons")
+        .select("*")
+        .eq("company_id", companyId)
+        .order("is_primary", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!companyId && open,
+  });
 
   const toggleTag = (
     value: string,
@@ -158,6 +177,7 @@ const EmployerJobModal = ({
         requirements: requirements.length > 0 ? requirements.join("\n") : null,
         benefits: benefits.length > 0 ? benefits : [],
         salary_range: data.salary_range || null,
+        contact_person_id: data.contact_person_id || null,
         is_active: false,
         status: "pending",
       });
@@ -192,6 +212,7 @@ const EmployerJobModal = ({
           requirements: requirements.length > 0 ? requirements.join("\n") : null,
           benefits: benefits.length > 0 ? benefits : [],
           salary_range: data.salary_range || null,
+          contact_person_id: data.contact_person_id || null,
         })
         .eq("id", job.id);
       if (error) throw error;
@@ -314,6 +335,31 @@ const EmployerJobModal = ({
               />
             </div>
           </div>
+
+          {/* Ansprechpartner */}
+          {contactPersons && contactPersons.length > 0 && (
+            <div className="space-y-2">
+              <Label>Zuständiger Ansprechpartner</Label>
+              <Select
+                value={formData.contact_person_id}
+                onValueChange={(value) => setFormData({ ...formData, contact_person_id: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Ansprechpartner wählen…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {contactPersons.map((cp: any) => (
+                    <SelectItem key={cp.id} value={cp.id}>
+                      {cp.name}{cp.is_primary ? " (Hauptkontakt)" : ""}{cp.role && cp.role !== "Ansprechpartner" ? ` – ${cp.role}` : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Wird auf der öffentlichen Stellenanzeige angezeigt.
+              </p>
+            </div>
+          )}
 
           {/* Beschreibung */}
           <div className="space-y-2">

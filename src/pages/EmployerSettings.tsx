@@ -28,6 +28,7 @@ import {
   FileText,
 } from "lucide-react";
 import LogoUpload from "@/components/employer/LogoUpload";
+import ContactPersonsManager from "@/components/employer/ContactPersonsManager";
 
 const EmployerSettings = () => {
   const navigate = useNavigate();
@@ -292,6 +293,11 @@ const EmployerSettings = () => {
                   </form>
                 </CardContent>
               </Card>
+
+              {/* Contact Persons */}
+              {companyId && (
+                <ContactPersonsManager companyId={companyId} />
+              )}
             </TabsContent>
 
             {/* ── Notifications Tab ── */}
