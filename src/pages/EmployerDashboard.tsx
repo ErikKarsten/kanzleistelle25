@@ -47,6 +47,7 @@ import EmployerJobModal from "@/components/employer/EmployerJobModal";
 import LogoUpload from "@/components/employer/LogoUpload";
 import EmployerOnboarding from "@/components/employer/EmployerOnboarding";
 import NewApplicantModal, { useNewApplicantNotification } from "@/components/employer/NewApplicantModal";
+import WelcomeBackModal from "@/components/employer/WelcomeBackModal";
 
 // Reusable application card for active/archived views
 const ApplicationCard = ({
@@ -925,6 +926,16 @@ const EmployerDashboard = () => {
         applicant={newApplicant}
         onDismiss={dismissNewApplicant}
         onViewDetails={() => {
+          setActiveTab("applications");
+          setApplicationsTab("active");
+        }}
+      />
+
+
+      {/* Welcome Back Modal (once per session) */}
+      <WelcomeBackModal
+        newApplications={pendingApplications}
+        onViewAll={() => {
           setActiveTab("applications");
           setApplicationsTab("active");
         }}
