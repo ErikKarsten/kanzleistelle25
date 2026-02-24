@@ -202,7 +202,7 @@ const ApplicationCard = ({
 };
 const EmployerDashboard = () => {
   const navigate = useNavigate();
-  const { user, role, companyId, isLoading: authLoading, isAuthenticated, signOut } = useAuth();
+  const { user, role, companyId, isLoading: authLoading, isAuthenticated, signOut, refreshAuth } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("jobs");
@@ -311,6 +311,7 @@ const EmployerDashboard = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employer-company"] });
+      refreshAuth();
       toast({ title: "Profil aktualisiert!" });
     },
     onError: (error: any) => {
