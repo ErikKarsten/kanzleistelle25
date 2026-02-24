@@ -24,7 +24,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Building2, MapPin, Plus, Trash2, Pencil, Archive, ArchiveRestore } from "lucide-react";
+import { Building2, MapPin, Plus, Trash2, Pencil, Archive, ArchiveRestore, Bell } from "lucide-react";
 import { toast } from "sonner";
 import CompanyDetailsModal from "./CompanyDetailsModal";
 import CompanyCreateModal from "./CompanyCreateModal";
@@ -39,6 +39,7 @@ interface Company {
   is_active: boolean;
   website: string | null;
   user_id: string | null;
+  reactivation_requested: boolean;
 }
 
 const CompanyManagement = () => {
@@ -141,12 +142,19 @@ const CompanyManagement = () => {
           {list.map((company) => (
             <TableRow key={company.id} className="hover:bg-muted/30">
               <TableCell>
-                <button
-                  onClick={() => handleCompanyClick(company)}
-                  className="font-medium text-primary hover:underline text-left"
-                >
-                  {company.name}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleCompanyClick(company)}
+                    className="font-medium text-primary hover:underline text-left"
+                  >
+                    {company.name}
+                  </button>
+                  {company.reactivation_requested && (
+                    <span className="inline-flex items-center animate-pulse" title="Reaktivierung angefragt">
+                      <Bell className="h-4 w-4 text-orange-500" />
+                    </span>
+                  )}
+                </div>
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-1 text-muted-foreground">

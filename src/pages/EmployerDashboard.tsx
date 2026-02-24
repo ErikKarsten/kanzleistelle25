@@ -48,6 +48,7 @@ import LogoUpload from "@/components/employer/LogoUpload";
 import EmployerOnboarding from "@/components/employer/EmployerOnboarding";
 import NewApplicantModal, { useNewApplicantNotification } from "@/components/employer/NewApplicantModal";
 import WelcomeBackModal from "@/components/employer/WelcomeBackModal";
+import CompanyBlockedScreen from "@/components/employer/CompanyBlockedScreen";
 
 // Reusable application card for active/archived views
 const ApplicationCard = ({
@@ -503,6 +504,17 @@ const EmployerDashboard = () => {
         </main>
         <Footer />
       </div>
+    );
+  }
+
+  // Company is blocked/deactivated - show blocked screen
+  if (company && !company.is_active) {
+    return (
+      <CompanyBlockedScreen
+        companyId={company.id}
+        companyName={company.name}
+        alreadyRequested={company.reactivation_requested ?? false}
+      />
     );
   }
 

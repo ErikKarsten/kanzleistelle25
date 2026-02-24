@@ -1,1 +1,4 @@
 project_id = "myvjwpbhdnnrkwazudnh"
+
+[functions.auto-archive-companies]
+verify_jwt = false

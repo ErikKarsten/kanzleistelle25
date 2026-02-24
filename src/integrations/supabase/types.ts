@@ -99,11 +99,13 @@ export type Database = {
           description: string | null
           id: string
           is_active: boolean
+          last_sign_in_at: string | null
           location: string | null
           logo_url: string | null
           name: string
           reactivation_notes: string | null
           reactivation_requested: boolean | null
+          reactivation_requested_at: string | null
           user_id: string | null
           website: string | null
         }
@@ -112,11 +114,13 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean
+          last_sign_in_at?: string | null
           location?: string | null
           logo_url?: string | null
           name: string
           reactivation_notes?: string | null
           reactivation_requested?: boolean | null
+          reactivation_requested_at?: string | null
           user_id?: string | null
           website?: string | null
         }
@@ -125,11 +129,13 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean
+          last_sign_in_at?: string | null
           location?: string | null
           logo_url?: string | null
           name?: string
           reactivation_notes?: string | null
           reactivation_requested?: boolean | null
+          reactivation_requested_at?: string | null
           user_id?: string | null
           website?: string | null
         }

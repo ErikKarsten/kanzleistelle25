@@ -68,7 +68,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       if (isEmployer || !roles || roles.length === 0) {
         const { data: company, error: companyError } = await supabase
           .from("companies")
-          .select("id, name, logo_url")
+          .select("id, name, logo_url, is_active, reactivation_requested")
           .eq("user_id", userId)
           .maybeSingle();
 
@@ -83,6 +83,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           if (!isEmployer && !isAdmin) {
             setRole("employer");
           }
+          // Update last_sign_in_at for auto-archive tracking
+          supabase
+            .from("companies")
+            .update({ last_sign_in_at: new Date().toISOString() } as any)
+            .eq("id", company.id)
+            .then();
         } else {
           setCompanyId(null);
           setCompanyName(null);
