@@ -1,22 +1,18 @@
 import { useNavigate, Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { LogOut, Briefcase, Home } from "lucide-react";
-import { toast } from "sonner";
 
 const AdminHeader = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { signOut } = useAuth();
 
   const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    
-    if (error) {
-      toast.error("Fehler beim Abmelden");
-      return;
-    }
-
-    toast.success("Erfolgreich abgemeldet");
-    navigate("/admin/login");
+    await signOut();
+    queryClient.clear();
+    navigate("/");
   };
 
   return (

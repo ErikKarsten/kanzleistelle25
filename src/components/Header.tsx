@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Menu, X, Briefcase, User, LayoutDashboard, LogOut, Building2, Settings } from "lucide-react";
@@ -15,10 +16,12 @@ import {
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user, role, companyName, companyLogoUrl, isLoading, isAuthenticated, signOut } = useAuth();
 
   const handleSignOut = async () => {
     await signOut();
+    queryClient.clear();
     navigate("/");
   };
 
