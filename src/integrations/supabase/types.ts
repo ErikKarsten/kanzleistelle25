@@ -102,6 +102,8 @@ export type Database = {
           location: string | null
           logo_url: string | null
           name: string
+          reactivation_notes: string | null
+          reactivation_requested: boolean | null
           user_id: string | null
           website: string | null
         }
@@ -113,6 +115,8 @@ export type Database = {
           location?: string | null
           logo_url?: string | null
           name: string
+          reactivation_notes?: string | null
+          reactivation_requested?: boolean | null
           user_id?: string | null
           website?: string | null
         }
@@ -124,6 +128,8 @@ export type Database = {
           location?: string | null
           logo_url?: string | null
           name?: string
+          reactivation_notes?: string | null
+          reactivation_requested?: boolean | null
           user_id?: string | null
           website?: string | null
         }
