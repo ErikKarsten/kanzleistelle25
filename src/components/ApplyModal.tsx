@@ -157,16 +157,17 @@ const ApplyModal = ({
 
       console.log('[ApplyModal] Sende Insert:', JSON.stringify(insertData, null, 2));
       
-      const { error } = await supabase.from("applications").insert(insertData as any);
+      const { data, error } = await supabase.from("applications").insert(insertData as any).select("id").single();
       
       if (error) {
         console.dir(error, { depth: null });
         throw error;
       }
       
-      return { success: true };
+      return { success: true, applicationId: data.id };
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
+      setApplicationId(result.applicationId);
       setCurrentStep(4);
       queryClient.invalidateQueries({ queryKey: ["applications"] });
     },
@@ -480,7 +481,7 @@ const ApplyModal = ({
           {currentStep === 4 && (
             <ApplySuccessStep
               firstName={formData.firstName}
-              applicationId={null}
+              applicationId={applicationId}
               company={company}
               onClose={() => handleOpenChange(false)}
             />
