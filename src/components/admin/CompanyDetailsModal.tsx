@@ -150,6 +150,9 @@ const CompanyDetailsModal = ({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-companies"] });
       queryClient.invalidateQueries({ queryKey: ["companies"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["featured-jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["jobs"] });
       toast.success("Kanzlei aktualisiert");
       onOpenChange(false);
     },
