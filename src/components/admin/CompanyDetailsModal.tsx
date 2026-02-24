@@ -67,7 +67,7 @@ interface Application {
   jobs: { title: string } | null;
 }
 
-type SlaLevel = "ok" | "warning" | "critical";
+type SlaLevel = "ok" | "warning" | "urgent" | "critical";
 
 const getSlaLevel = (app: Application): SlaLevel => {
   if (!app.created_at) return "ok";
@@ -75,8 +75,16 @@ const getSlaLevel = (app: Application): SlaLevel => {
   if (!isPending) return "ok";
   const days = Math.floor((Date.now() - new Date(app.created_at).getTime()) / (1000 * 60 * 60 * 24));
   if (days >= 14) return "critical";
-  if (days >= 7) return "warning";
+  if (days >= 7) return "urgent";
+  if (days >= 3) return "warning";
   return "ok";
+};
+
+const SLA_LABEL: Record<SlaLevel, string> = {
+  ok: "Im Rahmen",
+  warning: "Erste Reaktion erforderlich",
+  urgent: "Dringender Handlungsbedarf",
+  critical: "Kritisch: Bewerberverlust droht",
 };
 
 const getDaysSinceCreation = (createdAt: string | null): number => {
@@ -95,6 +103,38 @@ const calcAvgResponseTime = (applications: Application[]): number | null => {
     return sum + diff;
   }, 0);
   return Math.round(total / responded.length / (1000 * 60 * 60 * 24) * 10) / 10;
+};
+
+const calcSlaCompliance = (applications: Application[]): number | null => {
+  if (!applications || applications.length === 0) return null;
+  const responded = applications.filter((a) => {
+    const isPending = !a.status || a.status === "pending" || a.status === "neu" || a.status === "eingegangen";
+    return !isPending && a.created_at && a.updated_at;
+  });
+  if (responded.length === 0) return null;
+  const withinSla = responded.filter((a) => {
+    const diff = new Date(a.updated_at!).getTime() - new Date(a.created_at!).getTime();
+    return diff <= 3 * 24 * 60 * 60 * 1000;
+  });
+  return Math.round((withinSla.length / responded.length) * 100);
+};
+
+/** Returns the highest SLA level among a list of applications */
+const getHighestSlaLevel = (apps: { status: string | null; created_at: string | null }[]): SlaLevel => {
+  const levels: SlaLevel[] = ["ok", "warning", "urgent", "critical"];
+  let highest = 0;
+  for (const app of apps) {
+    const isPending = !app.status || app.status === "pending" || app.status === "neu" || app.status === "eingegangen";
+    if (!isPending || !app.created_at) continue;
+    const days = Math.floor((Date.now() - new Date(app.created_at).getTime()) / (1000 * 60 * 60 * 24));
+    let level = 0;
+    if (days >= 14) level = 3;
+    else if (days >= 7) level = 2;
+    else if (days >= 3) level = 1;
+    if (level > highest) highest = level;
+    if (highest === 3) break;
+  }
+  return levels[highest];
 };
 
 interface CompanyDetailsModalProps {
@@ -172,11 +212,13 @@ const CompanyDetailsModal = ({
   });
 
   const slaStats = useMemo(() => {
-    if (!applications) return { warning: 0, critical: 0, avgResponseTime: null as number | null };
+    if (!applications) return { warning: 0, urgent: 0, critical: 0, avgResponseTime: null as number | null, compliance: null as number | null };
     const warning = applications.filter((a) => getSlaLevel(a) === "warning").length;
+    const urgent = applications.filter((a) => getSlaLevel(a) === "urgent").length;
     const critical = applications.filter((a) => getSlaLevel(a) === "critical").length;
     const avgResponseTime = calcAvgResponseTime(applications);
-    return { warning, critical, avgResponseTime };
+    const compliance = calcSlaCompliance(applications);
+    return { warning, urgent, critical, avgResponseTime, compliance };
   }, [applications]);
 
   const filteredApplications = useMemo(() => {
@@ -294,8 +336,10 @@ const CompanyDetailsModal = ({
     y += 8;
 
     addField("Ø Reaktionszeit", slaStats.avgResponseTime !== null ? `${slaStats.avgResponseTime} Tage` : "Keine Daten");
-    addField("Überfällige Bewerbungen (7+ Tage)", String(slaStats.warning));
-    addField("Kritische Bewerbungen (14+ Tage)", String(slaStats.critical));
+    addField("SLA-Compliance (< 3 Tage)", slaStats.compliance !== null ? `${slaStats.compliance}%` : "Keine Daten");
+    addField("Stufe 1 – Gelb (3+ Tage)", String(slaStats.warning));
+    addField("Stufe 2 – Orange (7+ Tage)", String(slaStats.urgent));
+    addField("Stufe 3 – Rot (14+ Tage)", String(slaStats.critical));
 
     // List overdue applications
     if (applications) {
@@ -314,8 +358,10 @@ const CompanyDetailsModal = ({
           const name = [app.first_name, app.last_name].filter(Boolean).join(" ") || app.email || "Unbekannt";
           doc.setFontSize(9);
           doc.setFont("helvetica", "normal");
-          doc.setTextColor(level === "critical" ? 220 : 180, level === "critical" ? 50 : 130, level === "critical" ? 50 : 0);
-          doc.text(`• ${name} — ${days} Tage (${level === "critical" ? "Kritisch" : "Überfällig"}) — ${app.jobs?.title || "—"}`, margin + 2, y);
+          if (level === "critical") doc.setTextColor(220, 50, 50);
+          else if (level === "urgent") doc.setTextColor(210, 130, 20);
+          else doc.setTextColor(190, 160, 0);
+          doc.text(`• ${name} — ${days} Tage (${SLA_LABEL[level]}) — ${app.jobs?.title || "—"}`, margin + 2, y);
           doc.setTextColor(0, 0, 0);
           y += 6;
         });
@@ -429,19 +475,25 @@ const CompanyDetailsModal = ({
             <Separator />
 
             {/* Performance Quick Stats */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
               <MiniStat label="Aktive Stellen" value={String(openJobs.length)} icon={<Briefcase className="h-4 w-4" />} />
               <MiniStat label="Bewerbungen" value={String(applications?.length || 0)} icon={<Users className="h-4 w-4" />} />
               <MiniStat
                 label="Überfällig"
-                value={String(slaStats.warning + slaStats.critical)}
+                value={String(slaStats.warning + slaStats.urgent + slaStats.critical)}
                 icon={<AlertTriangle className="h-4 w-4" />}
-                variant={slaStats.critical > 0 ? "critical" : slaStats.warning > 0 ? "warning" : "default"}
+                variant={slaStats.critical > 0 ? "critical" : slaStats.urgent > 0 ? "urgent" : slaStats.warning > 0 ? "warning" : "default"}
               />
               <MiniStat
                 label="Ø Reaktionszeit"
                 value={slaStats.avgResponseTime !== null ? `${slaStats.avgResponseTime}d` : "—"}
                 icon={<Clock className="h-4 w-4" />}
+              />
+              <MiniStat
+                label="SLA-Quote"
+                value={slaStats.compliance !== null ? `${slaStats.compliance}%` : "—"}
+                icon={<ShieldCheck className="h-4 w-4" />}
+                variant={slaStats.compliance !== null ? (slaStats.compliance >= 80 ? "default" : slaStats.compliance >= 50 ? "warning" : "critical") : "default"}
               />
             </div>
 
@@ -556,11 +608,12 @@ const MiniStat = ({
   label: string;
   value: string;
   icon: React.ReactNode;
-  variant?: "default" | "warning" | "critical";
+  variant?: "default" | "warning" | "urgent" | "critical";
 }) => {
   const variantClasses = {
     default: "bg-muted/30 text-foreground",
     warning: "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20",
+    urgent: "bg-orange-500/10 text-orange-700 dark:text-orange-400 border-orange-500/20",
     critical: "bg-destructive/10 text-destructive border-destructive/20",
   };
   return (
@@ -576,15 +629,24 @@ const ApplicationSlaRow = ({ application }: { application: Application }) => {
   const days = getDaysSinceCreation(application.created_at);
   const name = [application.first_name, application.last_name].filter(Boolean).join(" ") || application.email || "Unbekannt";
 
+  const rowClasses: Record<SlaLevel, string> = {
+    ok: "bg-muted/20",
+    warning: "bg-yellow-500/10 border border-yellow-500/20",
+    urgent: "bg-orange-500/10 border border-orange-500/20",
+    critical: "bg-destructive/10 border border-destructive/20",
+  };
+
+  const iconColors: Record<SlaLevel, string> = {
+    ok: "",
+    warning: "text-yellow-500",
+    urgent: "text-orange-500",
+    critical: "text-destructive",
+  };
+
   return (
-    <div className={`flex items-center justify-between p-2.5 rounded-lg text-sm ${
-      sla === "critical" ? "bg-destructive/10 border border-destructive/20" :
-      sla === "warning" ? "bg-yellow-500/10 border border-yellow-500/20" :
-      "bg-muted/20"
-    }`}>
+    <div className={`flex items-center justify-between p-2.5 rounded-lg text-sm ${rowClasses[sla]}`}>
       <div className="flex items-center gap-2 min-w-0">
-        {sla === "critical" && <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />}
-        {sla === "warning" && <AlertTriangle className="h-4 w-4 text-yellow-500 shrink-0" />}
+        {sla !== "ok" && <AlertTriangle className={`h-4 w-4 shrink-0 ${iconColors[sla]}`} />}
         <div className="min-w-0">
           <p className="font-medium truncate">{name}</p>
           <p className="text-xs text-muted-foreground truncate">{application.jobs?.title || "—"}</p>
@@ -594,8 +656,11 @@ const ApplicationSlaRow = ({ application }: { application: Application }) => {
         {sla === "critical" && (
           <Badge variant="destructive" className="text-xs whitespace-nowrap">Kritisch · {days}d</Badge>
         )}
+        {sla === "urgent" && (
+          <Badge className="text-xs bg-orange-500/20 text-orange-700 dark:text-orange-400 border-orange-500/30 whitespace-nowrap">Dringend · {days}d</Badge>
+        )}
         {sla === "warning" && (
-          <Badge className="text-xs bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border-yellow-500/30 whitespace-nowrap">Überfällig · {days}d</Badge>
+          <Badge className="text-xs bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border-yellow-500/30 whitespace-nowrap">Reaktion nötig · {days}d</Badge>
         )}
         {sla === "ok" && (
           <span className="text-xs text-muted-foreground">{days}d</span>
@@ -636,6 +701,6 @@ const JobRow = ({ job, inactive }: { job: Job; inactive?: boolean }) => (
 );
 
 // Export SLA helpers for use in CompanyManagement
-export { getSlaLevel, type Application, type SlaLevel };
+export { getSlaLevel, getHighestSlaLevel, SLA_LABEL, type Application, type SlaLevel };
 
 export default CompanyDetailsModal;

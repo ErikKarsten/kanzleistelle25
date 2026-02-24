@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Building2, MapPin, Plus, Trash2, Pencil, Archive, ArchiveRestore, Bell, AlertTriangle, Siren } from "lucide-react";
 import { toast } from "sonner";
-import CompanyDetailsModal from "./CompanyDetailsModal";
+import CompanyDetailsModal, { getHighestSlaLevel } from "./CompanyDetailsModal";
 import CompanyCreateModal from "./CompanyCreateModal";
 
 interface Company {
@@ -78,19 +78,20 @@ const CompanyManagement = ({ navigateToCompanyId, onNavigated }: CompanyManageme
     },
   });
 
-  // Companies with 3+ critical (14d+) pending applications
-  const criticalCompanyIds = useMemo(() => {
-    if (!pendingApplications) return new Set<string>();
-    const counts: Record<string, number> = {};
-    const now = Date.now();
+  // Compute highest SLA level per company
+  const companySlaMap = useMemo(() => {
+    if (!pendingApplications) return new Map<string, "ok" | "warning" | "urgent" | "critical">();
+    const grouped: Record<string, { status: string | null; created_at: string | null }[]> = {};
     pendingApplications.forEach((app) => {
-      if (!app.company_id || !app.created_at) return;
-      const days = Math.floor((now - new Date(app.created_at).getTime()) / (1000 * 60 * 60 * 24));
-      if (days >= 14) {
-        counts[app.company_id] = (counts[app.company_id] || 0) + 1;
-      }
+      if (!app.company_id) return;
+      if (!grouped[app.company_id]) grouped[app.company_id] = [];
+      grouped[app.company_id].push(app);
     });
-    return new Set(Object.entries(counts).filter(([, c]) => c >= 3).map(([id]) => id));
+    const map = new Map<string, "ok" | "warning" | "urgent" | "critical">();
+    Object.entries(grouped).forEach(([companyId, apps]) => {
+      map.set(companyId, getHighestSlaLevel(apps));
+    });
+    return map;
   }, [pendingApplications]);
 
   // Navigate to a specific company when requested from reactivation popup
@@ -213,18 +214,24 @@ const CompanyManagement = ({ navigateToCompanyId, onNavigated }: CompanyManageme
                           </TooltipContent>
                         </Tooltip>
                       )}
-                      {criticalCompanyIds.has(company.id) && (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span className="inline-flex items-center">
-                              <Siren className="h-4 w-4 text-destructive animate-pulse" />
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>3+ kritische Bewerbungen ohne Reaktion seit 14+ Tagen</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      )}
+                      {(() => {
+                        const sla = companySlaMap.get(company.id);
+                        if (!sla || sla === "ok") return null;
+                        const slaColors = { warning: "text-yellow-500", urgent: "text-orange-500", critical: "text-destructive" };
+                        const slaLabels = { warning: "Bewerbungen warten 3+ Tage", urgent: "Bewerbungen warten 7+ Tage", critical: "Bewerbungen warten 14+ Tage – Bewerberverlust droht!" };
+                        return (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="inline-flex items-center">
+                                <Siren className={`h-4 w-4 ${slaColors[sla]} ${sla === "critical" ? "animate-pulse" : ""}`} />
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{slaLabels[sla]}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        );
+                      })()}
                     </div>
                   </TableCell>
                   <TableCell>
