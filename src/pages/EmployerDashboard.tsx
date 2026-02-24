@@ -43,6 +43,7 @@ import {
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import EmployerJobModal from "@/components/employer/EmployerJobModal";
+import LogoUpload from "@/components/employer/LogoUpload";
 import EmployerOnboarding from "@/components/employer/EmployerOnboarding";
 
 // Reusable application card for active/archived views
@@ -300,7 +301,7 @@ const EmployerDashboard = () => {
 
   // Update company mutation
   const updateCompanyMutation = useMutation({
-    mutationFn: async (data: { name: string; location: string; description: string }) => {
+    mutationFn: async (data: { name: string; location: string; description: string; logo_url?: string }) => {
       if (!companyId) throw new Error("No company ID");
       const { error } = await supabase
         .from("companies")
@@ -776,6 +777,18 @@ const EmployerDashboard = () => {
                     </div>
                   ) : company ? (
                     <form onSubmit={handleProfileSubmit} className="space-y-6 max-w-xl">
+                      <LogoUpload
+                        currentLogoUrl={company.logo_url}
+                        companyName={company.name}
+                        onUploadComplete={(url) => {
+                          updateCompanyMutation.mutate({
+                            name: company.name,
+                            location: company.location || "",
+                            description: company.description || "",
+                            logo_url: url || undefined,
+                          });
+                        }}
+                      />
                       <div className="space-y-2">
                         <Label htmlFor="name">Kanzleiname *</Label>
                         <Input
