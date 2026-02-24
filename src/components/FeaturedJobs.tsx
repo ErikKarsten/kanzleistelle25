@@ -120,69 +120,82 @@ const FeaturedJobs = () => {
           </div>
         ) : jobs && jobs.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {jobs.map((job) => (
+            {jobs.map((job) => {
+              const companyInitials = (job.companies?.name || job.company).substring(0, 2).toUpperCase();
+              return (
               <Card
                 key={job.id}
-                className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-l-primary relative"
+                className="group overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer relative border border-border"
+                onClick={() => setSelectedJob(job)}
               >
                 {/* Express Badge */}
-                <div className="absolute top-3 right-3 bg-primary text-primary-foreground px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-md">
+                <div className="absolute top-3 left-3 bg-primary text-primary-foreground px-2.5 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-md z-10">
                   <Zap className="h-3 w-3" />
-                  30 Sek. Bewerbung
+                  30 Sek.
                 </div>
-                <CardHeader className="pb-3 pt-10">
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-lg line-clamp-2">
-                      {job.title}
-                    </CardTitle>
-                    <Badge variant="secondary" className="shrink-0">
+
+                {/* Card Body — horizontal layout with logo right */}
+                <div className="flex flex-col">
+                  {/* Top: Large logo area */}
+                  <div className="relative flex items-center justify-center pt-10 pb-4 px-6 bg-secondary/20">
+                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-background border border-border shadow-sm flex items-center justify-center overflow-hidden group-hover:shadow-md group-hover:scale-105 transition-all duration-300">
+                      {job.companies?.logo_url ? (
+                        <img
+                          src={job.companies.logo_url}
+                          alt={job.companies.name || job.company}
+                          className="w-full h-full object-contain p-2"
+                        />
+                      ) : (
+                        <span className="text-2xl md:text-3xl font-bold" style={{ color: "#D4AF37" }}>
+                          {companyInitials}
+                        </span>
+                      )}
+                    </div>
+                    {/* Employment type badge */}
+                    <Badge variant="secondary" className="absolute top-3 right-3 text-xs">
                       {job.employment_type ? employmentTypeLabels[job.employment_type] : "N/A"}
                     </Badge>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    {job.companies?.logo_url ? (
-                      <Avatar className="h-5 w-5 border border-border">
-                        <AvatarImage src={job.companies.logo_url} alt={job.companies.name || job.company} />
-                        <AvatarFallback className="text-[10px]">
-                          {(job.companies.name || job.company).substring(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                    ) : (
-                      <Building2 className="h-4 w-4" />
+
+                  {/* Bottom: Job details */}
+                  <div className="p-5 space-y-3">
+                    <div>
+                      <CardTitle className="text-lg line-clamp-2 group-hover:text-primary transition-colors">
+                        {job.title}
+                      </CardTitle>
+                      <div className="flex items-center gap-1.5 text-sm text-muted-foreground mt-1">
+                        <Building2 className="h-3.5 w-3.5" />
+                        <span className="font-medium">{job.companies?.name || job.company}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-3.5 w-3.5 text-primary/60" />
+                        <span>{job.location || "Flexibel"}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Clock className="h-3.5 w-3.5 text-primary/60" />
+                        <span>
+                          {job.created_at && formatDistanceToNow(new Date(job.created_at), {
+                            addSuffix: true,
+                            locale: de,
+                          })}
+                        </span>
+                      </div>
+                    </div>
+
+                    {job.salary_min && job.salary_max && (
+                      <p className="text-sm font-semibold text-primary">
+                        {job.salary_min.toLocaleString("de-DE")} – {job.salary_max.toLocaleString("de-DE")} € / Jahr
+                      </p>
                     )}
-                    <span>{job.companies?.name || job.company}</span>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4" />
-                      <span>{job.location}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      <span>
-                        {formatDistanceToNow(new Date(job.created_at), {
-                          addSuffix: true,
-                          locale: de,
-                        })}
-                      </span>
-                    </div>
-                  </div>
-                  {job.salary_min && job.salary_max && (
-                    <p className="text-sm font-medium text-primary">
-                      {job.salary_min.toLocaleString("de-DE")} € -{" "}
-                      {job.salary_max.toLocaleString("de-DE")} € / Jahr
+
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {job.description}
                     </p>
-                  )}
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {job.description}
-                  </p>
-                  <div className="flex flex-col gap-2 mt-3">
-                    <Button 
-                      className="w-full"
-                      onClick={() => setSelectedJob(job)}
-                    >
+
+                    <Button className="w-full mt-2 gap-2" onClick={(e) => { e.stopPropagation(); setSelectedJob(job); }}>
                       <Send className="h-4 w-4" />
                       Jetzt bewerben
                     </Button>
@@ -191,9 +204,10 @@ const FeaturedJobs = () => {
                       <span>Nur 30 Sek.</span>
                     </div>
                   </div>
-                </CardContent>
+                </div>
               </Card>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="text-center py-12">
