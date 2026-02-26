@@ -112,8 +112,8 @@ const EmployerSettings = () => {
   // Password change mutation
   const changePasswordMutation = useMutation({
     mutationFn: async () => {
-      if (newPassword !== confirmPassword) throw new Error("Passwörter stimmen nicht überein");
-      if (newPassword.length < 6) throw new Error("Passwort muss mindestens 6 Zeichen lang sein");
+      const { passwordChangeSchema } = await import("@/lib/validations");
+      passwordChangeSchema.parse({ newPassword, confirmPassword });
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
     },
@@ -128,10 +128,14 @@ const EmployerSettings = () => {
     },
   });
 
-  const handleProfileSubmit = (e: React.FormEvent) => {
+  const handleProfileSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) {
-      toast({ title: "Fehler", description: "Kanzleiname darf nicht leer sein.", variant: "destructive" });
+    try {
+      const { companySchema } = await import("@/lib/validations");
+      companySchema.parse({ name, location, description, website });
+    } catch (err: any) {
+      const msg = err?.issues?.map((i: any) => i.message).join(", ") || "Ungültige Eingabe";
+      toast({ title: "Validierungsfehler", description: msg, variant: "destructive" });
       return;
     }
     updateCompanyMutation.mutate({ name: name.trim(), location: location.trim(), description: description.trim(), website: website.trim() });

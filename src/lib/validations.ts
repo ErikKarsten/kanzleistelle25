@@ -37,10 +37,31 @@ export const jobSchema = z.object({
   { message: "Ungültige Gehaltsangaben (Min muss kleiner als Max sein, keine negativen Werte)" }
 );
 
-// Company creation
+// Company creation/update
 export const companySchema = z.object({
   name: z.string().trim().min(1, "Name ist erforderlich").max(200, "Name darf max. 200 Zeichen lang sein"),
   location: z.string().trim().max(200, "Standort darf max. 200 Zeichen lang sein").optional().or(z.literal("")),
   description: z.string().trim().max(2000, "Beschreibung darf max. 2000 Zeichen lang sein").optional().or(z.literal("")),
   logo_url: z.string().trim().url("Ungültige URL").max(500).optional().or(z.literal("")),
+  website: z.string().trim().url("Ungültige URL").max(500).optional().or(z.literal("")),
+});
+
+// Employer job creation (used by EmployerJobModal)
+export const employerJobSchema = z.object({
+  title: z.string().trim().min(2, "Jobtitel muss mindestens 2 Zeichen haben").max(200, "Jobtitel darf max. 200 Zeichen lang sein"),
+  location: z.string().trim().max(200, "Standort darf max. 200 Zeichen lang sein").optional().or(z.literal("")),
+  employment_type: z.string().max(50).optional().or(z.literal("")),
+  working_model: z.string().max(50).optional().or(z.literal("")),
+  description: z.string().trim().max(5000, "Beschreibung darf max. 5000 Zeichen lang sein").optional().or(z.literal("")),
+  salary_range: z.string().trim().max(100, "Gehaltsrahmen darf max. 100 Zeichen lang sein").optional().or(z.literal("")),
+  contact_person_id: z.string().optional().or(z.literal("")),
+});
+
+// Password change
+export const passwordChangeSchema = z.object({
+  newPassword: z.string().min(8, "Passwort muss mindestens 8 Zeichen lang sein").max(128),
+  confirmPassword: z.string(),
+}).refine(data => data.newPassword === data.confirmPassword, {
+  message: "Passwörter stimmen nicht überein",
+  path: ["confirmPassword"],
 });
