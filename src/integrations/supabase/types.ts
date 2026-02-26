@@ -88,6 +88,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "applications_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "public_companies"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "applications_job_id_fkey"
             columns: ["job_id"]
             isOneToOne: false
@@ -192,6 +199,13 @@ export type Database = {
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "contact_persons_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "public_companies"
+            referencedColumns: ["id"]
+          },
         ]
       }
       jobs: {
@@ -267,6 +281,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "jobs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "public_companies"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "jobs_contact_person_id_fkey"
             columns: ["contact_person_id"]
             isOneToOne: false
@@ -331,7 +352,60 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_companies: {
+        Row: {
+          admin_notes: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          is_active: boolean | null
+          just_reactivated: boolean | null
+          last_sign_in_at: string | null
+          location: string | null
+          logo_url: string | null
+          name: string | null
+          reactivation_notes: string | null
+          reactivation_requested: boolean | null
+          reactivation_requested_at: string | null
+          user_id: string | null
+          website: string | null
+        }
+        Insert: {
+          admin_notes?: never
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          just_reactivated?: boolean | null
+          last_sign_in_at?: never
+          location?: string | null
+          logo_url?: string | null
+          name?: string | null
+          reactivation_notes?: never
+          reactivation_requested?: never
+          reactivation_requested_at?: never
+          user_id?: string | null
+          website?: string | null
+        }
+        Update: {
+          admin_notes?: never
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          just_reactivated?: boolean | null
+          last_sign_in_at?: never
+          location?: string | null
+          logo_url?: string | null
+          name?: string | null
+          reactivation_notes?: never
+          reactivation_requested?: never
+          reactivation_requested_at?: never
+          user_id?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role:
