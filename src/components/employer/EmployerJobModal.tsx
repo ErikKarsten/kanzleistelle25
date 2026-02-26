@@ -231,10 +231,14 @@ const EmployerJobModal = ({
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title.trim()) {
-      toast({ title: "Titel ist erforderlich", variant: "destructive" });
+    try {
+      const { employerJobSchema } = await import("@/lib/validations");
+      employerJobSchema.parse(formData);
+    } catch (err: any) {
+      const msg = err?.issues?.map((i: any) => i.message).join(", ") || "Ungültige Eingabe";
+      toast({ title: "Validierungsfehler", description: msg, variant: "destructive" });
       return;
     }
     if (job) {
