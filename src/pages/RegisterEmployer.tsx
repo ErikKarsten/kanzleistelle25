@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Building2, ArrowRight, CheckCircle2 } from "lucide-react";
 import LogoUpload from "@/components/employer/LogoUpload";
+import PasswordStrengthBar from "@/components/PasswordStrengthBar";
 
 const RegisterEmployer = () => {
   const navigate = useNavigate();
@@ -27,24 +28,15 @@ const RegisterEmployer = () => {
   });
   const [logoFile, setLogoFile] = useState<File | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    if (formData.password !== formData.confirmPassword) {
-      toast({
-        title: "Fehler",
-        description: "Die Passwörter stimmen nicht überein.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (formData.password.length < 6) {
-      toast({
-        title: "Fehler",
-        description: "Das Passwort muss mindestens 6 Zeichen lang sein.",
-        variant: "destructive",
-      });
+    try {
+      const { registrationPasswordSchema } = await import("@/lib/validations");
+      registrationPasswordSchema.parse({ password: formData.password, confirmPassword: formData.confirmPassword });
+    } catch (err: any) {
+      const msg = err?.issues?.map((i: any) => i.message).join(", ") || "Ungültige Eingabe";
+      toast({ title: "Passwort-Fehler", description: msg, variant: "destructive" });
       return;
     }
 
@@ -191,8 +183,9 @@ const RegisterEmployer = () => {
                             setFormData({ ...formData, password: e.target.value })
                           }
                           required
-                          placeholder="Mindestens 6 Zeichen"
+                          placeholder="Mind. 10 Zeichen, Groß-/Klein, Zahl, Sonderzeichen"
                         />
+                        <PasswordStrengthBar password={formData.password} />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="confirmPassword">Passwort bestätigen *</Label>

@@ -30,16 +30,21 @@ const AdminAuthGuard = ({ children }: AdminAuthGuardProps) => {
         <Card className="max-w-md w-full">
           <CardHeader className="text-center">
             <ShieldX className="h-12 w-12 mx-auto text-destructive mb-4" />
-            <CardTitle>Zugriff verweigert</CardTitle>
+            <CardTitle>Halt! Hier haben nur Admins Zutritt.</CardTitle>
           </CardHeader>
           <CardContent className="text-center space-y-4">
             <p className="text-muted-foreground">
-              Sie haben keine Berechtigung, auf diesen Bereich zuzugreifen.
+              Dieser Bereich ist für Ihren Account nicht zugänglich.
               Bitte melden Sie sich mit einem Admin-Konto an.
             </p>
-            <Button onClick={() => navigate("/admin/login")} className="w-full">
-              Zum Login
-            </Button>
+            <div className="flex gap-2 justify-center">
+              <Button variant="outline" onClick={() => navigate("/dashboard")}>
+                Zum Dashboard
+              </Button>
+              <Button onClick={() => navigate("/admin/login")}>
+                Admin-Login
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>

@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import LogoUpload from "@/components/employer/LogoUpload";
 import ContactPersonsManager from "@/components/employer/ContactPersonsManager";
+import PasswordStrengthBar from "@/components/PasswordStrengthBar";
 
 const EmployerSettings = () => {
   const navigate = useNavigate();
@@ -390,10 +391,11 @@ const EmployerSettings = () => {
                         type="password"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        placeholder="Mindestens 6 Zeichen"
-                        minLength={6}
+                        placeholder="Mind. 10 Zeichen, Groß-/Klein, Zahl, Sonderzeichen"
+                        minLength={10}
                         required
                       />
+                      <PasswordStrengthBar password={newPassword} />
                     </div>
 
                     <div className="space-y-2">

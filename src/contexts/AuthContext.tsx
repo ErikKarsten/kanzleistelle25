@@ -115,13 +115,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       async (event, currentSession) => {
         console.log("Auth state change:", event, currentSession?.user?.email);
 
-        if (event === "SIGNED_OUT") {
+        if (event === "SIGNED_OUT" || event === "TOKEN_REFRESHED" && !currentSession) {
           setUser(null);
           setSession(null);
           setRole(null);
           setCompanyId(null);
           setCompanyLogoUrl(null);
+          setCompanyName(null);
           setIsLoading(false);
+          // Redirect to login on session expiry
+          if (event === "SIGNED_OUT") {
+            window.location.href = "/login";
+          }
           return;
         }
 
@@ -140,6 +145,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           setRole(null);
           setCompanyId(null);
           setCompanyLogoUrl(null);
+          setCompanyName(null);
           setIsLoading(false);
         }
       }
