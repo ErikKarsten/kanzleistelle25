@@ -18,6 +18,7 @@ const Login = () => {
   const { isAuthenticated, role, isLoading: authLoading, refreshAuth } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [debugInfo, setDebugInfo] = useState<string | null>(null);
+  const [failCount, setFailCount] = useState(0);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -104,13 +105,24 @@ const Login = () => {
       }
     } catch (error: any) {
       console.error("Login error:", error);
+      const newCount = failCount + 1;
+      setFailCount(newCount);
+      
+      const isRateLimited = error.message?.toLowerCase().includes("rate") || error.status === 429;
+      
       toast({
         title: "Anmeldung fehlgeschlagen",
-        description: error.message === "Invalid login credentials"
-          ? "E-Mail oder Passwort ist falsch."
-          : error.message || "Bitte versuchen Sie es erneut.",
+        description: isRateLimited
+          ? "Zu viele Versuche. Supabase hat den Zugang vorübergehend gesperrt. Bitte warten Sie einige Minuten."
+          : "E-Mail oder Passwort falsch. Bitte prüfen Sie Ihre Eingaben.",
         variant: "destructive",
       });
+
+      if (newCount >= 5 && !isRateLimited) {
+        setDebugInfo(
+          "Sie haben mehrfach ein falsches Passwort eingegeben. Nach weiteren Fehlversuchen wird Ihr Zugang vorübergehend durch ein automatisches Ratelimit gesperrt."
+        );
+      }
     } finally {
       setIsLoading(false);
     }

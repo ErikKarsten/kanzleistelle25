@@ -57,11 +57,30 @@ export const employerJobSchema = z.object({
   contact_person_id: z.string().optional().or(z.literal("")),
 });
 
+// Shared strong password rule
+export const strongPasswordRule = z
+  .string()
+  .min(10, "Passwort muss mindestens 10 Zeichen lang sein")
+  .max(128, "Passwort darf max. 128 Zeichen lang sein")
+  .regex(/[a-z]/, "Muss mindestens einen Kleinbuchstaben enthalten")
+  .regex(/[A-Z]/, "Muss mindestens einen Großbuchstaben enthalten")
+  .regex(/\d/, "Muss mindestens eine Zahl enthalten")
+  .regex(/[^A-Za-z0-9]/, "Muss mindestens ein Sonderzeichen enthalten");
+
 // Password change
 export const passwordChangeSchema = z.object({
-  newPassword: z.string().min(8, "Passwort muss mindestens 8 Zeichen lang sein").max(128),
+  newPassword: strongPasswordRule,
   confirmPassword: z.string(),
 }).refine(data => data.newPassword === data.confirmPassword, {
+  message: "Passwörter stimmen nicht überein",
+  path: ["confirmPassword"],
+});
+
+// Registration password
+export const registrationPasswordSchema = z.object({
+  password: strongPasswordRule,
+  confirmPassword: z.string(),
+}).refine(data => data.password === data.confirmPassword, {
   message: "Passwörter stimmen nicht überein",
   path: ["confirmPassword"],
 });
