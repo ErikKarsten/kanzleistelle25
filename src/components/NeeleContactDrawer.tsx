@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Mail, Phone, Linkedin, Calendar, Send, CheckCircle } from "lucide-react";
+import { Send, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import neeleImage from "@/assets/neele-ehlers.jpg";
@@ -56,50 +56,31 @@ const NeeleContactDrawer = ({ open, onOpenChange }: NeeleContactDrawerProps) => 
   return (
     <Sheet open={open} onOpenChange={handleClose}>
       <SheetContent className="w-full sm:max-w-md overflow-y-auto">
-        <SheetHeader className="text-left pb-4">
-          <div className="flex items-center gap-4 mb-2">
+        <SheetHeader className="text-center pb-6">
+          <div className="flex flex-col items-center gap-4 mb-2">
             <img
               src={neeleImage}
               alt="Neele Ehlers"
-              className="w-20 h-20 rounded-full object-cover shadow-lg ring-2 ring-primary/20"
+              className="w-28 h-28 rounded-full object-cover shadow-lg ring-4 ring-primary/15"
             />
             <div>
               <SheetTitle className="text-xl">Neele Ehlers</SheetTitle>
-              <SheetDescription className="text-sm">
+              <SheetDescription className="text-sm mt-0.5">
                 Recruiting Managerin
               </SheetDescription>
             </div>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Ich helfe Ihnen gerne bei Fragen rund um Ihre Karriere in der Steuerbranche oder bei der Suche nach den passenden Talenten.
+          <p className="text-sm text-muted-foreground leading-relaxed pt-2">
+            Ich helfe Ihnen gerne bei Fragen rund um Ihre Karriere in der
+            Steuerbranche oder bei der Suche nach den passenden Talenten.
           </p>
         </SheetHeader>
 
-        {/* Direct contact options */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
-          <a href="mailto:neele@kanzleistelle24.de" className="flex items-center gap-2 p-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors text-sm">
-            <Mail className="h-4 w-4 text-primary" />
-            <span className="text-foreground">E-Mail</span>
-          </a>
-          <a href="tel:+4940123456789" className="flex items-center gap-2 p-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors text-sm">
-            <Phone className="h-4 w-4 text-primary" />
-            <span className="text-foreground">Anrufen</span>
-          </a>
-          <a href="https://www.linkedin.com/in/neele-ehlers" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 p-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors text-sm">
-            <Linkedin className="h-4 w-4 text-primary" />
-            <span className="text-foreground">LinkedIn</span>
-          </a>
-          <a href="https://calendly.com/neele-ehlers" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 p-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors text-sm">
-            <Calendar className="h-4 w-4 text-primary" />
-            <span className="text-foreground">Termin buchen</span>
-          </a>
-        </div>
-
         {/* Success state */}
         {sent ? (
-          <div className="flex flex-col items-center gap-4 py-8 text-center">
-            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
-              <CheckCircle className="h-8 w-8 text-green-600" />
+          <div className="flex flex-col items-center gap-4 py-10 text-center">
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+              <CheckCircle className="h-8 w-8 text-primary" />
             </div>
             <div>
               <h3 className="font-semibold text-foreground text-lg">Vielen Dank!</h3>
@@ -113,8 +94,7 @@ const NeeleContactDrawer = ({ open, onOpenChange }: NeeleContactDrawerProps) => 
           </div>
         ) : (
           /* Contact form */
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <h3 className="font-semibold text-foreground text-sm">Oder schreiben Sie mir direkt:</h3>
+          <form onSubmit={handleSubmit} className="space-y-4 pt-2">
             <div>
               <Label htmlFor="contact-name">Name *</Label>
               <Input
