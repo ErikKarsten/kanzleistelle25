@@ -169,6 +169,10 @@ const NeeleContactDrawer = ({ open, onOpenChange }: NeeleContactDrawerProps) => 
                 </>
               )}
             </Button>
+            <p className="text-[11px] text-muted-foreground leading-snug mt-2">
+              Mit dem Absenden stimmen Sie zu, dass wir Ihre Daten zur Bearbeitung Ihrer Anfrage verwenden.
+              Weitere Infos finden Sie in unserer Datenschutzerklärung.
+            </p>
           </form>
         )}
       </SheetContent>
