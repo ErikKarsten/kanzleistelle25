@@ -324,11 +324,17 @@ const ArticleManagement = () => {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Kategorie</Label>
-                <Input
+                <select
                   value={form.category}
                   onChange={(e) => setForm({ ...form, category: e.target.value })}
-                  placeholder="z.B. Karriere, Gehalt, Examen"
-                />
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  <option value="">Kategorie wählen</option>
+                  <option value="Karriere">Karriere</option>
+                  <option value="Gehalt">Gehalt</option>
+                  <option value="Examen">Examen</option>
+                  <option value="Digitales">Digitales</option>
+                </select>
               </div>
               <div>
                 <Label>Lesezeit</Label>

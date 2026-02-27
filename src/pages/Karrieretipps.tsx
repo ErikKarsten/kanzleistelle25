@@ -140,9 +140,11 @@ const Karrieretipps = () => {
                       </span>
                     )}
                   </div>
-                  <Button className="w-fit">
-                    Artikel lesen
-                    <ArrowRight className="h-4 w-4 ml-2" />
+                  <Button className="w-fit" asChild>
+                    <Link to={`/ratgeber/${featuredArticle.id}`}>
+                      Artikel lesen
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </Link>
                   </Button>
                 </CardContent>
               </div>
@@ -156,7 +158,8 @@ const Karrieretipps = () => {
             <h2 className="text-2xl font-bold text-foreground mb-8">Weitere Artikel</h2>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {regularArticles.map((article) => (
-                <Card key={article.id} className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 shadow-md overflow-hidden">
+                <Link key={article.id} to={`/ratgeber/${article.id}`}>
+                <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 shadow-md overflow-hidden h-full">
                   <div className="h-40 overflow-hidden">
                     {article.image_url ? (
                       <img
@@ -202,6 +205,7 @@ const Karrieretipps = () => {
                     </div>
                   </CardContent>
                 </Card>
+                </Link>
               ))}
             </div>
           </section>

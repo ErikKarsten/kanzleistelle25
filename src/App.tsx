@@ -22,6 +22,7 @@ import Login from "./pages/Login";
 import EmployerDashboard from "./pages/EmployerDashboard";
 import EmployerSettings from "./pages/EmployerSettings";
 import JobDetail from "./pages/JobDetail";
+import ArticleDetail from "./pages/ArticleDetail";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="/jobs/:id" element={<JobDetail />} />
               <Route path="/karrieretipps" element={<Karrieretipps />} />
               <Route path="/karriere-tipps" element={<Karrieretipps />} />
+              <Route path="/ratgeber/:id" element={<ArticleDetail />} />
               <Route path="/loesungen" element={<Loesungen />} />
               <Route path="/fuer-arbeitgeber" element={<FuerArbeitgeber />} />
               <Route path="/arbeitgeber" element={<FuerArbeitgeber />} />
