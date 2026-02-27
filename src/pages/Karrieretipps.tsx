@@ -21,7 +21,18 @@ interface Article {
   published_at: string | null;
 }
 
-const PLACEHOLDER_IMAGE = careerProfessionalImage;
+const CATEGORY_PLACEHOLDERS: Record<string, string> = {
+  "Karriere": "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80",
+  "Gehalt": "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=80",
+  "Examen": "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=800&q=80",
+  "Digitales": "https://images.unsplash.com/photo-1593062096033-9a26b09da705?w=800&q=80",
+};
+const DEFAULT_PLACEHOLDER = careerProfessionalImage;
+
+const getPlaceholderImage = (category: string | null) => {
+  if (category && CATEGORY_PLACEHOLDERS[category]) return CATEGORY_PLACEHOLDERS[category];
+  return DEFAULT_PLACEHOLDER;
+};
 
 const Karrieretipps = () => {
   const { data: articles, isLoading } = useQuery({
@@ -108,7 +119,7 @@ const Karrieretipps = () => {
               <div className="grid md:grid-cols-2">
                 <div className="relative h-64 md:h-auto">
                   <img 
-                    src={featuredArticle.image_url || PLACEHOLDER_IMAGE} 
+                    src={featuredArticle.image_url || getPlaceholderImage(featuredArticle.category)} 
                     alt={featuredArticle.title}
                     className="absolute inset-0 w-full h-full object-cover"
                   />
@@ -162,18 +173,13 @@ const Karrieretipps = () => {
               {regularArticles.map((article) => (
                 <Link key={article.id} to={`/ratgeber/${article.id}`}>
                 <Card className="group hover:shadow-xl transition-all duration-300 cursor-pointer border-0 shadow-md overflow-hidden h-full">
-                  <div className="h-40 overflow-hidden">
-                    {article.image_url ? (
-                      <img
-                        src={article.image_url}
-                        alt={article.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="h-full bg-gradient-to-br from-primary/5 to-secondary/30 flex items-center justify-center">
-                        <BookOpen className="h-12 w-12 text-primary/20 group-hover:scale-110 transition-transform" />
-                      </div>
-                    )}
+                  <div className="h-40 overflow-hidden relative">
+                    <img
+                      src={article.image_url || getPlaceholderImage(article.category)}
+                      alt={article.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                   </div>
                   <CardHeader className="pb-2">
                     {article.category && (
