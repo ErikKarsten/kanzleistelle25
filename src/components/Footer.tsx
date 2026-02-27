@@ -1,8 +1,62 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Briefcase } from "lucide-react";
+import { Briefcase, Mail, Phone, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import NeeleContactDrawer from "./NeeleContactDrawer";
+import neeleImage from "@/assets/neele-ehlers.jpg";
 
 const Footer = () => {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   return (
+    <>
+      {/* Persönliche Note Section */}
+      <section className="bg-gradient-to-br from-primary/5 via-secondary/30 to-primary/5 py-16 border-t">
+        <div className="container">
+          <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-8">
+            <img
+              src={neeleImage}
+              alt="Neele Ehlers – Recruiting Managerin"
+              className="w-32 h-32 rounded-full object-cover shadow-xl ring-4 ring-background shrink-0"
+            />
+            <div className="text-center md:text-left">
+              <h3 className="text-2xl font-bold text-foreground mb-2">
+                Ihre Karriere in guten Händen
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                Neele Ehlers begleitet Sie persönlich durch den Bewerbungsprozess – 
+                ob Sie den Traumjob suchen oder die besten Talente für Ihre Kanzlei.
+              </p>
+              <div className="flex flex-wrap items-center gap-4 justify-center md:justify-start">
+                <a
+                  href="mailto:neele@kanzleistelle24.de"
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <Mail className="h-4 w-4" />
+                  neele@kanzleistelle24.de
+                </a>
+                <a
+                  href="tel:+4940123456789"
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <Phone className="h-4 w-4" />
+                  +49 40 123 456 789
+                </a>
+              </div>
+              <Button
+                className="mt-4"
+                onClick={() => setDrawerOpen(true)}
+              >
+                Kontakt aufnehmen
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <NeeleContactDrawer open={drawerOpen} onOpenChange={setDrawerOpen} />
+
     <footer className="bg-secondary/50 border-t">
       <div className="container py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -80,6 +134,7 @@ const Footer = () => {
         </div>
       </div>
     </footer>
+    </>
   );
 };
 
