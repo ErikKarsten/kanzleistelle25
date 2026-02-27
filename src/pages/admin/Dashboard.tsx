@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +14,7 @@ import CompanyManagement from "@/components/admin/CompanyManagement";
 import JobManagement from "@/components/admin/JobManagement";
 import ArticleManagement from "@/components/admin/ArticleManagement";
 import LeadManagement from "@/components/admin/LeadManagement";
+import NewLeadsModal, { useNewLeadsCount } from "@/components/admin/NewLeadsModal";
 import { toast } from "sonner";
 
 interface ApplicationWithJob {
@@ -55,7 +56,21 @@ const AdminDashboardContent = () => {
   const [selectedApplication, setSelectedApplication] = useState<ApplicationWithJob | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [navigateToCompanyId, setNavigateToCompanyId] = useState<string | null>(null);
+  const [leadsModalOpen, setLeadsModalOpen] = useState(false);
+  const leadsModalShown = useRef(false);
+  const leadsSectionRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
+
+  // Check for new leads on mount (session-once)
+  const { data: newLeads } = useNewLeadsCount();
+  const newLeadCount = newLeads?.length ?? 0;
+
+  useEffect(() => {
+    if (newLeadCount > 0 && !leadsModalShown.current) {
+      leadsModalShown.current = true;
+      setLeadsModalOpen(true);
+    }
+  }, [newLeadCount]);
 
   // Realtime: toast on new contact lead
   useEffect(() => {
@@ -379,7 +394,9 @@ const AdminDashboardContent = () => {
         <JobManagement />
 
         {/* Lead Management / Posteingang */}
-        <LeadManagement />
+        <div ref={leadsSectionRef} id="lead-management-section">
+          <LeadManagement />
+        </div>
 
         {/* Blog Management */}
         <ArticleManagement />
@@ -399,6 +416,15 @@ const AdminDashboardContent = () => {
               : (id) => restoreMutation.mutate(id)
           }
           onDelete={(id) => deleteMutation.mutate(id)}
+        />
+
+        {/* New Leads Modal (session-once) */}
+        <NewLeadsModal
+          open={leadsModalOpen}
+          onOpenChange={setLeadsModalOpen}
+          onNavigateToLeads={() => {
+            leadsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }}
         />
       </div>
     </div>
