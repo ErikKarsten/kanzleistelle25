@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/table";
 import { Plus, Pencil, Trash2, Eye, EyeOff, Star } from "lucide-react";
 import { toast } from "sonner";
+import ArticleImageUpload from "./ArticleImageUpload";
 
 interface Article {
   id: string;
@@ -346,14 +347,10 @@ const ArticleManagement = () => {
               </div>
             </div>
 
-            <div>
-              <Label>Bild-URL</Label>
-              <Input
-                value={form.image_url}
-                onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-                placeholder="https://..."
-              />
-            </div>
+            <ArticleImageUpload
+              currentImageUrl={form.image_url}
+              onUploadComplete={(url) => setForm({ ...form, image_url: url })}
+            />
 
             <div>
               <Label>Vorschautext</Label>
