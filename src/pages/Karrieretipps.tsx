@@ -29,11 +29,12 @@ const Karrieretipps = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("articles")
-        .select("id, title, excerpt, image_url, category, reading_time, is_featured, published_at")
-        .eq("is_published", true)
+        .select("id, title, excerpt, image_url, category, reading_time, is_featured, published_at, sort_order")
+        .eq("status", "published")
+        .order("sort_order", { ascending: true })
         .order("published_at", { ascending: false });
       if (error) throw error;
-      return data as Article[];
+      return data as (Article & { sort_order: number })[];
     },
   });
 

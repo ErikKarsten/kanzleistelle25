@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -23,9 +22,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Eye, EyeOff, Star } from "lucide-react";
+import { Plus, Pencil, Trash2, Star, Eye, Archive, FileText, GripVertical } from "lucide-react";
 import { toast } from "sonner";
 import ArticleImageUpload from "./ArticleImageUpload";
+import ArticlePreviewModal from "./ArticlePreviewModal";
 
 interface Article {
   id: string;
@@ -37,6 +37,8 @@ interface Article {
   reading_time: string | null;
   is_featured: boolean;
   is_published: boolean;
+  status: string;
+  sort_order: number;
   published_at: string | null;
   created_at: string;
   updated_at: string;
@@ -50,7 +52,8 @@ interface ArticleForm {
   category: string;
   reading_time: string;
   is_featured: boolean;
-  is_published: boolean;
+  status: string;
+  sort_order: number;
 }
 
 const emptyForm: ArticleForm = {
@@ -61,11 +64,19 @@ const emptyForm: ArticleForm = {
   category: "",
   reading_time: "",
   is_featured: false,
-  is_published: false,
+  status: "draft",
+  sort_order: 0,
 };
+
+const STATUS_OPTIONS = [
+  { value: "draft", label: "Entwurf", color: "secondary" as const },
+  { value: "published", label: "Veröffentlicht", color: "default" as const },
+  { value: "archived", label: "Archiviert", color: "outline" as const },
+];
 
 const ArticleManagement = () => {
   const [modalOpen, setModalOpen] = useState(false);
+  const [previewArticle, setPreviewArticle] = useState<Article | null>(null);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
   const [form, setForm] = useState<ArticleForm>(emptyForm);
   const queryClient = useQueryClient();
@@ -76,6 +87,7 @@ const ArticleManagement = () => {
       const { data, error } = await supabase
         .from("articles")
         .select("*")
+        .order("sort_order", { ascending: true })
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as Article[];
@@ -84,6 +96,7 @@ const ArticleManagement = () => {
 
   const saveMutation = useMutation({
     mutationFn: async (data: ArticleForm & { id?: string }) => {
+      const isPublishing = data.status === "published";
       const payload = {
         title: data.title.trim(),
         excerpt: data.excerpt.trim() || null,
@@ -92,16 +105,15 @@ const ArticleManagement = () => {
         category: data.category.trim() || null,
         reading_time: data.reading_time.trim() || null,
         is_featured: data.is_featured,
-        is_published: data.is_published,
-        published_at: data.is_published ? new Date().toISOString() : null,
+        is_published: isPublishing,
+        status: data.status,
+        sort_order: data.sort_order,
+        published_at: isPublishing ? new Date().toISOString() : null,
         updated_at: new Date().toISOString(),
       };
 
       if (data.id) {
-        const { error } = await supabase
-          .from("articles")
-          .update(payload)
-          .eq("id", data.id);
+        const { error } = await supabase.from("articles").update(payload).eq("id", data.id);
         if (error) throw error;
       } else {
         const { error } = await supabase.from("articles").insert(payload);
@@ -113,9 +125,7 @@ const ArticleManagement = () => {
       toast.success(editingArticle ? "Artikel aktualisiert" : "Artikel erstellt");
       closeModal();
     },
-    onError: (err) => {
-      toast.error("Fehler beim Speichern: " + (err as Error).message);
-    },
+    onError: (err) => toast.error("Fehler: " + (err as Error).message),
   });
 
   const deleteMutation = useMutation({
@@ -130,13 +140,15 @@ const ArticleManagement = () => {
     onError: () => toast.error("Fehler beim Löschen"),
   });
 
-  const togglePublish = useMutation({
-    mutationFn: async ({ id, publish }: { id: string; publish: boolean }) => {
+  const statusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+      const isPublishing = status === "published";
       const { error } = await supabase
         .from("articles")
         .update({
-          is_published: publish,
-          published_at: publish ? new Date().toISOString() : null,
+          status,
+          is_published: isPublishing,
+          published_at: isPublishing ? new Date().toISOString() : null,
           updated_at: new Date().toISOString(),
         })
         .eq("id", id);
@@ -164,7 +176,8 @@ const ArticleManagement = () => {
       category: article.category || "",
       reading_time: article.reading_time || "",
       is_featured: article.is_featured,
-      is_published: article.is_published,
+      status: article.status || "draft",
+      sort_order: article.sort_order ?? 0,
     });
     setModalOpen(true);
   };
@@ -192,6 +205,15 @@ const ArticleManagement = () => {
     });
   };
 
+  const getStatusBadge = (status: string) => {
+    const opt = STATUS_OPTIONS.find((s) => s.value === status);
+    return (
+      <Badge variant={opt?.color ?? "secondary"} className="text-xs">
+        {opt?.label ?? status}
+      </Badge>
+    );
+  };
+
   return (
     <Card className="border-none shadow-md">
       <CardHeader className="pb-4 flex flex-row items-center justify-between">
@@ -217,6 +239,7 @@ const ArticleManagement = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-12">#</TableHead>
                   <TableHead>Titel</TableHead>
                   <TableHead>Kategorie</TableHead>
                   <TableHead>Status</TableHead>
@@ -225,78 +248,117 @@ const ArticleManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {articles.map((article) => (
-                  <TableRow key={article.id}>
-                    <TableCell className="font-medium max-w-[250px] truncate">
-                      <div className="flex items-center gap-2">
-                        {article.is_featured && (
-                          <Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500 shrink-0" />
-                        )}
-                        {article.title}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {article.category && (
-                        <Badge variant="outline" className="text-xs">
-                          {article.category}
-                        </Badge>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={article.is_published ? "default" : "secondary"}
-                        className="text-xs"
-                      >
-                        {article.is_published ? "Veröffentlicht" : "Entwurf"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {formatDate(article.created_at)}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          title={article.is_published ? "Zurückziehen" : "Veröffentlichen"}
-                          onClick={() =>
-                            togglePublish.mutate({
-                              id: article.id,
-                              publish: !article.is_published,
-                            })
-                          }
-                        >
-                          {article.is_published ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
+                {articles.map((article) => {
+                  const isArchived = article.status === "archived";
+                  return (
+                    <TableRow
+                      key={article.id}
+                      className={isArchived ? "opacity-50" : ""}
+                    >
+                      <TableCell className="text-xs text-muted-foreground font-mono">
+                        <div className="flex items-center gap-1">
+                          <GripVertical className="h-3.5 w-3.5 text-muted-foreground/40" />
+                          {article.sort_order}
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-medium max-w-[250px] truncate">
+                        <div className="flex items-center gap-2">
+                          {article.is_featured && (
+                            <Star className="h-3.5 w-3.5 text-yellow-500 fill-yellow-500 shrink-0" />
                           )}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          onClick={() => openEdit(article)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-destructive hover:text-destructive"
-                          onClick={() => {
-                            if (confirm("Artikel wirklich löschen?")) {
-                              deleteMutation.mutate(article.id);
-                            }
-                          }}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                          {article.title}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {article.category && (
+                          <Badge variant="outline" className="text-xs">
+                            {article.category}
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell>{getStatusBadge(article.status)}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {formatDate(article.created_at)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          {/* Preview */}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            title="Vorschau"
+                            onClick={() => setPreviewArticle(article)}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          {/* Quick status toggle */}
+                          {article.status === "draft" && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-green-600 hover:text-green-700"
+                              title="Veröffentlichen"
+                              onClick={() =>
+                                statusMutation.mutate({ id: article.id, status: "published" })
+                              }
+                            >
+                              <FileText className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {article.status === "published" && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              title="Archivieren"
+                              onClick={() =>
+                                statusMutation.mutate({ id: article.id, status: "archived" })
+                              }
+                            >
+                              <Archive className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {article.status === "archived" && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              title="Zurück auf Entwurf"
+                              onClick={() =>
+                                statusMutation.mutate({ id: article.id, status: "draft" })
+                              }
+                            >
+                              <FileText className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {/* Edit */}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => openEdit(article)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          {/* Delete */}
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive hover:text-destructive"
+                            onClick={() => {
+                              if (confirm("Artikel wirklich löschen?")) {
+                                deleteMutation.mutate(article.id);
+                              }
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
@@ -347,6 +409,32 @@ const ArticleManagement = () => {
               </div>
             </div>
 
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Status</Label>
+                <select
+                  value={form.status}
+                  onChange={(e) => setForm({ ...form, status: e.target.value })}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  {STATUS_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label>Sortierung (niedrig = oben)</Label>
+                <Input
+                  type="number"
+                  value={form.sort_order}
+                  onChange={(e) => setForm({ ...form, sort_order: parseInt(e.target.value) || 0 })}
+                  placeholder="0"
+                />
+              </div>
+            </div>
+
             <ArticleImageUpload
               currentImageUrl={form.image_url}
               onUploadComplete={(url) => setForm({ ...form, image_url: url })}
@@ -373,21 +461,18 @@ const ArticleManagement = () => {
               />
             </div>
 
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2">
-                <Switch
-                  checked={form.is_featured}
-                  onCheckedChange={(v) => setForm({ ...form, is_featured: v })}
-                />
-                <Label>Featured-Artikel</Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Switch
-                  checked={form.is_published}
-                  onCheckedChange={(v) => setForm({ ...form, is_published: v })}
-                />
-                <Label>Veröffentlicht</Label>
-              </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="is_featured"
+                checked={form.is_featured}
+                onChange={(e) => setForm({ ...form, is_featured: e.target.checked })}
+                className="rounded border-input"
+              />
+              <Label htmlFor="is_featured" className="flex items-center gap-1.5 cursor-pointer">
+                <Star className="h-4 w-4 text-yellow-500" />
+                Featured-Artikel (wird hervorgehoben angezeigt)
+              </Label>
             </div>
 
             <div className="flex justify-end gap-2 pt-4">
@@ -401,6 +486,12 @@ const ArticleManagement = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Preview Modal */}
+      <ArticlePreviewModal
+        article={previewArticle}
+        onClose={() => setPreviewArticle(null)}
+      />
     </Card>
   );
 };

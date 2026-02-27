@@ -79,7 +79,7 @@ const ArticleDetail = () => {
         .from("articles")
         .select("*")
         .eq("id", id!)
-        .eq("is_published", true)
+        .eq("status", "published")
         .single();
       if (error) throw error;
       return data;
