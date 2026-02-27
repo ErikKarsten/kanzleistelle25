@@ -105,6 +105,7 @@ export type Database = {
       }
       articles: {
         Row: {
+          author_id: string | null
           category: string | null
           content: string | null
           created_at: string
@@ -121,6 +122,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          author_id?: string | null
           category?: string | null
           content?: string | null
           created_at?: string
@@ -137,6 +139,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          author_id?: string | null
           category?: string | null
           content?: string | null
           created_at?: string
@@ -152,7 +155,15 @@ export type Database = {
           title?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "articles_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "contact_persons"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       companies: {
         Row: {

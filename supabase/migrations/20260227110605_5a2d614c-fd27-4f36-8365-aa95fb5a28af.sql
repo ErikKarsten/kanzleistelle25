@@ -1,0 +1,1 @@
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS author_id UUID REFERENCES public.contact_persons(id) ON DELETE SET NULL DEFAULT NULL;
