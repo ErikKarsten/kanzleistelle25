@@ -31,6 +31,7 @@ const Karrieretipps = () => {
         .from("articles")
         .select("id, title, excerpt, image_url, category, reading_time, is_featured, published_at, sort_order")
         .eq("status", "published")
+        .lte("published_at", new Date().toISOString())
         .order("sort_order", { ascending: true })
         .order("published_at", { ascending: false });
       if (error) throw error;
