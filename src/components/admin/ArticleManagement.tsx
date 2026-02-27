@@ -22,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Star, Eye, Archive, FileText, GripVertical } from "lucide-react";
+import { Plus, Pencil, Trash2, Star, Eye, Archive, FileText, GripVertical, Clock } from "lucide-react";
 import { toast } from "sonner";
 import ArticleImageUpload from "./ArticleImageUpload";
 import ArticlePreviewModal from "./ArticlePreviewModal";
@@ -54,6 +54,7 @@ interface ArticleForm {
   is_featured: boolean;
   status: string;
   sort_order: number;
+  published_at: string;
 }
 
 const emptyForm: ArticleForm = {
@@ -66,6 +67,7 @@ const emptyForm: ArticleForm = {
   is_featured: false,
   status: "draft",
   sort_order: 0,
+  published_at: "",
 };
 
 const STATUS_OPTIONS = [
@@ -73,6 +75,16 @@ const STATUS_OPTIONS = [
   { value: "published", label: "Veröffentlicht", color: "default" as const },
   { value: "archived", label: "Archiviert", color: "outline" as const },
 ];
+
+const isScheduled = (article: { status: string; published_at: string | null }) =>
+  article.status === "published" && article.published_at && new Date(article.published_at) > new Date();
+
+const toLocalDatetime = (iso: string | null) => {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
 
 const ArticleManagement = () => {
   const [modalOpen, setModalOpen] = useState(false);
@@ -97,6 +109,11 @@ const ArticleManagement = () => {
   const saveMutation = useMutation({
     mutationFn: async (data: ArticleForm & { id?: string }) => {
       const isPublishing = data.status === "published";
+      const publishedAt = data.published_at
+        ? new Date(data.published_at).toISOString()
+        : isPublishing
+          ? new Date().toISOString()
+          : null;
       const payload = {
         title: data.title.trim(),
         excerpt: data.excerpt.trim() || null,
@@ -108,7 +125,7 @@ const ArticleManagement = () => {
         is_published: isPublishing,
         status: data.status,
         sort_order: data.sort_order,
-        published_at: isPublishing ? new Date().toISOString() : null,
+        published_at: publishedAt,
         updated_at: new Date().toISOString(),
       };
 
@@ -178,6 +195,7 @@ const ArticleManagement = () => {
       is_featured: article.is_featured,
       status: article.status || "draft",
       sort_order: article.sort_order ?? 0,
+      published_at: toLocalDatetime(article.published_at),
     });
     setModalOpen(true);
   };
@@ -205,11 +223,19 @@ const ArticleManagement = () => {
     });
   };
 
-  const getStatusBadge = (status: string) => {
-    const opt = STATUS_OPTIONS.find((s) => s.value === status);
+  const getStatusBadge = (article: Article) => {
+    if (isScheduled(article)) {
+      return (
+        <Badge variant="secondary" className="text-xs gap-1">
+          <Clock className="h-3 w-3" />
+          Geplant
+        </Badge>
+      );
+    }
+    const opt = STATUS_OPTIONS.find((s) => s.value === article.status);
     return (
       <Badge variant={opt?.color ?? "secondary"} className="text-xs">
-        {opt?.label ?? status}
+        {opt?.label ?? article.status}
       </Badge>
     );
   };
@@ -276,7 +302,7 @@ const ArticleManagement = () => {
                           </Badge>
                         )}
                       </TableCell>
-                      <TableCell>{getStatusBadge(article.status)}</TableCell>
+                      <TableCell>{getStatusBadge(article)}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">
                         {formatDate(article.created_at)}
                       </TableCell>
@@ -434,6 +460,20 @@ const ArticleManagement = () => {
                 />
               </div>
             </div>
+
+            {form.status === "published" && (
+              <div>
+                <Label>Veröffentlichungsdatum & Uhrzeit</Label>
+                <Input
+                  type="datetime-local"
+                  value={form.published_at}
+                  onChange={(e) => setForm({ ...form, published_at: e.target.value })}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Leer = sofort veröffentlichen. Datum in der Zukunft = geplante Veröffentlichung.
+                </p>
+              </div>
+            )}
 
             <ArticleImageUpload
               currentImageUrl={form.image_url}
