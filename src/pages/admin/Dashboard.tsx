@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -56,6 +56,29 @@ const AdminDashboardContent = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [navigateToCompanyId, setNavigateToCompanyId] = useState<string | null>(null);
   const queryClient = useQueryClient();
+
+  // Realtime: toast on new contact lead
+  useEffect(() => {
+    const channel = supabase
+      .channel("admin-new-leads")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "contact_leads" },
+        (payload) => {
+          const lead = payload.new as { full_name?: string };
+          toast.info(`Neue Kontaktanfrage von ${lead.full_name || "Unbekannt"}`, {
+            description: "Posteingang wurde aktualisiert.",
+            duration: 8000,
+          });
+          queryClient.invalidateQueries({ queryKey: ["admin-contact-leads"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   // Fetch applications
   const { data: applications, isLoading: applicationsLoading } = useQuery({
