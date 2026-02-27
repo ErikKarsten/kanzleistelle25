@@ -138,7 +138,7 @@ const Karrieretipps = () => {
                     {featuredArticle.reading_time && (
                       <span className="flex items-center gap-1">
                         <Clock className="h-4 w-4" />
-                        {featuredArticle.reading_time}
+                        {featuredArticle.reading_time} Min. Lesezeit
                       </span>
                     )}
                   </div>
@@ -201,7 +201,7 @@ const Karrieretipps = () => {
                       {article.reading_time && (
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {article.reading_time}
+                          {article.reading_time} Min.
                         </span>
                       )}
                     </div>
