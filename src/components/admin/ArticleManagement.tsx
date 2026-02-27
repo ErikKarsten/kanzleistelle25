@@ -55,6 +55,7 @@ interface ArticleForm {
   status: string;
   sort_order: number;
   published_at: string;
+  author_id: string;
 }
 
 const emptyForm: ArticleForm = {
@@ -68,6 +69,7 @@ const emptyForm: ArticleForm = {
   status: "draft",
   sort_order: 0,
   published_at: "",
+  author_id: "",
 };
 
 const STATUS_OPTIONS = [
@@ -106,6 +108,18 @@ const ArticleManagement = () => {
     },
   });
 
+  const { data: contactPersons } = useQuery({
+    queryKey: ["contact-persons-for-articles"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("contact_persons")
+        .select("id, name, role")
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const saveMutation = useMutation({
     mutationFn: async (data: ArticleForm & { id?: string }) => {
       const isPublishing = data.status === "published";
@@ -114,7 +128,7 @@ const ArticleManagement = () => {
         : isPublishing
           ? new Date().toISOString()
           : null;
-      const payload = {
+      const payload: Record<string, any> = {
         title: data.title.trim(),
         excerpt: data.excerpt.trim() || null,
         content: data.content.trim() || null,
@@ -127,13 +141,14 @@ const ArticleManagement = () => {
         sort_order: data.sort_order,
         published_at: publishedAt,
         updated_at: new Date().toISOString(),
+        author_id: data.author_id || null,
       };
 
       if (data.id) {
-        const { error } = await supabase.from("articles").update(payload).eq("id", data.id);
+        const { error } = await supabase.from("articles").update(payload as any).eq("id", data.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("articles").insert(payload);
+        const { error } = await supabase.from("articles").insert(payload as any);
         if (error) throw error;
       }
     },
@@ -196,6 +211,7 @@ const ArticleManagement = () => {
       status: article.status || "draft",
       sort_order: article.sort_order ?? 0,
       published_at: toLocalDatetime(article.published_at),
+      author_id: (article as any).author_id || "",
     });
     setModalOpen(true);
   };
@@ -480,6 +496,25 @@ const ArticleManagement = () => {
                   </span>
                 </label>
               </div>
+            </div>
+
+            <div>
+              <Label>Ansprechpartner (optional)</Label>
+              <select
+                value={form.author_id}
+                onChange={(e) => setForm({ ...form, author_id: e.target.value })}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <option value="">Standard (Neele Ehlers)</option>
+                {contactPersons?.map((cp) => (
+                  <option key={cp.id} value={cp.id}>
+                    {cp.name}{cp.role ? ` – ${cp.role}` : ""}
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Wählen Sie, wer als Ansprechpartner auf dieser Seite angezeigt wird.
+              </p>
             </div>
 
             {form.status === "published" && (
