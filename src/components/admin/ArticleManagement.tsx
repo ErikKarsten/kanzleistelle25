@@ -426,16 +426,23 @@ const ArticleManagement = () => {
                 </select>
               </div>
               <div>
-                <Label>Lesezeit</Label>
-                <Input
-                  value={form.reading_time}
-                  onChange={(e) => setForm({ ...form, reading_time: e.target.value })}
-                  placeholder="z.B. 5 Min. Lesezeit"
-                />
+                <Label>Lesezeit (Minuten)</Label>
+                <div className="relative">
+                  <Input
+                    type="number"
+                    min="1"
+                    value={form.reading_time}
+                    onChange={(e) => setForm({ ...form, reading_time: e.target.value })}
+                    placeholder="z.B. 5"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">
+                    Min.
+                  </span>
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div>
                 <Label>Status</Label>
                 <select
@@ -451,7 +458,7 @@ const ArticleManagement = () => {
                 </select>
               </div>
               <div>
-                <Label>Sortierung (niedrig = oben)</Label>
+                <Label>Sortierung</Label>
                 <Input
                   type="number"
                   value={form.sort_order}
@@ -459,18 +466,32 @@ const ArticleManagement = () => {
                   placeholder="0"
                 />
               </div>
+              <div className="flex items-end pb-1">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={form.is_featured}
+                    onChange={(e) => setForm({ ...form, is_featured: e.target.checked })}
+                    className="rounded border-input"
+                  />
+                  <span className="flex items-center gap-1 text-sm font-medium">
+                    <Star className="h-4 w-4 text-yellow-500" />
+                    Featured
+                  </span>
+                </label>
+              </div>
             </div>
 
             {form.status === "published" && (
               <div>
-                <Label>Veröffentlichungsdatum & Uhrzeit</Label>
+                <Label>Veröffentlichungszeitpunkt</Label>
                 <Input
                   type="datetime-local"
                   value={form.published_at}
                   onChange={(e) => setForm({ ...form, published_at: e.target.value })}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  Leer = sofort veröffentlichen. Datum in der Zukunft = geplante Veröffentlichung.
+                  Leer = sofort veröffentlichen. Datum in der Zukunft = geplante Veröffentlichung (Artikel erscheint erst dann öffentlich).
                 </p>
               </div>
             )}
@@ -499,20 +520,6 @@ const ArticleManagement = () => {
                 rows={12}
                 className="font-mono text-sm"
               />
-            </div>
-
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="is_featured"
-                checked={form.is_featured}
-                onChange={(e) => setForm({ ...form, is_featured: e.target.checked })}
-                className="rounded border-input"
-              />
-              <Label htmlFor="is_featured" className="flex items-center gap-1.5 cursor-pointer">
-                <Star className="h-4 w-4 text-yellow-500" />
-                Featured-Artikel (wird hervorgehoben angezeigt)
-              </Label>
             </div>
 
             <div className="flex justify-end gap-2 pt-4">

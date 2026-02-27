@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -18,6 +18,10 @@ const ArticleImageUpload = ({ currentImageUrl, onUploadComplete }: ArticleImageU
   const [preview, setPreview] = useState<string>(currentImageUrl || "");
   const [isUploading, setIsUploading] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
+
+  useEffect(() => {
+    setPreview(currentImageUrl || "");
+  }, [currentImageUrl]);
 
   const validateFile = (file: File): string | null => {
     if (!ACCEPTED_TYPES.includes(file.type)) {
