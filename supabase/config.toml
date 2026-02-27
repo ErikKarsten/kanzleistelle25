@@ -2,3 +2,6 @@ project_id = "myvjwpbhdnnrkwazudnh"
 
 [functions.auto-archive-companies]
 verify_jwt = false
+
+[functions.notify-new-lead]
+verify_jwt = false

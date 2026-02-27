@@ -29,21 +29,26 @@ const NeeleContactDrawer = ({ open, onOpenChange }: NeeleContactDrawerProps) => 
     e.preventDefault();
     setSending(true);
 
-    const { error } = await supabase.from("contact_leads").insert({
+    const leadData = {
       full_name: form.name.trim(),
       email: form.email.trim(),
       phone: form.phone.trim() || null,
       message: form.message.trim(),
       source_url: window.location.pathname,
-    });
+    };
 
-    setSending(false);
+    const { error } = await supabase.from("contact_leads").insert(leadData);
 
     if (error) {
+      setSending(false);
       toast.error("Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut.");
       return;
     }
 
+    // Fire-and-forget email notification
+    supabase.functions.invoke("notify-new-lead", { body: leadData }).catch(console.error);
+
+    setSending(false);
     setSent(true);
     setForm({ name: "", email: "", phone: "", message: "" });
   };
@@ -61,7 +66,7 @@ const NeeleContactDrawer = ({ open, onOpenChange }: NeeleContactDrawerProps) => 
             <img
               src={neeleImage}
               alt="Neele Ehlers"
-              className="w-28 h-28 rounded-full object-cover shadow-lg ring-4 ring-primary/15"
+              className="w-[150px] h-[150px] rounded-full object-cover shadow-lg ring-4 ring-primary/15"
             />
             <div>
               <SheetTitle className="text-xl">Neele Ehlers</SheetTitle>

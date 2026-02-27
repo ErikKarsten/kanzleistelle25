@@ -36,7 +36,7 @@ const NeeleContactElements = () => {
               <img
                 src={neeleImage}
                 alt="Neele Ehlers – Recruiting Managerin"
-                className="w-[140px] h-[140px] rounded-full object-cover ring-4 ring-primary/15 shadow-lg"
+                className="w-[150px] h-[150px] rounded-full object-cover ring-4 ring-primary/15 shadow-lg"
               />
               <div className="text-center">
                 <p className="font-bold text-foreground text-base leading-tight">
