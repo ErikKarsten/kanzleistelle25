@@ -4,8 +4,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, Briefcase, Home, Bell } from "lucide-react";
+import { LogOut, Briefcase, Home, Bell, Mail } from "lucide-react";
 import ReactivationRequests, { useReactivationRequests } from "./ReactivationRequests";
+import { useNewLeadsCount } from "./NewLeadsModal";
 
 interface AdminHeaderProps {
   onNavigateToCompany?: (companyId: string) => void;
@@ -16,10 +17,12 @@ const AdminHeader = ({ onNavigateToCompany }: AdminHeaderProps) => {
   const queryClient = useQueryClient();
   const { signOut } = useAuth();
   const { data: requests } = useReactivationRequests();
+  const { data: newLeads } = useNewLeadsCount();
   const [requestsOpen, setRequestsOpen] = useState(false);
   const [autoOpened, setAutoOpened] = useState(false);
 
   const requestCount = requests?.length ?? 0;
+  const newLeadCount = newLeads?.length ?? 0;
 
   // Auto-open modal on first load if there are pending requests
   useEffect(() => {
@@ -55,6 +58,25 @@ const AdminHeader = ({ onNavigateToCompany }: AdminHeaderProps) => {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* New leads indicator */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                const el = document.getElementById("lead-management-section");
+                if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              className="relative text-muted-foreground hover:text-foreground"
+              title="Posteingang"
+            >
+              <Mail className="h-4 w-4" />
+              {newLeadCount > 0 && (
+                <Badge className="absolute -top-1 -right-1 h-5 min-w-5 px-1 flex items-center justify-center text-[10px] bg-destructive text-destructive-foreground border-2 border-background rounded-full">
+                  {newLeadCount}
+                </Badge>
+              )}
+            </Button>
+
             {/* Reactivation requests bell */}
             <Button
               variant="ghost"
