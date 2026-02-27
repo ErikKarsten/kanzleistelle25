@@ -48,7 +48,7 @@ const NeeleContactElements = () => {
               </div>
               <Button className="w-full gap-2" size="default">
                 <MessageCircle className="h-4 w-4" />
-                Haben Sie Fragen? Kontakt aufnehmen
+                Nehmen Sie jetzt Kontakt auf
               </Button>
             </div>
           )}
