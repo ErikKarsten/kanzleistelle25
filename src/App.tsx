@@ -23,6 +23,7 @@ import EmployerDashboard from "./pages/EmployerDashboard";
 import EmployerSettings from "./pages/EmployerSettings";
 import JobDetail from "./pages/JobDetail";
 import ArticleDetail from "./pages/ArticleDetail";
+import NeeleContactElements from "./components/NeeleContactElements";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +59,7 @@ const App = () => (
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
+          <NeeleContactElements />
         </TooltipProvider>
       </AuthProvider>
     </QueryClientProvider>
