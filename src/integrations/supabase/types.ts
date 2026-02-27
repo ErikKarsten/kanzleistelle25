@@ -208,6 +208,39 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_leads: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          message: string
+          phone: string | null
+          source_url: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          message: string
+          phone?: string | null
+          source_url?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          message?: string
+          phone?: string | null
+          source_url?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       contact_persons: {
         Row: {
           company_id: string | null

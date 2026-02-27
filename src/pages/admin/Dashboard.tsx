@@ -13,6 +13,7 @@ import ApplicationDetailsModal from "@/components/admin/ApplicationDetailsModal"
 import CompanyManagement from "@/components/admin/CompanyManagement";
 import JobManagement from "@/components/admin/JobManagement";
 import ArticleManagement from "@/components/admin/ArticleManagement";
+import LeadManagement from "@/components/admin/LeadManagement";
 import { toast } from "sonner";
 
 interface ApplicationWithJob {
@@ -353,6 +354,9 @@ const AdminDashboardContent = () => {
 
         {/* Job Management */}
         <JobManagement />
+
+        {/* Lead Management / Posteingang */}
+        <LeadManagement />
 
         {/* Blog Management */}
         <ArticleManagement />
