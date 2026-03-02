@@ -23,6 +23,7 @@ import EmployerDashboard from "./pages/EmployerDashboard";
 import EmployerSettings from "./pages/EmployerSettings";
 import JobDetail from "./pages/JobDetail";
 import ArticleDetail from "./pages/ArticleDetail";
+import Impressum from "./pages/Impressum";
 import NeeleContactElements from "./components/NeeleContactElements";
 
 const queryClient = new QueryClient();
@@ -45,6 +46,7 @@ const App = () => (
               <Route path="/fuer-arbeitgeber" element={<FuerArbeitgeber />} />
               <Route path="/arbeitgeber" element={<FuerArbeitgeber />} />
               <Route path="/ueber-uns" element={<UeberUns />} />
+              <Route path="/impressum" element={<Impressum />} />
               <Route path="/register-employer" element={<RegisterEmployer />} />
               <Route path="/login" element={<Login />} />
               <Route path="/dashboard" element={<EmployerDashboard />} />
