@@ -46,7 +46,7 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
           </h1>
           <div className="flex items-center justify-center gap-2 mb-4">
             <div className="inline-flex items-center gap-2 bg-featured/20 text-featured px-4 py-2 rounded-full text-sm font-semibold border border-featured/30">
-              <Zap className="h-4 w-4" />
+              <Zap className="h-4 w-4" strokeWidth={1.5} />
               In nur 30 Sekunden bewerben – ohne Lebenslauf, ohne Anschreiben
             </div>
           </div>
@@ -57,7 +57,7 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
           <form onSubmit={handleSubmit} className="bg-card rounded-xl shadow-lg p-4 md:p-6">
             <div className="flex flex-col md:flex-row gap-4">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
                 <Input
                   type="text"
                   placeholder="Was suchst du? (z.B. Lohnbuchhalter)"
@@ -67,7 +67,7 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
                 />
               </div>
               <div className="relative flex-1">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
                 <Input
                   type="text"
                   placeholder="Wo?"
@@ -77,7 +77,7 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
                 />
               </div>
               <div className="relative flex-1">
-                <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
+                <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" strokeWidth={1.5} />
                 <Select value={employmentType} onValueChange={setEmploymentType}>
                   <SelectTrigger className="pl-10 h-12 bg-background">
                     <SelectValue placeholder="Anstellungsart" />
@@ -90,7 +90,7 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
                 </Select>
               </div>
               <Button type="submit" size="lg" className="h-12 px-8">
-                <Search className="h-5 w-5 mr-2" />
+                <Search className="h-5 w-5 mr-2" strokeWidth={1.5} />
                 Suchen
               </Button>
             </div>

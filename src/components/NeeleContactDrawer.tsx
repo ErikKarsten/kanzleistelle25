@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Send, CheckCircle } from "lucide-react";
+import { Send, CheckCircle, User, Mail, Phone, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import neeleImage from "@/assets/neele-ehlers.jpg";
@@ -101,7 +101,10 @@ const NeeleContactDrawer = ({ open, onOpenChange }: NeeleContactDrawerProps) => 
           /* Contact form */
           <form onSubmit={handleSubmit} className="space-y-4 pt-2">
             <div>
-              <Label htmlFor="contact-name">Name *</Label>
+              <Label htmlFor="contact-name" className="flex items-center gap-1.5 mb-1.5">
+                <User className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+                Name *
+              </Label>
               <Input
                 id="contact-name"
                 value={form.name}
@@ -112,7 +115,10 @@ const NeeleContactDrawer = ({ open, onOpenChange }: NeeleContactDrawerProps) => 
               />
             </div>
             <div>
-              <Label htmlFor="contact-email">E-Mail *</Label>
+              <Label htmlFor="contact-email" className="flex items-center gap-1.5 mb-1.5">
+                <Mail className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+                E-Mail *
+              </Label>
               <Input
                 id="contact-email"
                 type="email"
@@ -124,7 +130,10 @@ const NeeleContactDrawer = ({ open, onOpenChange }: NeeleContactDrawerProps) => 
               />
             </div>
             <div>
-              <Label htmlFor="contact-phone">Telefon (optional)</Label>
+              <Label htmlFor="contact-phone" className="flex items-center gap-1.5 mb-1.5">
+                <Phone className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+                Telefon (optional)
+              </Label>
               <Input
                 id="contact-phone"
                 type="tel"
@@ -135,7 +144,10 @@ const NeeleContactDrawer = ({ open, onOpenChange }: NeeleContactDrawerProps) => 
               />
             </div>
             <div>
-              <Label htmlFor="contact-message">Nachricht *</Label>
+              <Label htmlFor="contact-message" className="flex items-center gap-1.5 mb-1.5">
+                <MessageSquare className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
+                Nachricht *
+              </Label>
               <Textarea
                 id="contact-message"
                 value={form.message}
@@ -149,7 +161,7 @@ const NeeleContactDrawer = ({ open, onOpenChange }: NeeleContactDrawerProps) => 
             <Button type="submit" className="w-full" disabled={sending}>
               {sending ? "Wird gesendet..." : (
                 <>
-                  <Send className="h-4 w-4 mr-2" />
+                  <Send className="h-4 w-4 mr-2" strokeWidth={1.5} />
                   Nachricht senden
                 </>
               )}

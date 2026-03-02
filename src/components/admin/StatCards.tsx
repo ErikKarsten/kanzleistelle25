@@ -47,7 +47,7 @@ const StatCards = ({ totalApplications, newToday, openPositions }: StatCardsProp
                 </p>
               </div>
               <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-                <stat.icon className="h-6 w-6 text-primary" />
+                <stat.icon className="h-6 w-6 text-primary" strokeWidth={1.5} />
               </div>
             </div>
           </CardContent>

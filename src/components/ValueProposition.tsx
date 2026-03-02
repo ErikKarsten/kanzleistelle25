@@ -16,7 +16,7 @@ const ValueProposition = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" variant="secondary">
               Kostenlos registrieren
-              <ArrowRight className="ml-2 h-5 w-5" />
+              <ArrowRight className="ml-2 h-5 w-5" strokeWidth={1.5} />
             </Button>
             <Button size="lg" variant="secondary" className="bg-background text-primary hover:bg-background/90 font-semibold">
               Für Arbeitgeber

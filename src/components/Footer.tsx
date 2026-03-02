@@ -32,14 +32,14 @@ const Footer = () => {
                   href="mailto:neele@kanzleistelle24.de"
                   className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
-                  <Mail className="h-4 w-4" />
+                  <Mail className="h-4 w-4" strokeWidth={1.5} />
                   neele@kanzleistelle24.de
                 </a>
                 <a
                   href="tel:+4940123456789"
                   className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
-                  <Phone className="h-4 w-4" />
+                  <Phone className="h-4 w-4" strokeWidth={1.5} />
                   +49 40 123 456 789
                 </a>
               </div>
@@ -62,7 +62,7 @@ const Footer = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <Briefcase className="h-6 w-6 text-primary" />
+              <Briefcase className="h-6 w-6 text-primary" strokeWidth={1.5} />
               <span className="text-lg font-bold text-primary">Kanzleistelle24</span>
             </Link>
             <p className="text-sm text-muted-foreground">
