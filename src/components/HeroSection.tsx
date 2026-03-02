@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Search, MapPin, Briefcase, Zap } from "lucide-react";
 import heroBackground from "@/assets/hero-background.jpg";
-import genossenschaftLogo from "@/assets/steuerberatergenossenschaft-logo.png";
+import genossenschaftLogo from "@/assets/genossenschaft-logo-opt.webp";
 
 interface HeroSectionProps {
   onSearch: (filters: { title: string; location: string; employmentType?: string }) => void;
