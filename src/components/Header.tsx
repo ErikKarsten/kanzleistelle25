@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Menu, X, Briefcase, User, LayoutDashboard, LogOut, Building2, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import genossenschaftLogo from "@/assets/steuerberatergenossenschaft-logo.webp";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,10 +35,25 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <Briefcase className="h-8 w-8 text-primary" strokeWidth={1.5} />
-          <span className="text-xl font-bold text-primary">Kanzleistelle24</span>
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-2">
+            <Briefcase className="h-8 w-8 text-primary" strokeWidth={1.5} />
+            <span className="text-xl font-bold text-primary">Kanzleistelle24</span>
+          </Link>
+          <div className="hidden sm:block h-6 w-px bg-border" />
+          <a
+            href="https://www.dstg.de"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden sm:block group"
+          >
+            <img
+              src={genossenschaftLogo}
+              alt="Deutsche Steuerberatergenossenschaft – Mitglied"
+              className="h-7 w-auto object-contain grayscale opacity-60 transition-all duration-500 group-hover:grayscale-0 group-hover:opacity-100"
+            />
+          </a>
+        </div>
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6">
@@ -133,6 +149,18 @@ const Header = () => {
       {isMenuOpen && (
         <div className="md:hidden border-t bg-background">
           <nav className="container py-4 flex flex-col gap-4">
+            <a
+              href="https://www.dstg.de"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="sm:hidden flex items-center gap-2 pb-3 border-b border-border"
+            >
+              <img
+                src={genossenschaftLogo}
+                alt="Deutsche Steuerberatergenossenschaft – Mitglied"
+                className="h-6 w-auto object-contain opacity-70"
+              />
+            </a>
             <Link 
               to="/" 
               className="text-sm font-medium text-foreground hover:text-primary"
