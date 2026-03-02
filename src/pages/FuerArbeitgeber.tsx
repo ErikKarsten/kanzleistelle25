@@ -385,24 +385,6 @@ const FuerArbeitgeber = () => {
                   </div>
                 </div>
 
-                {/* Trust badges */}
-                <div className="pt-8 border-t">
-                  <h4 className="font-semibold text-foreground mb-4">Vertrauen Sie auf:</h4>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="h-5 w-5 text-primary" />
-                      <span className="text-muted-foreground">Spezialisiert auf die Steuerbranche</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="h-5 w-5 text-primary" />
-                      <span className="text-muted-foreground">Persönlich geprüfte Kandidaten</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <CheckCircle2 className="h-5 w-5 text-primary" />
-                      <span className="text-muted-foreground">Diskrete und professionelle Vermittlung</span>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
