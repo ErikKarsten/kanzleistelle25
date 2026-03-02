@@ -209,88 +209,85 @@ const Loesungen = () => {
           </div>
 
           <div className="grid gap-8 md:grid-cols-3">
-            <Card className="border-2 hover:border-primary/30 transition-colors">
-              <CardContent className="pt-8 pb-8">
-                <h3 className="text-2xl font-bold text-foreground mb-2">Stellenanzeige</h3>
-                <p className="text-muted-foreground mb-8">
-                  Ihre Stelle auf unserer Plattform mit Reichweite in der Steuerbranche.
-                </p>
-                <ul className="space-y-4 mb-8">
-                  <li className="flex items-center gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
-                    <span>30 Tage Laufzeit</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
-                    <span>Express-Bewerbungen</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
-                    <span>Bewerbermanagement</span>
-                  </li>
-                </ul>
-                <Button variant="outline" className="w-full">
-                  Mehr erfahren
-                </Button>
-              </CardContent>
-            </Card>
+            <Link to="/fuer-arbeitgeber" className="group">
+              <Card className="h-full border-2 hover:border-primary/30 hover:shadow-lg transition-all duration-300">
+                <CardContent className="pt-8 pb-8">
+                  <h3 className="text-2xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">Stellenanzeige</h3>
+                  <p className="text-muted-foreground mb-8">
+                    Ihre Stelle auf unserer Plattform mit Reichweite in der Steuerbranche.
+                  </p>
+                  <ul className="space-y-4">
+                    <li className="flex items-center gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                      <span>30 Tage Laufzeit</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                      <span>Express-Bewerbungen</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                      <span>Bewerbermanagement</span>
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <Card className="border-2 border-primary shadow-xl relative">
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <span className="bg-primary text-primary-foreground text-xs font-bold px-4 py-1.5 rounded-full">
-                  EMPFOHLEN
-                </span>
-              </div>
-              <CardContent className="pt-10 pb-8">
-                <h3 className="text-2xl font-bold text-foreground mb-2">Active Sourcing</h3>
-                <p className="text-muted-foreground mb-8">
-                  Aktive Kandidatensuche durch unser Recruiting-Team.
-                </p>
-                <ul className="space-y-4 mb-8">
-                  <li className="flex items-center gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
-                    <span>Alle Stellenanzeigen-Features</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
-                    <span>Direktansprache passender Kandidaten</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
-                    <span>Persönliche Beratung</span>
-                  </li>
-                </ul>
-                <Button className="w-full">
-                  Jetzt anfragen
-                </Button>
-              </CardContent>
-            </Card>
+            <Link to="/fuer-arbeitgeber" className="group">
+              <Card className="h-full border-2 border-primary shadow-xl hover:shadow-2xl transition-all duration-300 relative">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                  <span className="bg-primary text-primary-foreground text-xs font-bold px-4 py-1.5 rounded-full">
+                    EMPFOHLEN
+                  </span>
+                </div>
+                <CardContent className="pt-10 pb-8">
+                  <h3 className="text-2xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">Active Sourcing</h3>
+                  <p className="text-muted-foreground mb-8">
+                    Aktive Kandidatensuche durch unser Recruiting-Team.
+                  </p>
+                  <ul className="space-y-4">
+                    <li className="flex items-center gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                      <span>Alle Stellenanzeigen-Features</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                      <span>Direktansprache passender Kandidaten</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                      <span>Persönliche Beratung</span>
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <Card className="border-2 hover:border-primary/30 transition-colors">
-              <CardContent className="pt-8 pb-8">
-                <h3 className="text-2xl font-bold text-foreground mb-2">Executive Search</h3>
-                <p className="text-muted-foreground mb-8">
-                  Diskrete Suche nach Führungskräften und Spezialisten.
-                </p>
-                <ul className="space-y-4 mb-8">
-                  <li className="flex items-center gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
-                    <span>Alle Active Sourcing-Features</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
-                    <span>Exklusive Kandidatensuche</span>
-                  </li>
-                  <li className="flex items-center gap-3">
-                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
-                    <span>Marktanalyse & Beratung</span>
-                  </li>
-                </ul>
-                <Button variant="outline" className="w-full">
-                  Mehr erfahren
-                </Button>
-              </CardContent>
-            </Card>
+            <Link to="/fuer-arbeitgeber" className="group">
+              <Card className="h-full border-2 hover:border-primary/30 hover:shadow-lg transition-all duration-300">
+                <CardContent className="pt-8 pb-8">
+                  <h3 className="text-2xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">Executive Search</h3>
+                  <p className="text-muted-foreground mb-8">
+                    Diskrete Suche nach Führungskräften und Spezialisten.
+                  </p>
+                  <ul className="space-y-4">
+                    <li className="flex items-center gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                      <span>Alle Active Sourcing-Features</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                      <span>Exklusive Kandidatensuche</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                      <span>Marktanalyse & Beratung</span>
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
 
           <div className="text-center mt-14">
