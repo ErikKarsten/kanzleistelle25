@@ -41,7 +41,7 @@ serve(async (req) => {
         },
         body: JSON.stringify({
           from: "Kanzleistelle24 <noreply@kanzleistelle24.de>",
-          to: ["n.ehlers@endlich-mitarbeiter.de"],
+          to: ["info@kanzleistelle24.de"],
           subject: `Neue Kontaktanfrage von ${full_name}`,
           html,
           reply_to: email,
@@ -53,7 +53,7 @@ serve(async (req) => {
         console.error("Resend error:", res.status, errBody);
         // Don't fail the request – lead is already saved in DB
       } else {
-        console.log("Email sent successfully to n.ehlers@endlich-mitarbeiter.de");
+        console.log("Email sent successfully to info@kanzleistelle24.de");
       }
     } else {
       console.warn("RESEND_API_KEY not set – skipping email notification. Lead is saved in DB.");
