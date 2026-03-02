@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Search, MapPin, Briefcase, Zap } from "lucide-react";
 import heroBackground from "@/assets/hero-background.jpg";
+import genossenschaftLogo from "@/assets/steuerberatergenossenschaft-logo.webp";
 
 interface HeroSectionProps {
   onSearch: (filters: { title: string; location: string; employmentType?: string }) => void;
@@ -40,6 +41,13 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
       
       <div className="container relative z-10">
         <div className="max-w-4xl mx-auto text-center">
+          <div className="flex justify-center mb-6">
+            <img
+              src={genossenschaftLogo}
+              alt="Deutsche Steuerberatergenossenschaft – Mitglied"
+              className="h-14 md:h-16 w-auto object-contain opacity-85"
+            />
+          </div>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-6">
             Dein Karrierestützpunkt{" "}
             <span className="text-primary">in der Steuerwelt</span>
