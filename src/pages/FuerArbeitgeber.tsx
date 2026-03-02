@@ -131,13 +131,13 @@ const FuerArbeitgeber = () => {
                   qualifizierte Mitarbeiter zu finden – schnell, diskret und passgenau.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Button size="lg" variant="secondary" className="bg-background text-primary hover:bg-background/90 text-lg" asChild>
+                  <Button size="lg" className="bg-primary text-primary-foreground font-bold rounded-md shadow-sm hover:bg-primary/85 text-lg h-13 px-8" asChild>
                     <a href="#kontakt">
                       Jetzt anfragen
                       <ArrowRight className="h-5 w-5 ml-2" />
                     </a>
                   </Button>
-                  <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 text-lg">
+                  <Button size="lg" variant="outline" className="border-2 border-primary-foreground bg-transparent text-primary-foreground font-semibold rounded-md hover:bg-primary-foreground/15 text-lg h-13 px-8">
                     <Phone className="h-5 w-5 mr-2" />
                     Rückruf anfordern
                   </Button>
