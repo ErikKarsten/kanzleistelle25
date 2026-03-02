@@ -99,13 +99,13 @@ const Loesungen = () => {
                 Kandidaten für Ihre offenen Positionen – schnell, diskret und qualitätsgeprüft.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" variant="secondary" className="text-lg" asChild>
+                <Button size="lg" className="bg-background text-primary font-bold rounded-md shadow-sm hover:bg-background/90 text-lg h-13 px-8 w-full sm:w-auto" asChild>
                   <Link to="/fuer-arbeitgeber">
                     Jetzt anfragen
                     <ArrowRight className="h-5 w-5 ml-2" />
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 text-lg">
+                <Button size="lg" variant="outline" className="border-2 border-primary-foreground bg-transparent text-primary-foreground font-semibold rounded-md hover:bg-primary-foreground hover:text-primary text-lg h-13 px-8 w-full sm:w-auto">
                   <Play className="h-5 w-5 mr-2" />
                   So funktioniert's
                 </Button>
