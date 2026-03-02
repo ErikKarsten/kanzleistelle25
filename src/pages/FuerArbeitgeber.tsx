@@ -1,19 +1,7 @@
-import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
 import {
   Users,
   TrendingUp,
@@ -26,7 +14,6 @@ import {
   AlertTriangle,
   Zap,
   Phone,
-  Mail,
 } from "lucide-react";
 import officeModernImage from "@/assets/office-modern.jpg";
 
@@ -70,40 +57,6 @@ const solutions = [
 ];
 
 const FuerArbeitgeber = () => {
-  const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    companyName: "",
-    contactPerson: "",
-    email: "",
-    phone: "",
-    positions: "",
-    message: "",
-  });
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    toast({
-      title: "Anfrage gesendet!",
-      description: "Wir melden uns innerhalb von 24 Stunden bei Ihnen.",
-    });
-
-    setFormData({
-      companyName: "",
-      contactPerson: "",
-      email: "",
-      phone: "",
-      positions: "",
-      message: "",
-    });
-    setIsSubmitting(false);
-  };
-
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -227,168 +180,6 @@ const FuerArbeitgeber = () => {
           </div>
         </section>
 
-        {/* Lead Form */}
-        <section id="kontakt" className="py-20">
-          <div className="container">
-            <div className="grid lg:grid-cols-2 gap-16 items-start">
-              {/* Form */}
-              <Card className="border-0 shadow-2xl">
-                <CardHeader className="text-center pb-2">
-                  <CardTitle className="text-2xl">Unverbindlich anfragen</CardTitle>
-                  <p className="text-muted-foreground">
-                    Erzählen Sie uns von Ihrem Personalbedarf. Wir melden uns innerhalb von 24 Stunden.
-                  </p>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  <form onSubmit={handleSubmit} className="space-y-5">
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="companyName">Kanzleiname *</Label>
-                        <Input
-                          id="companyName"
-                          value={formData.companyName}
-                          onChange={(e) =>
-                            setFormData({ ...formData, companyName: e.target.value })
-                          }
-                          required
-                          placeholder="Muster Steuerberatung GmbH"
-                          className="h-12"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="contactPerson">Ansprechpartner *</Label>
-                        <Input
-                          id="contactPerson"
-                          value={formData.contactPerson}
-                          onChange={(e) =>
-                            setFormData({ ...formData, contactPerson: e.target.value })
-                          }
-                          required
-                          placeholder="Max Mustermann"
-                          className="h-12"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid gap-4 md:grid-cols-2">
-                      <div className="space-y-2">
-                        <Label htmlFor="email">E-Mail *</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          value={formData.email}
-                          onChange={(e) =>
-                            setFormData({ ...formData, email: e.target.value })
-                          }
-                          required
-                          placeholder="info@kanzlei.de"
-                          className="h-12"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="phone">Telefon</Label>
-                        <Input
-                          id="phone"
-                          type="tel"
-                          value={formData.phone}
-                          onChange={(e) =>
-                            setFormData({ ...formData, phone: e.target.value })
-                          }
-                          placeholder="+49 123 456789"
-                          className="h-12"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="positions">Welche Position(en) suchen Sie?</Label>
-                      <Select
-                        value={formData.positions}
-                        onValueChange={(value) =>
-                          setFormData({ ...formData, positions: value })
-                        }
-                      >
-                        <SelectTrigger className="h-12">
-                          <SelectValue placeholder="Bitte wählen" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="steuerfachangestellte">
-                            Steuerfachangestellte/r
-                          </SelectItem>
-                          <SelectItem value="steuerfachwirt">Steuerfachwirt/in</SelectItem>
-                          <SelectItem value="bilanzbuchhalter">Bilanzbuchhalter/in</SelectItem>
-                          <SelectItem value="lohnbuchhalter">Lohnbuchhalter/in</SelectItem>
-                          <SelectItem value="steuerberater">Steuerberater/in</SelectItem>
-                          <SelectItem value="andere">Andere Position</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="message">Ihre Nachricht</Label>
-                      <Textarea
-                        id="message"
-                        value={formData.message}
-                        onChange={(e) =>
-                          setFormData({ ...formData, message: e.target.value })
-                        }
-                        placeholder="Erzählen Sie uns mehr über Ihren Personalbedarf..."
-                        rows={4}
-                      />
-                    </div>
-
-                    <Button type="submit" className="w-full h-12 text-lg" disabled={isSubmitting}>
-                      {isSubmitting ? "Wird gesendet..." : "Anfrage absenden"}
-                      <ArrowRight className="h-5 w-5 ml-2" />
-                    </Button>
-
-                    <p className="text-xs text-muted-foreground text-center">
-                      Ihre Daten werden vertraulich behandelt. Wir kontaktieren Sie ausschließlich 
-                      bezüglich Ihrer Anfrage.
-                    </p>
-                  </form>
-                </CardContent>
-              </Card>
-
-              {/* Contact Info */}
-              <div className="space-y-8">
-                <div>
-                  <h3 className="text-2xl font-bold text-foreground mb-4">
-                    Sprechen Sie mit uns
-                  </h3>
-                  <p className="text-muted-foreground mb-8">
-                    Haben Sie Fragen? Unser Team ist für Sie da und berät Sie gerne 
-                    zu unseren Recruiting-Lösungen.
-                  </p>
-                </div>
-
-                <div className="space-y-6">
-                  <div className="flex items-start gap-4 p-6 bg-secondary/50 rounded-xl">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                      <Mail className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-foreground mb-1">E-Mail</h4>
-                      <p className="text-muted-foreground">kontakt@kanzleistelle24.de</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4 p-6 bg-secondary/50 rounded-xl">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                      <Phone className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold text-foreground mb-1">Telefon</h4>
-                      <p className="text-muted-foreground">+49 (0) 123 456 789</p>
-                      <p className="text-sm text-muted-foreground">Mo-Fr 9:00 - 18:00 Uhr</p>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </section>
       </main>
 
       <Footer />
