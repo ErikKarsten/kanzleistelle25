@@ -2,7 +2,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, ArrowRight, BookOpen, TrendingUp } from "lucide-react";
+import { Calendar, Clock, ArrowRight, BookOpen, TrendingUp, GraduationCap, Briefcase, Cpu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -20,6 +20,13 @@ interface Article {
   is_featured: boolean;
   published_at: string | null;
 }
+
+const CATEGORY_ICONS: Record<string, React.ComponentType<any>> = {
+  "Karriere": Briefcase,
+  "Gehalt": TrendingUp,
+  "Examen": GraduationCap,
+  "Digitales": Cpu,
+};
 
 const CATEGORY_PLACEHOLDERS: Record<string, string> = {
   "Karriere": "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80",
@@ -73,7 +80,7 @@ const Karrieretipps = () => {
           <div className="container relative z-10">
             <div className="max-w-3xl mx-auto text-center text-primary-foreground">
               <div className="inline-flex items-center gap-2 bg-background/10 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold mb-6">
-                <TrendingUp className="h-4 w-4" />
+                <TrendingUp className="h-5 w-5" strokeWidth={1.5} />
                 Ihr Karriere-Ratgeber
               </div>
               <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6">
@@ -182,11 +189,12 @@ const Karrieretipps = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                   </div>
                   <CardHeader className="pb-2">
-                    {article.category && (
-                      <Badge variant="outline" className="w-fit mb-2 text-xs">
-                        {article.category}
-                      </Badge>
-                    )}
+                  {article.category && (
+                    <Badge variant="outline" className="w-fit mb-2 text-xs flex items-center gap-1">
+                      {CATEGORY_ICONS[article.category] && (() => { const Icon = CATEGORY_ICONS[article.category]; return <Icon className="h-3 w-3" strokeWidth={1.5} />; })()}
+                      {article.category}
+                    </Badge>
+                  )}
                     <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
                       {article.title}
                     </h3>
@@ -223,7 +231,7 @@ const Karrieretipps = () => {
         <section className="py-16 bg-secondary/30">
           <div className="container">
             <div className="max-w-2xl mx-auto text-center">
-              <BookOpen className="h-12 w-12 text-primary mx-auto mb-6" />
+              <BookOpen className="h-8 w-8 text-primary mx-auto mb-6" strokeWidth={1.5} />
               <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
                 Bleiben Sie informiert
               </h2>

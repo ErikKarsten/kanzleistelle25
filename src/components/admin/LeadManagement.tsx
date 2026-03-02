@@ -26,7 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Mail, Phone, Globe, Clock, Trash2 } from "lucide-react";
+import { Mail, Phone, Globe, Clock, Trash2, Inbox } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -101,6 +101,7 @@ const LeadManagement = () => {
     <Card className="border-none shadow-md">
       <CardHeader className="pb-4">
         <CardTitle className="text-lg font-semibold flex items-center gap-2">
+          <Inbox className="h-5 w-5 text-primary" strokeWidth={1.5} />
           Posteingang
           {newCount > 0 && (
             <Badge className="bg-yellow-100 text-yellow-800">{newCount} neu</Badge>

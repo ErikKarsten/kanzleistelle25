@@ -50,7 +50,7 @@ const FeatureCards = () => {
                 <div className={`mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-4 ${
                   feature.highlight ? 'bg-primary text-primary-foreground' : 'bg-primary/10'
                 }`}>
-                  <feature.icon className={`h-6 w-6 ${feature.highlight ? '' : 'text-primary'}`} />
+                  <feature.icon className={`h-6 w-6 ${feature.highlight ? '' : 'text-primary'}`} strokeWidth={1.5} />
                 </div>
                 <CardTitle className="text-lg">{feature.title}</CardTitle>
               </CardHeader>

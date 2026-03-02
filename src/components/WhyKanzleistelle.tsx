@@ -41,7 +41,7 @@ const WhyKanzleistelle = () => {
         <div className="mb-16">
           <div className="text-center mb-10">
             <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-semibold mb-4">
-              <Zap className="h-4 w-4" />
+              <Zap className="h-5 w-5" strokeWidth={1.5} />
               Das unterscheidet uns
             </div>
             <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
@@ -58,7 +58,7 @@ const WhyKanzleistelle = () => {
               <Card key={index} className="text-center border-2 hover:border-primary/50 transition-colors">
                 <CardContent className="pt-6">
                   <div className="mx-auto w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                    <feature.icon className="h-7 w-7 text-primary" />
+                    <feature.icon className="h-7 w-7 text-primary" strokeWidth={1.5} />
                   </div>
                   <h3 className="font-semibold text-foreground mb-2">{feature.title}</h3>
                   <p className="text-sm text-muted-foreground">{feature.description}</p>
@@ -83,9 +83,9 @@ const WhyKanzleistelle = () => {
               {benefits.map((benefit, index) => (
                 <li key={index} className={`flex items-center gap-3 ${benefit.highlight ? 'font-semibold' : ''}`}>
                   {benefit.highlight ? (
-                    <Zap className="h-5 w-5 text-primary shrink-0" />
+                    <Zap className="h-5 w-5 text-primary shrink-0" strokeWidth={1.5} />
                   ) : (
-                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
+                    <CheckCircle2 className="h-5 w-5 text-primary shrink-0" strokeWidth={1.5} />
                   )}
                   <span className={benefit.highlight ? 'text-primary' : 'text-foreground'}>{benefit.text}</span>
                 </li>
@@ -100,21 +100,21 @@ const WhyKanzleistelle = () => {
               
               <div className="space-y-6 text-left">
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+                  <CheckCircle2 className="h-6 w-6 text-primary shrink-0 mt-0.5" strokeWidth={1.5} />
                   <div>
                     <p className="font-semibold text-foreground">Spezialisiert auf die Steuerbranche</p>
                     <p className="text-sm text-muted-foreground">Wir kennen die Branche und ihre Besonderheiten</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+                  <CheckCircle2 className="h-6 w-6 text-primary shrink-0 mt-0.5" strokeWidth={1.5} />
                   <div>
                     <p className="font-semibold text-foreground">Persönlich geprüfte Kanzleien</p>
                     <p className="text-sm text-muted-foreground">Jede Partner-Kanzlei wird von uns geprüft</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="h-6 w-6 text-primary shrink-0 mt-0.5" />
+                  <CheckCircle2 className="h-6 w-6 text-primary shrink-0 mt-0.5" strokeWidth={1.5} />
                   <div>
                     <p className="font-semibold text-foreground">Diskrete Vermittlung</p>
                     <p className="text-sm text-muted-foreground">Ihre Daten sind bei uns sicher</p>
