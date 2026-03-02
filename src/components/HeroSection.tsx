@@ -40,18 +40,21 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
       <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-background/90 to-background/80" />
       
       <div className="container relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="flex justify-center mb-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-4">
+              Dein Karrierestützpunkt{" "}
+              <span className="text-primary">in der Steuerwelt</span>
+            </h1>
+          </div>
+          <div className="flex justify-start pl-2 mb-6">
             <img
               src={genossenschaftLogo}
               alt="Deutsche Steuerberatergenossenschaft – Mitglied"
-              className="h-14 md:h-16 w-auto object-contain opacity-85"
+              className="h-10 md:h-12 w-auto object-contain mix-blend-multiply"
             />
           </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-6">
-            Dein Karrierestützpunkt{" "}
-            <span className="text-primary">in der Steuerwelt</span>
-          </h1>
+          <div className="text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <div className="inline-flex items-center gap-2 bg-featured/20 text-featured px-4 py-2 rounded-full text-sm font-semibold border border-featured/30">
               <Zap className="h-4 w-4" strokeWidth={1.5} />
@@ -133,6 +136,7 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
             >
               DATEV
             </button>
+          </div>
           </div>
         </div>
       </div>
