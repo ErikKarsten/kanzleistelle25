@@ -6,6 +6,7 @@ import FeaturedJobs from "@/components/FeaturedJobs";
 import FeatureCards from "@/components/FeatureCards";
 import JobResults from "@/components/JobResults";
 
+import TrustBadge from "@/components/TrustBadge";
 import WhyKanzleistelle from "@/components/WhyKanzleistelle";
 import ValueProposition from "@/components/ValueProposition";
 import Footer from "@/components/Footer";
@@ -51,6 +52,7 @@ const Index = () => {
 
       <main className="flex-1">
         <HeroSection onSearch={handleSearch} />
+        <TrustBadge />
         <VisualFeatureCards onScrollToJobs={() => {
           const resultsSection = document.getElementById("job-results");
           if (resultsSection) {
