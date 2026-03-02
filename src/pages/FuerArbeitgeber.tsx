@@ -1,7 +1,9 @@
+import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import NeeleContactDrawer from "@/components/NeeleContactDrawer";
 import {
   Users,
   TrendingUp,
@@ -13,7 +15,6 @@ import {
   Briefcase,
   AlertTriangle,
   Zap,
-  Phone,
 } from "lucide-react";
 import officeModernImage from "@/assets/office-modern.jpg";
 
@@ -57,6 +58,8 @@ const solutions = [
 ];
 
 const FuerArbeitgeber = () => {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -84,15 +87,13 @@ const FuerArbeitgeber = () => {
                   qualifizierte Mitarbeiter zu finden – schnell, diskret und passgenau.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <Button size="lg" className="bg-primary text-primary-foreground font-bold rounded-md shadow-sm hover:bg-primary/85 text-lg h-13 px-8" asChild>
-                    <a href="#kontakt">
-                      Jetzt anfragen
-                      <ArrowRight className="h-5 w-5 ml-2" />
-                    </a>
-                  </Button>
-                  <Button size="lg" variant="outline" className="border-2 border-primary-foreground bg-transparent text-primary-foreground font-semibold rounded-md hover:bg-primary-foreground/15 text-lg h-13 px-8">
-                    <Phone className="h-5 w-5 mr-2" />
-                    Rückruf anfordern
+                  <Button 
+                    size="lg" 
+                    className="bg-primary text-primary-foreground font-bold rounded-md shadow-sm hover:bg-primary/85 text-lg h-13 px-8"
+                    onClick={() => setDrawerOpen(true)}
+                  >
+                    Jetzt anfragen
+                    <ArrowRight className="h-5 w-5 ml-2" />
                   </Button>
                 </div>
               </div>
@@ -182,6 +183,7 @@ const FuerArbeitgeber = () => {
 
       </main>
 
+      <NeeleContactDrawer open={drawerOpen} onOpenChange={setDrawerOpen} />
       <Footer />
     </div>
   );
