@@ -35,9 +35,9 @@ const Impressum = () => {
                 <Phone className="h-5 w-5 text-primary shrink-0" strokeWidth={1.5} />
                 05303-9578751
               </a>
-              <a href="mailto:info@endlich-mitarbeiter.de" className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors">
+              <a href="mailto:info@kanzleistelle24.de" className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors">
                 <Mail className="h-5 w-5 text-primary shrink-0" strokeWidth={1.5} />
-                info@endlich-mitarbeiter.de
+                info@kanzleistelle24.de
               </a>
             </div>
           </section>

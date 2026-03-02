@@ -29,11 +29,11 @@ const Footer = () => {
               </p>
               <div className="flex flex-wrap items-center gap-4 justify-center md:justify-start">
                 <a
-                  href="mailto:neele@kanzleistelle24.de"
+                  href="mailto:info@kanzleistelle24.de"
                   className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   <Mail className="h-4 w-4" strokeWidth={1.5} />
-                  neele@kanzleistelle24.de
+                  info@kanzleistelle24.de
                 </a>
                 <a
                   href="tel:+4940123456789"
