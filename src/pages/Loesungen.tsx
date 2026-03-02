@@ -1,8 +1,10 @@
+import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import NeeleContactDrawer from "@/components/NeeleContactDrawer";
 import {
   Search,
   Filter,
@@ -14,7 +16,6 @@ import {
   Target,
   Clock,
   Award,
-  Play,
 } from "lucide-react";
 import partnershipImage from "@/assets/partnership-handshake.jpg";
 import teamCollaborationImage from "@/assets/team-collaboration.jpg";
@@ -74,6 +75,8 @@ const benefits = [
 ];
 
 const Loesungen = () => {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -99,15 +102,13 @@ const Loesungen = () => {
                 Kandidaten für Ihre offenen Positionen – schnell, diskret und qualitätsgeprüft.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-background text-primary font-bold rounded-md shadow-sm hover:bg-background/90 text-lg h-13 px-8 w-full sm:w-auto" asChild>
-                  <Link to="/fuer-arbeitgeber">
-                    Jetzt anfragen
-                    <ArrowRight className="h-5 w-5 ml-2" />
-                  </Link>
-                </Button>
-                <Button size="lg" variant="outline" className="border-2 border-primary-foreground bg-transparent text-primary-foreground font-semibold rounded-md hover:bg-primary-foreground hover:text-primary text-lg h-13 px-8 w-full sm:w-auto">
-                  <Play className="h-5 w-5 mr-2" />
-                  So funktioniert's
+                <Button 
+                  size="lg" 
+                  className="bg-background text-primary font-bold rounded-md shadow-sm hover:bg-background/90 text-lg h-13 px-8 w-full sm:w-auto"
+                  onClick={() => setDrawerOpen(true)}
+                >
+                  Jetzt anfragen
+                  <ArrowRight className="h-5 w-5 ml-2" />
                 </Button>
               </div>
             </div>
@@ -290,20 +291,10 @@ const Loesungen = () => {
             </Link>
           </div>
 
-          <div className="text-center mt-14">
-            <p className="text-muted-foreground mb-6">
-              Nicht sicher, welche Lösung zu Ihnen passt?
-            </p>
-            <Button size="lg" asChild>
-              <Link to="/fuer-arbeitgeber">
-                Unverbindlich beraten lassen
-                <ArrowRight className="h-5 w-5 ml-2" />
-              </Link>
-            </Button>
-          </div>
         </section>
       </main>
 
+      <NeeleContactDrawer open={drawerOpen} onOpenChange={setDrawerOpen} />
       <Footer />
     </div>
   );
