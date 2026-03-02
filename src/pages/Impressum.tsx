@@ -12,8 +12,9 @@ const Impressum = () => {
           <p className="text-muted-foreground mb-10">Angaben gemäß § 5 DDG</p>
 
           <section className="mb-10">
-            <p className="text-foreground font-semibold text-lg">Kanzleistelle24 Erik Karsten</p>
-            <div className="flex items-start gap-2 mt-3 text-muted-foreground">
+            <p className="text-xl font-bold text-foreground">Kanzleistelle24</p>
+            <p className="text-muted-foreground mt-1">Inhaber: Erik Karsten</p>
+            <div className="flex items-start gap-2 mt-4 text-muted-foreground">
               <MapPin className="h-5 w-5 text-primary shrink-0 mt-0.5" strokeWidth={1.5} />
               <span>Christian-Pommer-Straße 58<br />38112 Braunschweig</span>
             </div>
