@@ -7,7 +7,7 @@ import FeatureCards from "@/components/FeatureCards";
 import JobResults from "@/components/JobResults";
 
 import WhyKanzleistelle from "@/components/WhyKanzleistelle";
-import ValueProposition from "@/components/ValueProposition";
+
 import Footer from "@/components/Footer";
 import { useJobsRealtime } from "@/hooks/useJobsRealtime";
 import { useToast } from "@/hooks/use-toast";
@@ -66,7 +66,7 @@ const Index = () => {
 
         
         <WhyKanzleistelle />
-        <ValueProposition />
+        
       </main>
 
       <Footer />
