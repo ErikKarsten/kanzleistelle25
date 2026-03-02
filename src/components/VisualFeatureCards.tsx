@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Zap } from "lucide-react";
+import { Link } from "react-router-dom";
 import candidateLaptopImage from "@/assets/candidate-laptop.jpg";
 import teamMeetingImage from "@/assets/team-meeting.jpg";
 import quickApplyImage from "@/assets/quick-apply.jpg";
@@ -41,10 +42,9 @@ interface VisualFeatureCardsProps {
 
 const VisualFeatureCards = ({ onScrollToJobs }: VisualFeatureCardsProps) => {
   const handleButtonClick = (action: string) => {
-    if (action === "jobs" && onScrollToJobs) {
+    if ((action === "jobs" || action === "apply") && onScrollToJobs) {
       onScrollToJobs();
     }
-    // Other actions can be added later
   };
 
   return (
@@ -87,14 +87,23 @@ const VisualFeatureCards = ({ onScrollToJobs }: VisualFeatureCardsProps) => {
                 <p className="text-sm text-primary font-medium mb-1">{feature.title}</p>
                 <h3 className="text-xl font-bold text-foreground mb-2">{feature.subtitle}</h3>
                 <p className="text-muted-foreground text-sm mb-4">{feature.description}</p>
-                <Button 
-                  className="w-full" 
-                  variant={feature.highlight ? "default" : "outline"}
-                  onClick={() => handleButtonClick(feature.buttonAction)}
-                >
-                  {feature.buttonText}
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
+                {feature.buttonAction === "employer" ? (
+                  <Button className="w-full" variant="outline" asChild>
+                    <Link to="/fuer-arbeitgeber">
+                      {feature.buttonText}
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button 
+                    className="w-full" 
+                    variant={feature.highlight ? "default" : "outline"}
+                    onClick={() => handleButtonClick(feature.buttonAction)}
+                  >
+                    {feature.buttonText}
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                )}
               </CardContent>
             </Card>
           ))}
