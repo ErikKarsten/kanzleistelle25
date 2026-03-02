@@ -51,7 +51,7 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
             <img
               src={genossenschaftLogo}
               alt="Deutsche Steuerberatergenossenschaft – Mitglied"
-              className="h-10 md:h-12 w-auto object-contain mix-blend-multiply"
+              className="h-20 md:h-24 w-auto object-contain mix-blend-multiply"
             />
           </div>
           <div className="text-center">
