@@ -64,6 +64,9 @@ import CompanyBlockedScreen from "@/components/employer/CompanyBlockedScreen";
 import ApplicantDetailSheet from "@/components/employer/ApplicantDetailSheet";
 import EmployerJobDetailsModal from "@/components/employer/EmployerJobDetailsModal";
 import ChatWindow from "@/components/ChatWindow";
+import UnreadMessagesModal from "@/components/employer/UnreadMessagesModal";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
+import { toast as sonnerToast } from "sonner";
 
 // Reusable application card for active/archived views
 const ApplicationCard = ({
@@ -75,6 +78,7 @@ const ApplicationCard = ({
   toast,
   onClickDetail,
   onChat,
+  hasUnread,
 }: {
   app: any;
   onStatusChange: (appId: string, status: string) => void;
@@ -84,6 +88,7 @@ const ApplicationCard = ({
   toast: any;
   onClickDetail?: (app: any) => void;
   onChat?: (app: any) => void;
+  hasUnread?: boolean;
 }) => {
   const deletionDate = app.created_at
     ? new Date(new Date(app.created_at).getTime() + 6 * 30 * 24 * 60 * 60 * 1000)
@@ -184,10 +189,13 @@ const ApplicationCard = ({
             variant="outline"
             size="sm"
             onClick={(e) => { e.stopPropagation(); onChat(app); }}
-            className="text-xs"
+            className="text-xs relative"
           >
             <MessageCircle className="h-3 w-3 mr-1" />
             Chat
+            {hasUnread && (
+              <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-destructive border-2 border-background" />
+            )}
           </Button>
         )}
         <Button
@@ -253,6 +261,47 @@ const EmployerDashboard = () => {
   const [jobDetailsJob, setJobDetailsJob] = useState<any>(null);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatApp, setChatApp] = useState<any>(null);
+  const [unreadModalOpen, setUnreadModalOpen] = useState(false);
+  const unreadModalShown = useRef(false);
+
+  // Unread messages hook
+  const { data: unreadData } = useUnreadMessages(companyId);
+  const unreadTotal = unreadData?.total ?? 0;
+  const unreadByApp = unreadData?.byApplication ?? {};
+
+  // Show unread messages modal once on load
+  useEffect(() => {
+    if (unreadTotal > 0 && !unreadModalShown.current) {
+      unreadModalShown.current = true;
+      setUnreadModalOpen(true);
+    }
+  }, [unreadTotal]);
+
+  // Realtime: toast on new message from applicant
+  useEffect(() => {
+    if (!companyId) return;
+    const channel = supabase
+      .channel("employer-new-messages")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages" },
+        (payload) => {
+          const msg = payload.new as any;
+          if (msg.sender_type === "applicant") {
+            sonnerToast.info("Neue Nachricht von einem Bewerber", {
+              description: msg.content?.substring(0, 80) || "Neue Nachricht eingegangen.",
+              duration: 5000,
+            });
+            queryClient.invalidateQueries({ queryKey: ["employer-unread-messages", companyId] });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [companyId, queryClient]);
 
   // Redirect if not authenticated or admin
   useEffect(() => {
@@ -718,14 +767,18 @@ const EmployerDashboard = () => {
                 <Briefcase className="h-4 w-4" />
                 Offene Stellen
               </TabsTrigger>
-              <TabsTrigger value="applications" className="flex items-center gap-2">
+              <TabsTrigger value="applications" className="flex items-center gap-2 relative">
                 <Users className="h-4 w-4" />
                 Bewerbungen
-                {pendingApplications.length > 0 && (
+                {unreadTotal > 0 ? (
+                  <Badge variant="destructive" className="ml-1 h-5 min-w-[20px] px-1 flex items-center justify-center text-xs">
+                    {unreadTotal}
+                  </Badge>
+                ) : pendingApplications.length > 0 ? (
                   <Badge variant="destructive" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
                     {pendingApplications.length}
                   </Badge>
-                )}
+                ) : null}
               </TabsTrigger>
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <Building2 className="h-4 w-4" />
@@ -893,6 +946,7 @@ const EmployerDashboard = () => {
                               toast={toast}
                               onClickDetail={(a) => setSelectedApplicant(a)}
                               onChat={(a) => { setChatApp(a); setChatOpen(true); }}
+                              hasUnread={!!unreadByApp[app.id]}
                             />
                           ))}
                         </div>
@@ -1117,10 +1171,27 @@ const EmployerDashboard = () => {
           applicantName={`${chatApp.first_name} ${chatApp.last_name}`}
           jobTitle={chatApp.jobs?.title || "Bewerbung"}
           open={chatOpen}
-          onOpenChange={setChatOpen}
+          onOpenChange={(open) => {
+            setChatOpen(open);
+            if (!open) {
+              // Refresh unread counts after closing chat
+              queryClient.invalidateQueries({ queryKey: ["employer-unread-messages", companyId] });
+            }
+          }}
           senderType="employer"
         />
       )}
+
+      {/* Unread Messages Modal (session-once) */}
+      <UnreadMessagesModal
+        open={unreadModalOpen}
+        onOpenChange={setUnreadModalOpen}
+        unreadCount={unreadTotal}
+        onNavigate={() => {
+          setActiveTab("applications");
+          setApplicationsTab("active");
+        }}
+      />
     </div>
   );
 };
