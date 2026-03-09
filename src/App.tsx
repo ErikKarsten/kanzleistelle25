@@ -27,6 +27,8 @@ import Impressum from "./pages/Impressum";
 import AGB from "./pages/AGB";
 import Datenschutz from "./pages/Datenschutz";
 import BewerberDashboard from "./pages/BewerberDashboard";
+import PasswortVergessen from "./pages/PasswortVergessen";
+import PasswortZuruecksetzen from "./pages/PasswortZuruecksetzen";
 import NeeleContactElements from "./components/NeeleContactElements";
 
 const queryClient = new QueryClient();
