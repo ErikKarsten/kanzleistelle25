@@ -324,6 +324,18 @@ const BewerberDashboard = () => {
       </main>
       <Footer />
 
+      {detailApp && (
+        <ApplicationDetailModal
+          application={detailApp}
+          companyLogo={detailApp.jobs?.company_id ? getCompanyLogo(detailApp.jobs.company_id) : null}
+          statusLabel={(statusConfig[detailApp.status || "pending"] || statusConfig.pending).label}
+          statusClassName={(statusConfig[detailApp.status || "pending"] || statusConfig.pending).className}
+          open={!!detailApp}
+          onOpenChange={(open) => !open && setDetailApp(null)}
+          onOpenChat={() => openChat(detailApp)}
+        />
+      )}
+
       {selectedApp && (
         <ChatWindow
           applicationId={selectedApp.id}
