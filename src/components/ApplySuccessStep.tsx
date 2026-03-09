@@ -12,6 +12,7 @@ import {
   Rocket,
   ShieldCheck,
   Sparkles,
+  ArrowRight,
 } from "lucide-react";
 import ApplyAccountCreation from "./ApplyAccountCreation";
 
