@@ -189,10 +189,13 @@ const ApplicationCard = ({
             variant="outline"
             size="sm"
             onClick={(e) => { e.stopPropagation(); onChat(app); }}
-            className="text-xs"
+            className="text-xs relative"
           >
             <MessageCircle className="h-3 w-3 mr-1" />
             Chat
+            {hasUnread && (
+              <span className="absolute -top-1 -right-1 h-2.5 w-2.5 rounded-full bg-destructive border-2 border-background" />
+            )}
           </Button>
         )}
         <Button
