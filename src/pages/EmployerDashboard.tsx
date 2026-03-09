@@ -761,6 +761,13 @@ const EmployerDashboard = () => {
             </Card>
           </div>
 
+          {/* Recent Messages Section */}
+          <RecentMessagesEmployer
+            companyId={companyId}
+            applications={applications}
+            onOpenChat={(app) => { setChatApp(app); setChatOpen(true); }}
+          />
+
           {/* Main Content Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="mb-6">
