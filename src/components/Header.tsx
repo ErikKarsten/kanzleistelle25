@@ -93,7 +93,7 @@ const Header = () => {
                 <DropdownMenuItem asChild>
                   <Link to={getDashboardLink()} className="flex items-center cursor-pointer">
                     <LayoutDashboard className="h-4 w-4 mr-2" />
-                    {role === "admin" ? "Admin-Dashboard" : "Dashboard"}
+                    {getDashboardLabel()}
                   </Link>
                 </DropdownMenuItem>
                 {role === "employer" && (
