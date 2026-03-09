@@ -86,26 +86,30 @@ const ApplyAccountCreation = ({
     }
   };
 
+  const hasPassword = password.length >= 6;
+  const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
+  const isReady = hasPassword && passwordsMatch;
+
   return (
-    <div className="space-y-4 animate-fade-in">
-      <div className="bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20 rounded-xl p-5 space-y-4">
+    <div className="space-y-3 animate-fade-in">
+      <div className="bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20 rounded-xl p-4 space-y-3">
         <div className="flex items-center gap-2">
           <Lock className="h-5 w-5 text-primary" />
           <h4 className="font-bold text-foreground">Dein Konto sichern</h4>
         </div>
-        <p className="text-sm text-muted-foreground">
-          Sichere dir jetzt deinen Zugang zum Bewerber-Portal, um den Status deiner Bewerbung jederzeit zu verfolgen.
+        <p className="text-sm text-muted-foreground leading-snug">
+          Sichere dir jetzt deinen Zugang, um den Status deiner Bewerbung jederzeit zu verfolgen.
         </p>
 
-        <form onSubmit={handleCreateAccount} className="space-y-3">
-          <div className="space-y-1">
+        <form onSubmit={handleCreateAccount} className="space-y-2.5">
+          <div>
             <Label className="text-xs text-muted-foreground">E-Mail</Label>
-            <Input value={email} disabled className="bg-muted/50" />
+            <Input value={email} disabled className="bg-muted/50 h-9 mt-0.5" />
           </div>
 
-          <div className="space-y-1">
-            <Label htmlFor="acc-password">Passwort vergeben *</Label>
-            <div className="relative">
+          <div>
+            <Label htmlFor="acc-password" className="text-sm">Passwort vergeben *</Label>
+            <div className="relative mt-0.5">
               <Input
                 id="acc-password"
                 type={showPassword ? "text" : "password"}
@@ -114,6 +118,7 @@ const ApplyAccountCreation = ({
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
+                className="h-9"
               />
               <button
                 type="button"
@@ -126,8 +131,8 @@ const ApplyAccountCreation = ({
             <PasswordStrengthBar password={password} />
           </div>
 
-          <div className="space-y-1">
-            <Label htmlFor="acc-confirm">Passwort bestätigen *</Label>
+          <div>
+            <Label htmlFor="acc-confirm" className="text-sm">Passwort bestätigen *</Label>
             <Input
               id="acc-confirm"
               type="password"
@@ -135,22 +140,38 @@ const ApplyAccountCreation = ({
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
+              className="h-9 mt-0.5"
             />
             {confirmPassword && password !== confirmPassword && (
-              <p className="text-xs text-destructive">Passwörter stimmen nicht überein.</p>
+              <p className="text-xs text-destructive mt-0.5">Passwörter stimmen nicht überein.</p>
             )}
           </div>
 
-          <Button type="submit" className="w-full" size="lg" disabled={isCreating}>
+          <Button
+            type="submit"
+            className={`w-full font-bold text-base tracking-wide transition-all ${
+              isReady
+                ? "bg-primary hover:bg-primary/90 shadow-lg shadow-primary/25 scale-[1.02]"
+                : ""
+            }`}
+            size="lg"
+            disabled={isCreating || !isReady}
+          >
             {isCreating ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                Konto wird gesichert...
+                Konto wird aktiviert...
               </>
             ) : (
-              "Konto jetzt sichern & zum Dashboard"
+              <>
+                KONTO AKTIVIEREN & ZUM DASHBOARD
+                <ArrowRight className="h-5 w-5 ml-2" />
+              </>
             )}
           </Button>
+          <p className="text-xs text-center text-muted-foreground">
+            Kostenloser Zugang zu deinem persönlichen Bewerber-Portal.
+          </p>
         </form>
 
         <div className="flex items-start gap-2 text-xs text-muted-foreground">
@@ -158,8 +179,7 @@ const ApplyAccountCreation = ({
           <span>Deine Daten sind sicher. Du kannst dein Konto jederzeit löschen.</span>
         </div>
 
-        {/* Trust anchor: Genossenschaft logo */}
-        <div className="flex justify-center pt-2">
+        <div className="flex justify-center pt-1">
           <img
             src={genossenschaftLogo}
             alt="Deutsche Steuerberatergenossenschaft – Mitglied"
@@ -168,15 +188,13 @@ const ApplyAccountCreation = ({
         </div>
       </div>
 
-      <Button
+      <button
         type="button"
-        variant="outline"
         onClick={onSkip}
-        className="w-full text-muted-foreground"
-        size="sm"
+        className="w-full text-sm text-muted-foreground/70 hover:text-muted-foreground py-1.5 transition-colors"
       >
         Später erledigen
-      </Button>
+      </button>
     </div>
   );
 };
