@@ -1111,6 +1111,16 @@ const EmployerDashboard = () => {
         companyId={companyId}
         companyName={company?.name || ""}
       />
+      {chatApp && (
+        <ChatWindow
+          applicationId={chatApp.id}
+          applicantName={`${chatApp.first_name} ${chatApp.last_name}`}
+          jobTitle={chatApp.jobs?.title || "Bewerbung"}
+          open={chatOpen}
+          onOpenChange={setChatOpen}
+          senderType="employer"
+        />
+      )}
     </div>
   );
 };
