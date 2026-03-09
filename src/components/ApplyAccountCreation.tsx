@@ -55,16 +55,16 @@ const ApplyAccountCreation = ({
 
       if (error) throw error;
 
-      // Link application and create candidate role
+      // Link application and create candidate role via secure function
       if (data.user) {
-        await supabase
-          .from("applications")
-          .update({ applicant_id: data.user.id })
-          .eq("id", applicationId);
-
-        await supabase
-          .from("user_roles")
-          .insert({ user_id: data.user.id, role: "candidate" });
+        const { error: linkError } = await supabase.rpc("link_application_to_user", {
+          _application_id: applicationId,
+          _user_id: data.user.id,
+          _email: email,
+        });
+        if (linkError) {
+          console.error("Error linking application:", linkError);
+        }
       }
 
       toast({
