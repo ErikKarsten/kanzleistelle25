@@ -26,6 +26,7 @@ import ArticleDetail from "./pages/ArticleDetail";
 import Impressum from "./pages/Impressum";
 import AGB from "./pages/AGB";
 import Datenschutz from "./pages/Datenschutz";
+import BewerberDashboard from "./pages/BewerberDashboard";
 import NeeleContactElements from "./components/NeeleContactElements";
 
 const queryClient = new QueryClient();
@@ -53,6 +54,7 @@ const App = () => (
               <Route path="/datenschutz" element={<Datenschutz />} />
               <Route path="/register-employer" element={<RegisterEmployer />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/bewerber-dashboard" element={<BewerberDashboard />} />
               <Route path="/dashboard" element={<EmployerDashboard />} />
               <Route path="/dashboard/settings" element={<EmployerSettings />} />
               <Route path="/admin-upload" element={<AdminUpload />} />

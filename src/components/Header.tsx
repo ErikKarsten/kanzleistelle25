@@ -28,7 +28,14 @@ const Header = () => {
   const getDashboardLink = () => {
     if (role === "admin") return "/admin/dashboard";
     if (role === "employer") return "/dashboard";
-    return "/";
+    if (role === "candidate") return "/bewerber-dashboard";
+    return "/bewerber-dashboard";
+  };
+
+  const getDashboardLabel = () => {
+    if (role === "admin") return "Admin-Dashboard";
+    if (role === "employer") return "Dashboard";
+    return "Meine Bewerbungen";
   };
 
   return (
@@ -86,7 +93,7 @@ const Header = () => {
                 <DropdownMenuItem asChild>
                   <Link to={getDashboardLink()} className="flex items-center cursor-pointer">
                     <LayoutDashboard className="h-4 w-4 mr-2" />
-                    {role === "admin" ? "Admin-Dashboard" : "Dashboard"}
+                    {getDashboardLabel()}
                   </Link>
                 </DropdownMenuItem>
                 {role === "employer" && (

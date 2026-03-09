@@ -31,6 +31,7 @@ import {
   Pencil,
   LogOut,
   Mail,
+  MessageCircle,
   Phone,
   Calendar,
   Loader2,
@@ -62,6 +63,7 @@ import WelcomeBackModal from "@/components/employer/WelcomeBackModal";
 import CompanyBlockedScreen from "@/components/employer/CompanyBlockedScreen";
 import ApplicantDetailSheet from "@/components/employer/ApplicantDetailSheet";
 import EmployerJobDetailsModal from "@/components/employer/EmployerJobDetailsModal";
+import ChatWindow from "@/components/ChatWindow";
 
 // Reusable application card for active/archived views
 const ApplicationCard = ({
@@ -72,6 +74,7 @@ const ApplicationCard = ({
   isArchived,
   toast,
   onClickDetail,
+  onChat,
 }: {
   app: any;
   onStatusChange: (appId: string, status: string) => void;
@@ -80,6 +83,7 @@ const ApplicationCard = ({
   isArchived: boolean;
   toast: any;
   onClickDetail?: (app: any) => void;
+  onChat?: (app: any) => void;
 }) => {
   const deletionDate = app.created_at
     ? new Date(new Date(app.created_at).getTime() + 6 * 30 * 24 * 60 * 60 * 1000)
@@ -175,6 +179,17 @@ const ApplicationCard = ({
             <SelectItem value="rejected">Abgelehnt</SelectItem>
           </SelectContent>
         </Select>
+        {!isArchived && onChat && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={(e) => { e.stopPropagation(); onChat(app); }}
+            className="text-xs"
+          >
+            <MessageCircle className="h-3 w-3 mr-1" />
+            Chat
+          </Button>
+        )}
         <Button
           variant={isArchived ? "outline" : "ghost"}
           size="sm"
@@ -236,6 +251,8 @@ const EmployerDashboard = () => {
   const [selectedApplicant, setSelectedApplicant] = useState<any>(null);
   const [jobDetailsOpen, setJobDetailsOpen] = useState(false);
   const [jobDetailsJob, setJobDetailsJob] = useState<any>(null);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatApp, setChatApp] = useState<any>(null);
 
   // Redirect if not authenticated or admin
   useEffect(() => {
@@ -875,6 +892,7 @@ const EmployerDashboard = () => {
                               isArchived={false}
                               toast={toast}
                               onClickDetail={(a) => setSelectedApplicant(a)}
+                              onChat={(a) => { setChatApp(a); setChatOpen(true); }}
                             />
                           ))}
                         </div>
@@ -1093,6 +1111,16 @@ const EmployerDashboard = () => {
         companyId={companyId}
         companyName={company?.name || ""}
       />
+      {chatApp && (
+        <ChatWindow
+          applicationId={chatApp.id}
+          applicantName={`${chatApp.first_name} ${chatApp.last_name}`}
+          jobTitle={chatApp.jobs?.title || "Bewerbung"}
+          open={chatOpen}
+          onOpenChange={setChatOpen}
+          senderType="employer"
+        />
+      )}
     </div>
   );
 };

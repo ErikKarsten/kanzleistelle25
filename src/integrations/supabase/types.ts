@@ -391,6 +391,44 @@ export type Database = {
           },
         ]
       }
+      messages: {
+        Row: {
+          application_id: string
+          content: string
+          created_at: string
+          id: string
+          is_read: boolean
+          sender_id: string | null
+          sender_type: string
+        }
+        Insert: {
+          application_id: string
+          content: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          sender_id?: string | null
+          sender_type: string
+        }
+        Update: {
+          application_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          sender_id?: string | null
+          sender_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
