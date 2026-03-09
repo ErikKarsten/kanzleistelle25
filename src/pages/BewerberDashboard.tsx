@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import Header from "@/components/Header";
@@ -45,6 +45,7 @@ const statusConfig: Record<string, { label: string; variant: "default" | "second
 
 const BewerberDashboard = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user, role, isLoading: authLoading, isAuthenticated } = useAuth();
   const [chatOpen, setChatOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState<any>(null);
@@ -64,20 +65,46 @@ const BewerberDashboard = () => {
     }
   }, [authLoading, isAuthenticated, role, navigate]);
 
+  useEffect(() => {
+    if (!user?.id) return;
+    queryClient.invalidateQueries({ queryKey: ["applicant-applications", user.id] });
+  }, [queryClient, user?.id]);
+
   const { data: applications, isLoading } = useQuery({
-    queryKey: ["applicant-applications", user?.id],
+    queryKey: ["applicant-applications", user?.id, user?.email],
     queryFn: async () => {
       if (!user?.id) return [];
+
+      if (user.email) {
+        await supabase.rpc("link_application_to_user", {
+          _application_id: "00000000-0000-0000-0000-000000000000",
+          _user_id: user.id,
+          _email: user.email,
+        });
+
+        const { data: byEmail, error: byEmailError } = await supabase
+          .from("applications")
+          .select("*, jobs(title, company, company_id, location)")
+          .eq("email", user.email)
+          .eq("is_archived", false)
+          .order("created_at", { ascending: false });
+
+        if (byEmailError) throw byEmailError;
+        if (byEmail && byEmail.length > 0) return byEmail;
+      }
+
       const { data, error } = await supabase
         .from("applications")
         .select("*, jobs(title, company, company_id, location)")
-        .eq("applicant_id", user.id)
+        .or(`applicant_id.eq.${user.id},user_id.eq.${user.id}`)
         .eq("is_archived", false)
         .order("created_at", { ascending: false });
+
       if (error) throw error;
       return data;
     },
     enabled: !!user?.id,
+    refetchOnMount: "always",
   });
 
   const companyIds = [...new Set(applications?.map((a: any) => a.jobs?.company_id).filter(Boolean) || [])];
