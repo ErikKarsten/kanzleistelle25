@@ -76,6 +76,10 @@ const ApplyAccountCreation = ({
 
       onAccountCreated();
 
+      // Invalidate dashboard queries so applications show immediately
+      queryClient.invalidateQueries({ queryKey: ["applicant-applications"] });
+      queryClient.invalidateQueries({ queryKey: ["applications"] });
+
       // Redirect to dashboard after short delay
       setTimeout(() => {
         navigate("/bewerber-dashboard", { replace: true });
