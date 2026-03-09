@@ -553,6 +553,10 @@ export type Database = {
       is_employer:
         | { Args: never; Returns: boolean }
         | { Args: { _user_id: string }; Returns: boolean }
+      link_application_to_user: {
+        Args: { _application_id: string; _email: string; _user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "employer" | "candidate"
