@@ -26,6 +26,7 @@ const ApplyAccountCreation = ({
   onSkip,
 }: ApplyAccountCreationProps) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
