@@ -78,6 +78,7 @@ const ApplicationCard = ({
   toast,
   onClickDetail,
   onChat,
+  hasUnread,
 }: {
   app: any;
   onStatusChange: (appId: string, status: string) => void;
@@ -87,6 +88,7 @@ const ApplicationCard = ({
   toast: any;
   onClickDetail?: (app: any) => void;
   onChat?: (app: any) => void;
+  hasUnread?: boolean;
 }) => {
   const deletionDate = app.created_at
     ? new Date(new Date(app.created_at).getTime() + 6 * 30 * 24 * 60 * 60 * 1000)
