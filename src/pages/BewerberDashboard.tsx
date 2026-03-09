@@ -8,6 +8,7 @@ import Footer from "@/components/Footer";
 import ChatWindow from "@/components/ChatWindow";
 import WithdrawDialog from "@/components/applicant/WithdrawDialog";
 import DeleteAccountDialog from "@/components/applicant/DeleteAccountDialog";
+import ApplicationDetailModal from "@/components/applicant/ApplicationDetailModal";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -49,6 +50,7 @@ const BewerberDashboard = () => {
   const { user, role, isLoading: authLoading, isAuthenticated } = useAuth();
   const [chatOpen, setChatOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState<any>(null);
+  const [detailApp, setDetailApp] = useState<any>(null);
   const [withdrawApp, setWithdrawApp] = useState<any>(null);
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
 
@@ -189,7 +191,7 @@ const BewerberDashboard = () => {
               const withdrawn = isWithdrawn(app.status);
 
               return (
-                <Card key={app.id} className={`overflow-hidden transition-shadow ${withdrawn ? "opacity-60" : "hover:shadow-md"}`}>
+                <Card key={app.id} className={`overflow-hidden transition-shadow cursor-pointer ${withdrawn ? "opacity-60" : "hover:shadow-md"}`} onClick={() => !withdrawn && setDetailApp(app)}>
                   <CardContent className="p-4">
                     <div className="flex items-start gap-4">
                       <Avatar className="h-12 w-12 rounded-lg border border-border shrink-0">
@@ -217,22 +219,24 @@ const BewerberDashboard = () => {
                               {status.label}
                             </Badge>
                             {!withdrawn && (
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                                    <MoreVertical className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem
-                                    onClick={() => setWithdrawApp(app)}
-                                    className="text-destructive focus:text-destructive"
-                                  >
-                                    <XCircle className="h-4 w-4 mr-2" />
-                                    Bewerbung zurückziehen
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
+                              <div onClick={(e) => e.stopPropagation()}>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                                      <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem
+                                      onClick={() => setWithdrawApp(app)}
+                                      className="text-destructive focus:text-destructive"
+                                    >
+                                      <XCircle className="h-4 w-4 mr-2" />
+                                      Bewerbung zurückziehen
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
                             )}
                           </div>
                         </div>
@@ -251,7 +255,7 @@ const BewerberDashboard = () => {
                         </div>
 
                         {!withdrawn && (
-                          <div className="mt-3">
+                          <div className="mt-3" onClick={(e) => e.stopPropagation()}>
                             <Button
                               variant="outline"
                               size="sm"
@@ -321,6 +325,18 @@ const BewerberDashboard = () => {
         </div>
       </main>
       <Footer />
+
+      {detailApp && (
+        <ApplicationDetailModal
+          application={detailApp}
+          companyLogo={detailApp.jobs?.company_id ? getCompanyLogo(detailApp.jobs.company_id) : null}
+          statusLabel={(statusConfig[detailApp.status || "pending"] || statusConfig.pending).label}
+          statusClassName={(statusConfig[detailApp.status || "pending"] || statusConfig.pending).className}
+          open={!!detailApp}
+          onOpenChange={(open) => !open && setDetailApp(null)}
+          onOpenChat={() => openChat(detailApp)}
+        />
+      )}
 
       {selectedApp && (
         <ChatWindow
