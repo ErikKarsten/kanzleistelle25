@@ -114,6 +114,13 @@ const ChatWindow = ({
       setMessage("");
       queryClient.invalidateQueries({ queryKey: ["messages", applicationId] });
     },
+    onError: (error: any) => {
+      toast({
+        title: "Nachricht konnte nicht gesendet werden",
+        description: error?.message || "Bitte versuche es erneut.",
+        variant: "destructive",
+      });
+    },
   });
 
   const handleSend = (e: React.FormEvent) => {
