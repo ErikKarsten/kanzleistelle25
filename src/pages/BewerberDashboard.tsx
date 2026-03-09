@@ -6,17 +6,30 @@ import { useAuth } from "@/contexts/AuthContext";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ChatWindow from "@/components/ChatWindow";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import WithdrawDialog from "@/components/applicant/WithdrawDialog";
+import DeleteAccountDialog from "@/components/applicant/DeleteAccountDialog";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Separator } from "@/components/ui/separator";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Briefcase,
   Calendar,
   MessageCircle,
   FileText,
   Loader2,
+  MoreVertical,
+  XCircle,
+  Trash2,
+  AlertTriangle,
 } from "lucide-react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -27,6 +40,7 @@ const statusConfig: Record<string, { label: string; variant: "default" | "second
   interview: { label: "Einladung", variant: "default", className: "bg-green-100 text-green-700 border-green-200 hover:bg-green-100" },
   accepted: { label: "Angenommen", variant: "default", className: "bg-emerald-100 text-emerald-700 border-emerald-200 hover:bg-emerald-100" },
   rejected: { label: "Abgelehnt", variant: "destructive", className: "" },
+  withdrawn: { label: "Zurückgezogen", variant: "secondary", className: "bg-muted text-muted-foreground border-border hover:bg-muted" },
 };
 
 const BewerberDashboard = () => {
@@ -34,6 +48,8 @@ const BewerberDashboard = () => {
   const { user, role, isLoading: authLoading, isAuthenticated } = useAuth();
   const [chatOpen, setChatOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState<any>(null);
+  const [withdrawApp, setWithdrawApp] = useState<any>(null);
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -48,7 +64,6 @@ const BewerberDashboard = () => {
     }
   }, [authLoading, isAuthenticated, role, navigate]);
 
-  // Fetch applicant's applications
   const { data: applications, isLoading } = useQuery({
     queryKey: ["applicant-applications", user?.id],
     queryFn: async () => {
@@ -65,7 +80,6 @@ const BewerberDashboard = () => {
     enabled: !!user?.id,
   });
 
-  // Fetch company logos for applications
   const companyIds = [...new Set(applications?.map((a: any) => a.jobs?.company_id).filter(Boolean) || [])];
   const { data: companies } = useQuery({
     queryKey: ["applicant-companies", companyIds],
@@ -81,7 +95,6 @@ const BewerberDashboard = () => {
     enabled: companyIds.length > 0,
   });
 
-  // Fetch unread message counts
   const { data: unreadCounts } = useQuery({
     queryKey: ["unread-messages", user?.id],
     queryFn: async () => {
@@ -121,6 +134,8 @@ const BewerberDashboard = () => {
     );
   }
 
+  const isWithdrawn = (status: string | null) => status === "withdrawn";
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
@@ -144,9 +159,10 @@ const BewerberDashboard = () => {
               const status = statusConfig[app.status || "pending"] || statusConfig.pending;
               const companyLogo = app.jobs?.company_id ? getCompanyLogo(app.jobs.company_id) : null;
               const unread = unreadCounts?.[app.id] || 0;
+              const withdrawn = isWithdrawn(app.status);
 
               return (
-                <Card key={app.id} className="overflow-hidden hover:shadow-md transition-shadow">
+                <Card key={app.id} className={`overflow-hidden transition-shadow ${withdrawn ? "opacity-60" : "hover:shadow-md"}`}>
                   <CardContent className="p-4">
                     <div className="flex items-start gap-4">
                       <Avatar className="h-12 w-12 rounded-lg border border-border shrink-0">
@@ -169,9 +185,29 @@ const BewerberDashboard = () => {
                               {app.jobs?.location && ` · ${app.jobs.location}`}
                             </p>
                           </div>
-                          <Badge variant={status.variant} className={status.className}>
-                            {status.label}
-                          </Badge>
+                          <div className="flex items-center gap-1">
+                            <Badge variant={status.variant} className={status.className}>
+                              {status.label}
+                            </Badge>
+                            {!withdrawn && (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                                    <MoreVertical className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem
+                                    onClick={() => setWithdrawApp(app)}
+                                    className="text-destructive focus:text-destructive"
+                                  >
+                                    <XCircle className="h-4 w-4 mr-2" />
+                                    Bewerbung zurückziehen
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            )}
+                          </div>
                         </div>
 
                         <div className="flex items-center gap-4 mt-3">
@@ -187,22 +223,24 @@ const BewerberDashboard = () => {
                           )}
                         </div>
 
-                        <div className="mt-3">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => openChat(app)}
-                            className="relative"
-                          >
-                            <MessageCircle className="h-4 w-4 mr-1.5" />
-                            Nachricht
-                            {unread > 0 && (
-                              <span className="absolute -top-1.5 -right-1.5 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                                {unread}
-                              </span>
-                            )}
-                          </Button>
-                        </div>
+                        {!withdrawn && (
+                          <div className="mt-3">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openChat(app)}
+                              className="relative"
+                            >
+                              <MessageCircle className="h-4 w-4 mr-1.5" />
+                              Nachricht
+                              {unread > 0 && (
+                                <span className="absolute -top-1.5 -right-1.5 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                  {unread}
+                                </span>
+                              )}
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </CardContent>
@@ -226,6 +264,34 @@ const BewerberDashboard = () => {
             </CardContent>
           </Card>
         )}
+
+        {/* Account Settings Section */}
+        <Separator className="my-10" />
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-foreground">Einstellungen</h2>
+          <Card className="border-destructive/20">
+            <CardContent className="p-5">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <h3 className="font-medium text-foreground">Konto dauerhaft löschen</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Alle deine Bewerbungen, Nachrichten und persönlichen Daten werden unwiderruflich entfernt.
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-3 border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                    onClick={() => setShowDeleteAccount(true)}
+                  >
+                    <Trash2 className="h-4 w-4 mr-1.5" />
+                    Mein Konto löschen
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </main>
       <Footer />
 
@@ -239,6 +305,20 @@ const BewerberDashboard = () => {
           senderType="applicant"
         />
       )}
+
+      {withdrawApp && (
+        <WithdrawDialog
+          open={!!withdrawApp}
+          onOpenChange={(open) => !open && setWithdrawApp(null)}
+          applicationId={withdrawApp.id}
+          jobTitle={withdrawApp.jobs?.title || "Bewerbung"}
+        />
+      )}
+
+      <DeleteAccountDialog
+        open={showDeleteAccount}
+        onOpenChange={setShowDeleteAccount}
+      />
     </div>
   );
 };
