@@ -9,6 +9,7 @@ import ChatWindow from "@/components/ChatWindow";
 import WithdrawDialog from "@/components/applicant/WithdrawDialog";
 import DeleteAccountDialog from "@/components/applicant/DeleteAccountDialog";
 import ApplicationDetailModal from "@/components/applicant/ApplicationDetailModal";
+import RecentMessagesApplicant from "@/components/applicant/RecentMessagesApplicant";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -175,6 +176,14 @@ const BewerberDashboard = () => {
             Verfolge den Status deiner Bewerbungen und kommuniziere direkt mit Kanzleien.
           </p>
         </div>
+
+        {/* Recent Messages Section */}
+        <RecentMessagesApplicant
+          userId={user?.id || ""}
+          applications={applications}
+          companies={companies}
+          onOpenChat={openChat}
+        />
 
         {isLoading ? (
           <div className="space-y-4">

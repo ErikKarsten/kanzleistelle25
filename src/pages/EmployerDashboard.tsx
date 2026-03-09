@@ -65,6 +65,7 @@ import ApplicantDetailSheet from "@/components/employer/ApplicantDetailSheet";
 import EmployerJobDetailsModal from "@/components/employer/EmployerJobDetailsModal";
 import ChatWindow from "@/components/ChatWindow";
 import UnreadMessagesModal from "@/components/employer/UnreadMessagesModal";
+import RecentMessagesEmployer from "@/components/employer/RecentMessagesEmployer";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { toast as sonnerToast } from "sonner";
 
@@ -760,6 +761,13 @@ const EmployerDashboard = () => {
             </Card>
           </div>
 
+          {/* Recent Messages Section */}
+          <RecentMessagesEmployer
+            companyId={companyId}
+            applications={applications}
+            onOpenChat={(app) => { setChatApp(app); setChatOpen(true); }}
+          />
+
           {/* Main Content Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="mb-6">
@@ -1190,6 +1198,19 @@ const EmployerDashboard = () => {
         onNavigate={() => {
           setActiveTab("applications");
           setApplicationsTab("active");
+          // Auto-open chat with first unread applicant
+          if (unreadByApp && applications) {
+            const firstUnreadAppId = Object.keys(unreadByApp)[0];
+            if (firstUnreadAppId) {
+              const app = applications.find((a: any) => a.id === firstUnreadAppId);
+              if (app) {
+                setTimeout(() => {
+                  setChatApp(app);
+                  setChatOpen(true);
+                }, 300);
+              }
+            }
+          }
         }}
       />
     </div>
