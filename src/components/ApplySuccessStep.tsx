@@ -42,10 +42,10 @@ const ApplySuccessStep = ({
 
   // 🎉 Confetti on mount
   useEffect(() => {
-    const end = Date.now() + 1500;
+    const end = Date.now() + 800;
     const frame = () => {
-      confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0, y: 0.6 } });
-      confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1, y: 0.6 } });
+      confetti({ particleCount: 2, angle: 60, spread: 45, origin: { x: 0, y: 0.5 }, zIndex: 9999 });
+      confetti({ particleCount: 2, angle: 120, spread: 45, origin: { x: 1, y: 0.5 }, zIndex: 9999 });
       if (Date.now() < end) requestAnimationFrame(frame);
     };
     frame();
@@ -144,35 +144,35 @@ const ApplySuccessStep = ({
   const shouldShowAccountPrompt = (uploadedFile || skipped) && !showAccountCreation && !accountCreated;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 pb-6">
       {/* Success Header */}
       <div className="text-center">
-        <div className="mx-auto w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4 animate-bounce">
-          <CheckCircle2 className="h-10 w-10 text-green-600" />
+        <div className="mx-auto w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mb-3 animate-bounce">
+          <CheckCircle2 className="h-8 w-8 text-green-600" />
         </div>
-        <h3 className="text-xl font-bold text-foreground mb-1">
+        <h3 className="text-xl font-bold text-foreground mb-1.5">
           Geschafft, {firstName}! 🎉
         </h3>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Deine Bewerbung ist bei <span className="font-semibold text-primary">{company}</span> eingegangen!
         </p>
       </div>
 
       {/* Upload Area */}
       {showUploadArea && (
-        <div className="bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20 rounded-xl p-5 space-y-4 animate-fade-in">
+        <div className="bg-gradient-to-br from-primary/8 to-primary/3 border border-primary/15 rounded-xl p-5 space-y-4 animate-fade-in">
           <div className="flex items-center gap-2">
-            <Rocket className="h-5 w-5 text-primary" />
+            <Rocket className="h-5 w-5 text-primary" strokeWidth={1.5} />
             <h4 className="font-bold text-foreground">🚀 Verdopple jetzt deine Chancen!</h4>
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground leading-relaxed">
             Lade hier noch schnell deinen Lebenslauf (PDF) hoch – Kanzleien bevorzugen komplette Bewerbungen.
           </p>
 
           <input ref={fileInputRef} type="file" accept=".pdf,application/pdf" onChange={handleFileChange} className="hidden" />
 
           {isUploading ? (
-            <div className="space-y-3 py-2">
+            <div className="space-y-3 py-3">
               <div className="flex items-center gap-3">
                 <Loader2 className="h-5 w-5 animate-spin text-primary" />
                 <span className="text-sm font-medium text-foreground">Wird hochgeladen…</span>
@@ -185,22 +185,17 @@ const ApplySuccessStep = ({
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className={`cursor-pointer rounded-xl border-2 border-dashed p-6 text-center transition-all duration-200 ${
+              className={`cursor-pointer rounded-xl border-2 border-dashed py-8 px-6 text-center transition-all duration-200 ${
                 isDragging
                   ? "border-primary bg-primary/10 scale-[1.02]"
-                  : "border-muted-foreground/25 hover:border-primary/50 hover:bg-primary/5"
+                  : "border-border hover:border-primary/40 hover:bg-primary/5"
               }`}
             >
-              <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
+              <Upload className="h-8 w-8 mx-auto mb-3 text-muted-foreground/60" strokeWidth={1.5} />
               <p className="text-sm font-medium text-foreground">PDF hierher ziehen oder klicken</p>
-              <p className="text-xs text-muted-foreground mt-1">Maximal 5 MB</p>
+              <p className="text-[11px] text-muted-foreground/60 mt-1.5">Maximal 5 MB</p>
             </div>
           )}
-
-          <div className="flex items-start gap-2 text-xs text-muted-foreground">
-            <ShieldCheck className="h-4 w-4 mt-0.5 shrink-0 text-green-600" />
-            <span>Dein Lebenslauf wird verschlüsselt gespeichert und gemäß DSGVO nach 6 Monaten automatisch gelöscht.</span>
-          </div>
         </div>
       )}
 
@@ -208,11 +203,11 @@ const ApplySuccessStep = ({
       {uploadedFile && !showAccountCreation && (
         <div className="rounded-xl p-5 space-y-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 animate-fade-in">
           <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-green-600" />
+            <Sparkles className="h-5 w-5 text-green-600" strokeWidth={1.5} />
             <h4 className="font-bold text-foreground">Perfekt! Dein Profil sticht hervor ✨</h4>
           </div>
           <div className="flex items-center gap-3">
-            <FileText className="h-8 w-8 text-primary shrink-0" />
+            <FileText className="h-8 w-8 text-primary shrink-0" strokeWidth={1.5} />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">{uploadedFile}</p>
               <p className="text-xs text-green-600 font-medium">✅ Lebenslauf erfolgreich verknüpft!</p>
@@ -238,14 +233,14 @@ const ApplySuccessStep = ({
 
       {/* DSGVO note */}
       {!showAccountCreation && (
-        <p className="text-xs text-center text-muted-foreground">
+        <p className="text-[11px] text-center text-muted-foreground/60 leading-relaxed">
           🔒 Deine Daten wurden sicher übermittelt und werden gemäß DSGVO nach 6 Monaten automatisch gelöscht.
         </p>
       )}
 
       {/* Buttons */}
       {!showAccountCreation && (
-        <div className="space-y-2">
+        <div className="space-y-3 max-w-[90%] mx-auto">
           {accountCreated ? (
             <Button onClick={onClose} className="w-full" size="lg">
               <CheckCircle2 className="h-4 w-4 mr-2" />
@@ -255,7 +250,7 @@ const ApplySuccessStep = ({
             <>
               <Button
                 onClick={() => setShowAccountCreation(true)}
-                className="w-full font-bold text-base tracking-wide shadow-lg shadow-primary/25"
+                className="w-full font-bold text-[15px] tracking-wide shadow-lg shadow-primary/25"
                 size="lg"
               >
                 ABSCHICKEN UND REGISTRIEREN FÜR UPDATES
@@ -263,7 +258,7 @@ const ApplySuccessStep = ({
               </Button>
               <button
                 onClick={onClose}
-                className="w-full text-sm text-muted-foreground/70 hover:text-muted-foreground py-2 transition-colors"
+                className="w-full text-[13px] text-muted-foreground/50 hover:text-muted-foreground py-2 transition-colors"
               >
                 Einfach nur abschicken
               </button>
@@ -272,7 +267,7 @@ const ApplySuccessStep = ({
             <>
               <Button
                 onClick={() => setSkipped(true)}
-                className="w-full font-bold text-base tracking-wide shadow-lg shadow-primary/25"
+                className="w-full font-bold text-[15px] tracking-wide shadow-lg shadow-primary/25"
                 size="lg"
               >
                 ABSCHICKEN UND REGISTRIEREN FÜR UPDATES
@@ -283,7 +278,7 @@ const ApplySuccessStep = ({
                   setSkipped(true);
                   onClose();
                 }}
-                className="w-full text-sm text-muted-foreground/70 hover:text-muted-foreground py-2 transition-colors"
+                className="w-full text-[13px] text-muted-foreground/50 hover:text-muted-foreground py-2 transition-colors"
               >
                 Einfach nur abschicken
               </button>
