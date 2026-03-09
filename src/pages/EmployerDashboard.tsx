@@ -31,6 +31,7 @@ import {
   Pencil,
   LogOut,
   Mail,
+  MessageCircle,
   Phone,
   Calendar,
   Loader2,
