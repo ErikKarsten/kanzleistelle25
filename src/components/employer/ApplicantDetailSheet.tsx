@@ -138,8 +138,21 @@ const ApplicantDetailSheet = ({
     window.open(data.signedUrl, "_blank");
   };
 
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
     if (!application) return;
+
+    // Fetch message history for this application
+    let chatMessages: any[] = [];
+    try {
+      const { data } = await supabase
+        .from("messages")
+        .select("*")
+        .eq("application_id", application.id)
+        .order("created_at", { ascending: true });
+      if (data) chatMessages = data;
+    } catch {
+      // Continue without messages
+    }
 
     const doc = new jsPDF();
     const margin = 20;
@@ -241,6 +254,45 @@ const ApplicantDetailSheet = ({
         if (y > 270) { doc.addPage(); y = margin; }
         doc.text(line, margin, y);
         y += 5;
+      }
+      y += 4;
+    }
+
+    // Message history
+    if (chatMessages.length > 0) {
+      doc.setDrawColor(200);
+      doc.line(margin, y, 190, y);
+      y += 8;
+      doc.setFontSize(13);
+      doc.setFont("helvetica", "bold");
+      doc.text("Nachrichtenverlauf", margin, y);
+      y += 8;
+
+      doc.setFontSize(9);
+      for (const msg of chatMessages) {
+        if (y > 260) { doc.addPage(); y = margin; }
+
+        const timestamp = msg.created_at
+          ? format(new Date(msg.created_at), "dd.MM.yyyy, HH:mm", { locale: de })
+          : "—";
+        const sender = msg.sender_type === "employer" ? "Kanzlei" : "Bewerber";
+
+        // Date + sender line
+        doc.setFont("helvetica", "bold");
+        doc.setTextColor(100);
+        doc.text(`${timestamp}  |  ${sender}`, margin, y);
+        y += 5;
+
+        // Message content
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(0);
+        const msgLines = doc.splitTextToSize(msg.content || "", 165);
+        for (const line of msgLines) {
+          if (y > 275) { doc.addPage(); y = margin; }
+          doc.text(line, margin + 5, y);
+          y += 4.5;
+        }
+        y += 3;
       }
     }
 
