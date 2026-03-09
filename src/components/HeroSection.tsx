@@ -46,12 +46,12 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
               Dein Karrierestützpunkt{" "}
               <span className="text-primary">in der Steuerwelt</span>
             </h1>
-          </div>
-          <div className="flex justify-start pl-2 mb-6">
+           </div>
+          <div className="flex justify-center mt-4 mb-6">
             <img
               src={genossenschaftLogo}
               alt="Deutsche Steuerberatergenossenschaft – Mitglied"
-              className="max-h-24 md:max-h-28 w-auto object-contain"
+              className="max-h-16 md:max-h-20 w-auto max-w-[80%] object-contain"
             />
           </div>
           <div className="text-center">
