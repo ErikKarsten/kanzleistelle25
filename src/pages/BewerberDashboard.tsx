@@ -219,6 +219,7 @@ const BewerberDashboard = () => {
                               {status.label}
                             </Badge>
                             {!withdrawn && (
+                              <div onClick={(e) => e.stopPropagation()}>
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                   <Button variant="ghost" size="icon" className="h-8 w-8">
