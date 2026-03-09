@@ -256,6 +256,47 @@ const EmployerDashboard = () => {
   const [jobDetailsJob, setJobDetailsJob] = useState<any>(null);
   const [chatOpen, setChatOpen] = useState(false);
   const [chatApp, setChatApp] = useState<any>(null);
+  const [unreadModalOpen, setUnreadModalOpen] = useState(false);
+  const unreadModalShown = useRef(false);
+
+  // Unread messages hook
+  const { data: unreadData } = useUnreadMessages(companyId);
+  const unreadTotal = unreadData?.total ?? 0;
+  const unreadByApp = unreadData?.byApplication ?? {};
+
+  // Show unread messages modal once on load
+  useEffect(() => {
+    if (unreadTotal > 0 && !unreadModalShown.current) {
+      unreadModalShown.current = true;
+      setUnreadModalOpen(true);
+    }
+  }, [unreadTotal]);
+
+  // Realtime: toast on new message from applicant
+  useEffect(() => {
+    if (!companyId) return;
+    const channel = supabase
+      .channel("employer-new-messages")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages" },
+        (payload) => {
+          const msg = payload.new as any;
+          if (msg.sender_type === "applicant") {
+            sonnerToast.info("Neue Nachricht von einem Bewerber", {
+              description: msg.content?.substring(0, 80) || "Neue Nachricht eingegangen.",
+              duration: 5000,
+            });
+            queryClient.invalidateQueries({ queryKey: ["employer-unread-messages", companyId] });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [companyId, queryClient]);
 
   // Redirect if not authenticated or admin
   useEffect(() => {
