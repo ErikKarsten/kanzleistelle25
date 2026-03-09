@@ -946,6 +946,7 @@ const EmployerDashboard = () => {
                               toast={toast}
                               onClickDetail={(a) => setSelectedApplicant(a)}
                               onChat={(a) => { setChatApp(a); setChatOpen(true); }}
+                              hasUnread={!!unreadByApp[app.id]}
                             />
                           ))}
                         </div>
