@@ -262,7 +262,7 @@ const ApplySuccessStep = ({
           ) : (
             <>
               <Button onClick={onClose} className="w-full" size="lg" variant="outline">
-                Fenster schließen
+                Später erledigen
               </Button>
               {showUploadArea && (
                 <button
