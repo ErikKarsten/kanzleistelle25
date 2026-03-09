@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, ShieldCheck, Lock, Eye, EyeOff } from "lucide-react";
+import { Loader2, ShieldCheck, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import PasswordStrengthBar from "@/components/PasswordStrengthBar";
 import genossenschaftLogo from "@/assets/steuerberatergenossenschaft-logo.webp";
 
