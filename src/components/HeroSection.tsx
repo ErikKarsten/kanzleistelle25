@@ -47,11 +47,11 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
               <span className="text-primary">in der Steuerwelt</span>
             </h1>
            </div>
-          <div className="flex justify-center mt-4 mb-6">
+          <div className="flex justify-center mt-6 mb-8">
             <img
               src={genossenschaftLogo}
               alt="Deutsche Steuerberatergenossenschaft – Mitglied"
-              className="max-h-16 md:max-h-20 w-auto max-w-[80%] object-contain"
+              className="h-auto w-[35%] min-w-[160px] max-w-[280px] object-contain"
             />
           </div>
           <div className="text-center">
