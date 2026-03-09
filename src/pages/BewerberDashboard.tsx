@@ -50,6 +50,7 @@ const BewerberDashboard = () => {
   const { user, role, isLoading: authLoading, isAuthenticated } = useAuth();
   const [chatOpen, setChatOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState<any>(null);
+  const [detailApp, setDetailApp] = useState<any>(null);
   const [withdrawApp, setWithdrawApp] = useState<any>(null);
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
 
