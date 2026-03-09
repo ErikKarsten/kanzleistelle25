@@ -220,22 +220,23 @@ const BewerberDashboard = () => {
                             </Badge>
                             {!withdrawn && (
                               <div onClick={(e) => e.stopPropagation()}>
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                                    <MoreVertical className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem
-                                    onClick={() => setWithdrawApp(app)}
-                                    className="text-destructive focus:text-destructive"
-                                  >
-                                    <XCircle className="h-4 w-4 mr-2" />
-                                    Bewerbung zurückziehen
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                                      <MoreVertical className="h-4 w-4" />
+                                    </Button>
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem
+                                      onClick={() => setWithdrawApp(app)}
+                                      className="text-destructive focus:text-destructive"
+                                    >
+                                      <XCircle className="h-4 w-4 mr-2" />
+                                      Bewerbung zurückziehen
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              </div>
                             )}
                           </div>
                         </div>
