@@ -191,7 +191,7 @@ const BewerberDashboard = () => {
               const withdrawn = isWithdrawn(app.status);
 
               return (
-                <Card key={app.id} className={`overflow-hidden transition-shadow ${withdrawn ? "opacity-60" : "hover:shadow-md"}`}>
+                <Card key={app.id} className={`overflow-hidden transition-shadow cursor-pointer ${withdrawn ? "opacity-60" : "hover:shadow-md"}`} onClick={() => !withdrawn && setDetailApp(app)}>
                   <CardContent className="p-4">
                     <div className="flex items-start gap-4">
                       <Avatar className="h-12 w-12 rounded-lg border border-border shrink-0">
