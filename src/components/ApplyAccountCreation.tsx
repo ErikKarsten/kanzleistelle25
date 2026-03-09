@@ -1,11 +1,13 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Loader2, ShieldCheck, UserPlus, Eye, EyeOff } from "lucide-react";
+import { Loader2, ShieldCheck, Lock, Eye, EyeOff } from "lucide-react";
 import PasswordStrengthBar from "@/components/PasswordStrengthBar";
+import genossenschaftLogo from "@/assets/steuerberatergenossenschaft-logo.webp";
 
 interface ApplyAccountCreationProps {
   email: string;
@@ -22,6 +24,7 @@ const ApplyAccountCreation = ({
   onAccountCreated,
   onSkip,
 }: ApplyAccountCreationProps) => {
+  const navigate = useNavigate();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -30,8 +33,8 @@ const ApplyAccountCreation = ({
   const handleCreateAccount = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (password.length < 10) {
-      toast({ title: "Passwort zu kurz", description: "Mindestens 10 Zeichen erforderlich.", variant: "destructive" });
+    if (password.length < 6) {
+      toast({ title: "Passwort zu kurz", description: "Mindestens 6 Zeichen erforderlich.", variant: "destructive" });
       return;
     }
     if (password !== confirmPassword) {
@@ -52,24 +55,29 @@ const ApplyAccountCreation = ({
 
       if (error) throw error;
 
-      // Link this application to the new user
+      // Link application and create candidate role
       if (data.user) {
         await supabase
           .from("applications")
           .update({ applicant_id: data.user.id })
           .eq("id", applicationId);
 
-        // Create candidate role
         await supabase
           .from("user_roles")
           .insert({ user_id: data.user.id, role: "candidate" });
       }
 
       toast({
-        title: "Konto erstellt! 🎉",
-        description: "Du kannst jetzt deinen Bewerbungsstatus verfolgen. Bitte bestätige deine E-Mail.",
+        title: "Konto gesichert! 🎉",
+        description: "Willkommen im Bewerber-Portal. Du wirst weitergeleitet…",
       });
+
       onAccountCreated();
+
+      // Redirect to dashboard after short delay
+      setTimeout(() => {
+        navigate("/bewerber-dashboard", { replace: true });
+      }, 1200);
     } catch (error: any) {
       const msg = error?.message || "Konto konnte nicht erstellt werden.";
       toast({ title: "Fehler", description: msg, variant: "destructive" });
@@ -82,11 +90,11 @@ const ApplyAccountCreation = ({
     <div className="space-y-4 animate-fade-in">
       <div className="bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20 rounded-xl p-5 space-y-4">
         <div className="flex items-center gap-2">
-          <UserPlus className="h-5 w-5 text-primary" />
-          <h4 className="font-bold text-foreground">Bewerbungsstatus verfolgen</h4>
+          <Lock className="h-5 w-5 text-primary" />
+          <h4 className="font-bold text-foreground">Dein Konto sichern</h4>
         </div>
         <p className="text-sm text-muted-foreground">
-          Erstelle jetzt ein kostenloses Konto, um den Status deiner Bewerbung zu verfolgen und direkt mit der Kanzlei zu kommunizieren.
+          Sichere dir jetzt deinen Zugang zum Bewerber-Portal, um den Status deiner Bewerbung jederzeit zu verfolgen.
         </p>
 
         <form onSubmit={handleCreateAccount} className="space-y-3">
@@ -96,16 +104,16 @@ const ApplyAccountCreation = ({
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="acc-password">Passwort erstellen *</Label>
+            <Label htmlFor="acc-password">Passwort vergeben *</Label>
             <div className="relative">
               <Input
                 id="acc-password"
                 type={showPassword ? "text" : "password"}
-                placeholder="Mind. 10 Zeichen"
+                placeholder="Mind. 6 Zeichen"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                minLength={10}
+                minLength={6}
               />
               <button
                 type="button"
@@ -119,11 +127,11 @@ const ApplyAccountCreation = ({
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="acc-confirm">Passwort wiederholen *</Label>
+            <Label htmlFor="acc-confirm">Passwort bestätigen *</Label>
             <Input
               id="acc-confirm"
               type="password"
-              placeholder="Passwort bestätigen"
+              placeholder="Passwort wiederholen"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
@@ -137,13 +145,10 @@ const ApplyAccountCreation = ({
             {isCreating ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                Konto wird erstellt...
+                Konto wird gesichert...
               </>
             ) : (
-              <>
-                <UserPlus className="h-4 w-4 mr-2" />
-                Konto erstellen & Status verfolgen
-              </>
+              "Konto jetzt sichern & zum Dashboard"
             )}
           </Button>
         </form>
@@ -152,14 +157,26 @@ const ApplyAccountCreation = ({
           <ShieldCheck className="h-4 w-4 mt-0.5 shrink-0 text-green-600" />
           <span>Deine Daten sind sicher. Du kannst dein Konto jederzeit löschen.</span>
         </div>
+
+        {/* Trust anchor: Genossenschaft logo */}
+        <div className="flex justify-center pt-2">
+          <img
+            src={genossenschaftLogo}
+            alt="Deutsche Steuerberatergenossenschaft – Mitglied"
+            className="h-8 opacity-50 object-contain"
+          />
+        </div>
       </div>
 
-      <button
+      <Button
+        type="button"
+        variant="outline"
         onClick={onSkip}
-        className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors py-1"
+        className="w-full text-muted-foreground"
+        size="sm"
       >
-        Ohne Konto fortfahren
-      </button>
+        Später erledigen
+      </Button>
     </div>
   );
 };

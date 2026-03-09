@@ -255,8 +255,8 @@ const ApplySuccessStep = ({
               <Button onClick={() => setShowAccountCreation(true)} className="w-full" size="lg">
                 Konto erstellen & Status verfolgen
               </Button>
-              <Button onClick={onClose} className="w-full" size="lg" variant="outline">
-                Fenster schließen
+              <Button onClick={onClose} className="w-full" size="sm" variant="outline">
+                Später erledigen
               </Button>
             </>
           ) : (
