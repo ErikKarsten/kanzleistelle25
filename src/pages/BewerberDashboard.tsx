@@ -177,6 +177,14 @@ const BewerberDashboard = () => {
           </p>
         </div>
 
+        {/* Recent Messages Section */}
+        <RecentMessagesApplicant
+          userId={user?.id || ""}
+          applications={applications}
+          companies={companies}
+          onOpenChat={openChat}
+        />
+
         {isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
