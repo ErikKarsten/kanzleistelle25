@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Briefcase, Mail, Phone, ArrowRight } from "lucide-react";
+import { Mail, Phone, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import NeeleContactDrawer from "./NeeleContactDrawer";
 import neeleImage from "@/assets/neele-ehlers.jpg";
+import fullLogo from "@/assets/kanzleistelle24-logo-full.png";
 
 const Footer = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -61,12 +62,11 @@ const Footer = () => {
       <div className="container py-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <Briefcase className="h-6 w-6 text-primary" strokeWidth={1.5} />
-              <span className="text-lg font-bold text-primary">Kanzleistelle24</span>
+            <Link to="/" className="block mb-4">
+              <img src={fullLogo} alt="Kanzleistelle24 – Hier startet deine Steuerkarriere" className="h-20 w-auto" />
             </Link>
             <p className="text-sm text-muted-foreground">
-              Die führende Jobbörse für die Rechtsbranche in Deutschland.
+              Die führende Jobbörse für Steuerkanzleien in Deutschland.
             </p>
           </div>
 

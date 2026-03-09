@@ -17,18 +17,18 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 220 25% 10%;
 
-    /* Navy Blue Primary */
-    --primary: 220 60% 25%;
-    --primary-foreground: 45 100% 95%;
+    /* Navy Blue Primary – matches #003366 */
+    --primary: 210 100% 20%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 220 20% 96%;
-    --secondary-foreground: 220 60% 25%;
+    --secondary-foreground: 210 100% 20%;
 
     --muted: 220 15% 95%;
     --muted-foreground: 220 10% 45%;
 
     --accent: 220 20% 96%;
-    --accent-foreground: 220 60% 25%;
+    --accent-foreground: 210 100% 20%;
 
     /* Gold Accent */
     --featured: 45 90% 50%;
@@ -40,7 +40,7 @@ All colors MUST be HSL.
 
     --border: 220 20% 90%;
     --input: 220 20% 90%;
-    --ring: 220 60% 25%;
+    --ring: 210 100% 20%;
 
     --radius: 0.5rem;
 
