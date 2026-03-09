@@ -1175,6 +1175,17 @@ const EmployerDashboard = () => {
           senderType="employer"
         />
       )}
+
+      {/* Unread Messages Modal (session-once) */}
+      <UnreadMessagesModal
+        open={unreadModalOpen}
+        onOpenChange={setUnreadModalOpen}
+        unreadCount={unreadTotal}
+        onNavigate={() => {
+          setActiveTab("applications");
+          setApplicationsTab("active");
+        }}
+      />
     </div>
   );
 };
