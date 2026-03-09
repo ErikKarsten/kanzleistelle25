@@ -113,17 +113,17 @@ const Header = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <>
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/login">
-                  <User className="h-4 w-4 mr-2" />
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" asChild>
+                <Link to="/login" className="text-sm">
+                  <User className="h-4 w-4 mr-1.5" />
                   Anmelden
                 </Link>
               </Button>
               <Button size="sm" className="bg-background text-primary border-2 border-primary hover:bg-primary hover:text-primary-foreground" asChild>
                 <Link to="/register-employer">Kanzlei registrieren</Link>
               </Button>
-            </>
+            </div>
           )}
         </div>
 
