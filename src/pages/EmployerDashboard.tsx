@@ -767,14 +767,18 @@ const EmployerDashboard = () => {
                 <Briefcase className="h-4 w-4" />
                 Offene Stellen
               </TabsTrigger>
-              <TabsTrigger value="applications" className="flex items-center gap-2">
+              <TabsTrigger value="applications" className="flex items-center gap-2 relative">
                 <Users className="h-4 w-4" />
                 Bewerbungen
-                {pendingApplications.length > 0 && (
+                {unreadTotal > 0 ? (
+                  <Badge variant="destructive" className="ml-1 h-5 min-w-[20px] px-1 flex items-center justify-center text-xs">
+                    {unreadTotal}
+                  </Badge>
+                ) : pendingApplications.length > 0 ? (
                   <Badge variant="destructive" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
                     {pendingApplications.length}
                   </Badge>
-                )}
+                ) : null}
               </TabsTrigger>
               <TabsTrigger value="profile" className="flex items-center gap-2">
                 <Building2 className="h-4 w-4" />
