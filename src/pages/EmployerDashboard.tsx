@@ -62,6 +62,7 @@ import WelcomeBackModal from "@/components/employer/WelcomeBackModal";
 import CompanyBlockedScreen from "@/components/employer/CompanyBlockedScreen";
 import ApplicantDetailSheet from "@/components/employer/ApplicantDetailSheet";
 import EmployerJobDetailsModal from "@/components/employer/EmployerJobDetailsModal";
+import ChatWindow from "@/components/ChatWindow";
 
 // Reusable application card for active/archived views
 const ApplicationCard = ({
