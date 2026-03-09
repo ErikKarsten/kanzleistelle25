@@ -1171,7 +1171,13 @@ const EmployerDashboard = () => {
           applicantName={`${chatApp.first_name} ${chatApp.last_name}`}
           jobTitle={chatApp.jobs?.title || "Bewerbung"}
           open={chatOpen}
-          onOpenChange={setChatOpen}
+          onOpenChange={(open) => {
+            setChatOpen(open);
+            if (!open) {
+              // Refresh unread counts after closing chat
+              queryClient.invalidateQueries({ queryKey: ["employer-unread-messages", companyId] });
+            }
+          }}
           senderType="employer"
         />
       )}
