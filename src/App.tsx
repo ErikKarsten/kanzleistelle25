@@ -26,6 +26,7 @@ import ArticleDetail from "./pages/ArticleDetail";
 import Impressum from "./pages/Impressum";
 import AGB from "./pages/AGB";
 import Datenschutz from "./pages/Datenschutz";
+import BewerberDashboard from "./pages/BewerberDashboard";
 import NeeleContactElements from "./components/NeeleContactElements";
 
 const queryClient = new QueryClient();
