@@ -3,8 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Menu, X, Briefcase, User, LayoutDashboard, LogOut, Building2, Settings } from "lucide-react";
+import { Menu, X, User, LayoutDashboard, LogOut, Building2, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import shieldLogo from "@/assets/kanzleistelle24-shield.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
