@@ -64,6 +64,9 @@ import CompanyBlockedScreen from "@/components/employer/CompanyBlockedScreen";
 import ApplicantDetailSheet from "@/components/employer/ApplicantDetailSheet";
 import EmployerJobDetailsModal from "@/components/employer/EmployerJobDetailsModal";
 import ChatWindow from "@/components/ChatWindow";
+import UnreadMessagesModal from "@/components/employer/UnreadMessagesModal";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
+import { toast as sonnerToast } from "sonner";
 
 // Reusable application card for active/archived views
 const ApplicationCard = ({
