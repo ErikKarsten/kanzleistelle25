@@ -151,7 +151,7 @@ const Login = () => {
               </div>
               <CardTitle className="text-2xl">Anmelden</CardTitle>
               <CardDescription>
-                Melden Sie sich in Ihrem Konto an.
+                Für Kanzleien und Bewerber – melden Sie sich in Ihrem Konto an.
               </CardDescription>
             </CardHeader>
             <CardContent>
