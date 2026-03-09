@@ -33,12 +33,7 @@ const Login = () => {
   // Redirect if already authenticated
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
-      console.log("User already authenticated, redirecting. Role:", role);
-      if (role === "admin") {
-        navigate("/admin/dashboard", { replace: true });
-      } else if (role === "employer") {
-        navigate("/dashboard", { replace: true });
-      }
+      navigate(getRedirectPath(role), { replace: true });
     }
   }, [isAuthenticated, role, authLoading, navigate]);
 
