@@ -65,6 +65,7 @@ import ApplicantDetailSheet from "@/components/employer/ApplicantDetailSheet";
 import EmployerJobDetailsModal from "@/components/employer/EmployerJobDetailsModal";
 import ChatWindow from "@/components/ChatWindow";
 import UnreadMessagesModal from "@/components/employer/UnreadMessagesModal";
+import RecentMessagesEmployer from "@/components/employer/RecentMessagesEmployer";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import { toast as sonnerToast } from "sonner";
 
