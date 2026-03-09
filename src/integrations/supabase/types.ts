@@ -28,6 +28,7 @@ export type Database = {
           internal_notes: string | null
           is_archived: boolean
           job_id: string | null
+          kanzlei_id: string | null
           last_name: string | null
           phone: string | null
           resume_url: string | null
@@ -48,6 +49,7 @@ export type Database = {
           internal_notes?: string | null
           is_archived?: boolean
           job_id?: string | null
+          kanzlei_id?: string | null
           last_name?: string | null
           phone?: string | null
           resume_url?: string | null
@@ -68,6 +70,7 @@ export type Database = {
           internal_notes?: string | null
           is_archived?: boolean
           job_id?: string | null
+          kanzlei_id?: string | null
           last_name?: string | null
           phone?: string | null
           resume_url?: string | null
