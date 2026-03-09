@@ -251,6 +251,8 @@ const EmployerDashboard = () => {
   const [selectedApplicant, setSelectedApplicant] = useState<any>(null);
   const [jobDetailsOpen, setJobDetailsOpen] = useState(false);
   const [jobDetailsJob, setJobDetailsJob] = useState<any>(null);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatApp, setChatApp] = useState<any>(null);
 
   // Redirect if not authenticated or admin
   useEffect(() => {
