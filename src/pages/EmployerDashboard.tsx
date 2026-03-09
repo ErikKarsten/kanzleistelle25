@@ -892,6 +892,7 @@ const EmployerDashboard = () => {
                               isArchived={false}
                               toast={toast}
                               onClickDetail={(a) => setSelectedApplicant(a)}
+                              onChat={(a) => { setChatApp(a); setChatOpen(true); }}
                             />
                           ))}
                         </div>
