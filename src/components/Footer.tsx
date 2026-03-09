@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Briefcase, Mail, Phone, ArrowRight } from "lucide-react";
+import { Mail, Phone, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import NeeleContactDrawer from "./NeeleContactDrawer";
 import neeleImage from "@/assets/neele-ehlers.jpg";
+import fullLogo from "@/assets/kanzleistelle24-logo-full.png";
 
 const Footer = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
