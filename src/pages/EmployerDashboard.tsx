@@ -285,21 +285,27 @@ const EmployerDashboard = () => {
 
   // Fetch applications for this company's jobs - uses both company_id and job_id matching
   const { data: applications, isLoading: applicationsLoading } = useQuery({
-    queryKey: ["employer-applications", companyId],
+    queryKey: ["employer-applications", companyId, jobs?.map((j) => j.id)],
     queryFn: async () => {
       if (!companyId) return [];
       
       const jobIds = jobs?.map((j) => j.id) || [];
       
+      // Build filter: always match on company_id, also match on job_id if jobs are loaded
+      const filters = [`company_id.eq.${companyId}`];
+      if (jobIds.length > 0) {
+        filters.push(`job_id.in.(${jobIds.join(",")})`);
+      }
+      
       const { data, error } = await supabase
         .from("applications")
-        .select("*, jobs(title)")
-        .or(`company_id.eq.${companyId}${jobIds.length > 0 ? `,job_id.in.(${jobIds.join(",")})` : ""}`)
+        .select("*, jobs(title, company_id)")
+        .or(filters.join(","))
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
     },
-    enabled: !!companyId,
+    enabled: !!companyId && !jobsLoading,
   });
 
   // Seed known IDs once applications load
