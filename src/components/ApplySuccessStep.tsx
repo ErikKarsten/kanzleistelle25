@@ -13,9 +13,11 @@ import {
   ShieldCheck,
   Sparkles,
 } from "lucide-react";
+import ApplyAccountCreation from "./ApplyAccountCreation";
 
 interface ApplySuccessStepProps {
   firstName: string;
+  email: string;
   applicationId: string | null;
   company: string;
   onClose: () => void;
@@ -23,6 +25,7 @@ interface ApplySuccessStepProps {
 
 const ApplySuccessStep = ({
   firstName,
+  email,
   applicationId,
   company,
   onClose,
@@ -32,6 +35,8 @@ const ApplySuccessStep = ({
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
   const [skipped, setSkipped] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [showAccountCreation, setShowAccountCreation] = useState(false);
+  const [accountCreated, setAccountCreated] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 🎉 Confetti on mount
@@ -45,7 +50,6 @@ const ApplySuccessStep = ({
     frame();
   }, []);
 
-  // Second confetti burst after upload
   const celebrateUpload = () => {
     confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
   };
@@ -133,7 +137,10 @@ const ApplySuccessStep = ({
   }, [applicationId]);
 
   const canUpload = !!applicationId;
-  const showUploadArea = canUpload && !uploadedFile && !skipped;
+  const showUploadArea = canUpload && !uploadedFile && !skipped && !showAccountCreation;
+
+  // After upload or skip, show account creation
+  const shouldShowAccountPrompt = (uploadedFile || skipped) && !showAccountCreation && !accountCreated;
 
   return (
     <div className="space-y-6">
@@ -197,7 +204,7 @@ const ApplySuccessStep = ({
       )}
 
       {/* Upload Success */}
-      {uploadedFile && (
+      {uploadedFile && !showAccountCreation && (
         <div className="rounded-xl p-5 space-y-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 animate-fade-in">
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-green-600" />
@@ -214,34 +221,61 @@ const ApplySuccessStep = ({
         </div>
       )}
 
+      {/* Account Creation Prompt */}
+      {showAccountCreation && applicationId && (
+        <ApplyAccountCreation
+          email={email}
+          firstName={firstName}
+          applicationId={applicationId}
+          onAccountCreated={() => setAccountCreated(true)}
+          onSkip={() => {
+            setShowAccountCreation(false);
+            setAccountCreated(true);
+          }}
+        />
+      )}
+
       {/* DSGVO note */}
-      <p className="text-xs text-center text-muted-foreground">
-        🔒 Deine Daten wurden sicher übermittelt und werden gemäß DSGVO nach 6 Monaten automatisch gelöscht.
-      </p>
+      {!showAccountCreation && (
+        <p className="text-xs text-center text-muted-foreground">
+          🔒 Deine Daten wurden sicher übermittelt und werden gemäß DSGVO nach 6 Monaten automatisch gelöscht.
+        </p>
+      )}
 
       {/* Buttons */}
-      <div className="space-y-2">
-        {uploadedFile || skipped ? (
-          <Button onClick={onClose} className="w-full" size="lg">
-            <CheckCircle2 className="h-4 w-4 mr-2" />
-            Fertig
-          </Button>
-        ) : (
-          <>
-            <Button onClick={onClose} className="w-full" size="lg" variant="outline">
-              Fenster schließen
+      {!showAccountCreation && (
+        <div className="space-y-2">
+          {accountCreated ? (
+            <Button onClick={onClose} className="w-full" size="lg">
+              <CheckCircle2 className="h-4 w-4 mr-2" />
+              Fertig
             </Button>
-            {showUploadArea && (
-              <button
-                onClick={() => setSkipped(true)}
-                className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors py-1"
-              >
-                Vielleicht später
-              </button>
-            )}
-          </>
-        )}
-      </div>
+          ) : shouldShowAccountPrompt ? (
+            <>
+              <Button onClick={() => setShowAccountCreation(true)} className="w-full" size="lg">
+                Konto erstellen & Status verfolgen
+              </Button>
+              <Button onClick={onClose} className="w-full" size="lg" variant="outline">
+                Fenster schließen
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button onClick={onClose} className="w-full" size="lg" variant="outline">
+                Fenster schließen
+              </Button>
+              {showUploadArea && (
+                <button
+                  onClick={() => setSkipped(true)}
+                  className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors py-1"
+                >
+                  Vielleicht später
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 };

@@ -54,6 +54,7 @@ const App = () => (
               <Route path="/datenschutz" element={<Datenschutz />} />
               <Route path="/register-employer" element={<RegisterEmployer />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/bewerber-dashboard" element={<BewerberDashboard />} />
               <Route path="/dashboard" element={<EmployerDashboard />} />
               <Route path="/dashboard/settings" element={<EmployerSettings />} />
               <Route path="/admin-upload" element={<AdminUpload />} />

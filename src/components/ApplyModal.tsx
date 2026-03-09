@@ -488,6 +488,7 @@ const ApplyModal = ({
           {currentStep === 4 && (
             <ApplySuccessStep
               firstName={formData.firstName}
+              email={formData.email}
               applicationId={applicationId}
               company={company}
               onClose={() => handleOpenChange(false)}
