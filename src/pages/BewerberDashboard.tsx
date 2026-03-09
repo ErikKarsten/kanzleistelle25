@@ -253,7 +253,7 @@ const BewerberDashboard = () => {
                         </div>
 
                         {!withdrawn && (
-                          <div className="mt-3">
+                          <div className="mt-3" onClick={(e) => e.stopPropagation()}>
                             <Button
                               variant="outline"
                               size="sm"
