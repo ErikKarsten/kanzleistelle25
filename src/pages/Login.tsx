@@ -24,6 +24,12 @@ const Login = () => {
     password: "",
   });
 
+  const getRedirectPath = (userRole: string | null) => {
+    if (userRole === "admin") return "/admin/dashboard";
+    if (userRole === "employer") return "/dashboard";
+    return "/bewerber-dashboard";
+  };
+
   // Redirect if already authenticated
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
