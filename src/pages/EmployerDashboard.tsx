@@ -179,6 +179,17 @@ const ApplicationCard = ({
             <SelectItem value="rejected">Abgelehnt</SelectItem>
           </SelectContent>
         </Select>
+        {!isArchived && onChat && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={(e) => { e.stopPropagation(); onChat(app); }}
+            className="text-xs"
+          >
+            <MessageCircle className="h-3 w-3 mr-1" />
+            Chat
+          </Button>
+        )}
         <Button
           variant={isArchived ? "outline" : "ghost"}
           size="sm"
