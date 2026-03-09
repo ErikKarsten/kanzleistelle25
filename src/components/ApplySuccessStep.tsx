@@ -253,26 +253,40 @@ const ApplySuccessStep = ({
             </Button>
           ) : shouldShowAccountPrompt ? (
             <>
-              <Button onClick={() => setShowAccountCreation(true)} className="w-full" size="lg">
-                Konto erstellen & Status verfolgen
+              <Button
+                onClick={() => setShowAccountCreation(true)}
+                className="w-full font-bold text-base tracking-wide shadow-lg shadow-primary/25"
+                size="lg"
+              >
+                ABSCHICKEN UND REGISTRIEREN FÜR UPDATES
+                <ArrowRight className="h-5 w-5 ml-2" />
               </Button>
-              <Button onClick={onClose} className="w-full" size="sm" variant="outline">
-                Später erledigen
-              </Button>
+              <button
+                onClick={onClose}
+                className="w-full text-sm text-muted-foreground/70 hover:text-muted-foreground py-2 transition-colors"
+              >
+                Einfach nur abschicken
+              </button>
             </>
           ) : (
             <>
-              <Button onClick={onClose} className="w-full" size="lg" variant="outline">
-                Später erledigen
+              <Button
+                onClick={() => setSkipped(true)}
+                className="w-full font-bold text-base tracking-wide shadow-lg shadow-primary/25"
+                size="lg"
+              >
+                ABSCHICKEN UND REGISTRIEREN FÜR UPDATES
+                <ArrowRight className="h-5 w-5 ml-2" />
               </Button>
-              {showUploadArea && (
-                <button
-                  onClick={() => setSkipped(true)}
-                  className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors py-1"
-                >
-                  Vielleicht später
-                </button>
-              )}
+              <button
+                onClick={() => {
+                  setSkipped(true);
+                  onClose();
+                }}
+                className="w-full text-sm text-muted-foreground/70 hover:text-muted-foreground py-2 transition-colors"
+              >
+                Einfach nur abschicken
+              </button>
             </>
           )}
         </div>
