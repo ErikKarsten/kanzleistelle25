@@ -28,7 +28,14 @@ const Header = () => {
   const getDashboardLink = () => {
     if (role === "admin") return "/admin/dashboard";
     if (role === "employer") return "/dashboard";
-    return "/";
+    if (role === "candidate") return "/bewerber-dashboard";
+    return "/bewerber-dashboard";
+  };
+
+  const getDashboardLabel = () => {
+    if (role === "admin") return "Admin-Dashboard";
+    if (role === "employer") return "Dashboard";
+    return "Meine Bewerbungen";
   };
 
   return (
