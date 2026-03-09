@@ -9,6 +9,7 @@ import ChatWindow from "@/components/ChatWindow";
 import WithdrawDialog from "@/components/applicant/WithdrawDialog";
 import DeleteAccountDialog from "@/components/applicant/DeleteAccountDialog";
 import ApplicationDetailModal from "@/components/applicant/ApplicationDetailModal";
+import RecentMessagesApplicant from "@/components/applicant/RecentMessagesApplicant";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

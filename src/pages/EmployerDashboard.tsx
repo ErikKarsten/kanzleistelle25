@@ -1198,6 +1198,19 @@ const EmployerDashboard = () => {
         onNavigate={() => {
           setActiveTab("applications");
           setApplicationsTab("active");
+          // Auto-open chat with first unread applicant
+          if (unreadByApp && applications) {
+            const firstUnreadAppId = Object.keys(unreadByApp)[0];
+            if (firstUnreadAppId) {
+              const app = applications.find((a: any) => a.id === firstUnreadAppId);
+              if (app) {
+                setTimeout(() => {
+                  setChatApp(app);
+                  setChatOpen(true);
+                }, 300);
+              }
+            }
+          }
         }}
       />
     </div>
