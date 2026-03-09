@@ -24,15 +24,16 @@ const Login = () => {
     password: "",
   });
 
+  const getRedirectPath = (userRole: string | null) => {
+    if (userRole === "admin") return "/admin/dashboard";
+    if (userRole === "employer") return "/dashboard";
+    return "/bewerber-dashboard";
+  };
+
   // Redirect if already authenticated
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
-      console.log("User already authenticated, redirecting. Role:", role);
-      if (role === "admin") {
-        navigate("/admin/dashboard", { replace: true });
-      } else if (role === "employer") {
-        navigate("/dashboard", { replace: true });
-      }
+      navigate(getRedirectPath(role), { replace: true });
     }
   }, [isAuthenticated, role, authLoading, navigate]);
 
@@ -79,11 +80,13 @@ const Login = () => {
 
       // Show debug info if no role or company found
       if (!isAdmin && !isEmployer && !company) {
-        setDebugInfo(
-          `Ihr Konto (${data.user.email}) ist angemeldet, aber noch keiner Rolle zugeordnet. ` +
-          `Bitte registrieren Sie zuerst Ihre Kanzlei oder kontaktieren Sie den Support.`
-        );
-        setIsLoading(false);
+        // Candidate role - redirect to bewerber dashboard
+        toast({
+          title: "Erfolgreich angemeldet!",
+          description: "Willkommen zurück.",
+        });
+        await refreshAuth();
+        navigate("/bewerber-dashboard", { replace: true });
         return;
       }
 
@@ -92,16 +95,14 @@ const Login = () => {
         description: "Willkommen zurück.",
       });
 
-      // Refresh auth context
       await refreshAuth();
 
-      // Redirect based on role
       if (isAdmin) {
         navigate("/admin/dashboard", { replace: true });
       } else if (isEmployer || company) {
         navigate("/dashboard", { replace: true });
       } else {
-        navigate("/", { replace: true });
+        navigate("/bewerber-dashboard", { replace: true });
       }
     } catch (error: any) {
       console.error("Login error:", error);
@@ -150,7 +151,7 @@ const Login = () => {
               </div>
               <CardTitle className="text-2xl">Anmelden</CardTitle>
               <CardDescription>
-                Melden Sie sich in Ihrem Konto an.
+                Für Kanzleien und Bewerber – melden Sie sich in Ihrem Konto an.
               </CardDescription>
             </CardHeader>
             <CardContent>
