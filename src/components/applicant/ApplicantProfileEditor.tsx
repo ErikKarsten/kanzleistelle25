@@ -73,6 +73,9 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
   });
 
   const [uploading, setUploading] = useState<string | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewFileName, setPreviewFileName] = useState("");
 
   useEffect(() => {
     if (application) {
