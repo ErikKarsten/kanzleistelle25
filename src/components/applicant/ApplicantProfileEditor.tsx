@@ -102,6 +102,7 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
         notice_period: data.notice_period || null,
         special_skills: data.special_skills || null,
         updated_at: new Date().toISOString(),
+        applicant_updated_at: new Date().toISOString(),
       };
 
       const { error } = await supabase
@@ -156,6 +157,7 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
         .update({
           [columnMap[type]]: path,
           updated_at: new Date().toISOString(),
+          applicant_updated_at: new Date().toISOString(),
         } as any)
         .eq("id", application.id);
       if (updateError) throw updateError;

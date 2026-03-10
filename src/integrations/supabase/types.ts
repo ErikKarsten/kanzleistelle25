@@ -19,6 +19,7 @@ export type Database = {
           anschreiben_url: string | null
           applicant_id: string | null
           applicant_role: string | null
+          applicant_updated_at: string | null
           certificates_url: string | null
           company_id: string | null
           cover_letter: string | null
@@ -36,6 +37,8 @@ export type Database = {
           job_id: string | null
           kanzlei_id: string | null
           last_name: string | null
+          last_profile_update: string | null
+          last_viewed_by_employer: string | null
           lebenslauf_url: string | null
           notice_period: string | null
           phone: string | null
@@ -51,6 +54,7 @@ export type Database = {
           anschreiben_url?: string | null
           applicant_id?: string | null
           applicant_role?: string | null
+          applicant_updated_at?: string | null
           certificates_url?: string | null
           company_id?: string | null
           cover_letter?: string | null
@@ -68,6 +72,8 @@ export type Database = {
           job_id?: string | null
           kanzlei_id?: string | null
           last_name?: string | null
+          last_profile_update?: string | null
+          last_viewed_by_employer?: string | null
           lebenslauf_url?: string | null
           notice_period?: string | null
           phone?: string | null
@@ -83,6 +89,7 @@ export type Database = {
           anschreiben_url?: string | null
           applicant_id?: string | null
           applicant_role?: string | null
+          applicant_updated_at?: string | null
           certificates_url?: string | null
           company_id?: string | null
           cover_letter?: string | null
@@ -100,6 +107,8 @@ export type Database = {
           job_id?: string | null
           kanzlei_id?: string | null
           last_name?: string | null
+          last_profile_update?: string | null
+          last_viewed_by_employer?: string | null
           lebenslauf_url?: string | null
           notice_period?: string | null
           phone?: string | null

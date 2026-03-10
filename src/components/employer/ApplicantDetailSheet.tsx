@@ -70,13 +70,23 @@ const ApplicantDetailSheet = ({
   const [activeDownloadKey, setActiveDownloadKey] = useState<string | null>(null);
   const [activeDownloadLabel, setActiveDownloadLabel] = useState("");
 
-  // Sync notes when application changes
+  // Sync notes and mark as viewed when application changes
   useEffect(() => {
     if (application) {
       setNotes(application.internal_notes || "");
       setNotesSaved(true);
+
+      // Mark as viewed by employer
+      supabase
+        .from("applications")
+        .update({ last_viewed_by_employer: new Date().toISOString() } as any)
+        .eq("id", application.id)
+        .then(({ error }) => {
+          if (error) console.error("[view-tracking] failed to mark as viewed", error);
+          else queryClient.invalidateQueries({ queryKey: ["employer-applications"] });
+        });
     }
-  }, [application?.id, application?.internal_notes]);
+  }, [application?.id, application?.internal_notes, queryClient]);
 
   // Save notes mutation
   const saveNotesMutation = useMutation({

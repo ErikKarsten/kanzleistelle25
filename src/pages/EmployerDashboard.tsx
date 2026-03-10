@@ -67,6 +67,7 @@ import ChatWindow from "@/components/ChatWindow";
 import UnreadMessagesModal from "@/components/employer/UnreadMessagesModal";
 import RecentMessagesEmployer from "@/components/employer/RecentMessagesEmployer";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
+import UpdatedProfilesWidget from "@/components/employer/UpdatedProfilesWidget";
 import { toast as sonnerToast } from "sonner";
 
 // Reusable application card for active/archived views
@@ -117,6 +118,19 @@ const ApplicationCard = ({
               Neu
             </Badge>
           )}
+          {!isArchived && app.applicant_updated_at && app.last_viewed_by_employer && 
+           new Date(app.applicant_updated_at) > new Date(app.last_viewed_by_employer) && (
+            <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300 text-xs">
+              <Sparkles className="h-3 w-3 mr-0.5" />
+              Aktualisiert
+            </Badge>
+          )}
+          {!isArchived && app.applicant_updated_at && !app.last_viewed_by_employer && (
+            <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300 text-xs">
+              <Sparkles className="h-3 w-3 mr-0.5" />
+              Aktualisiert
+            </Badge>
+          )}
           {isArchived && (
             <Badge variant="outline" className="text-muted-foreground">
               Archiviert
@@ -140,22 +154,10 @@ const ApplicationCard = ({
             </a>
           )}
           {app.resume_url && (
-            <button
-              onClick={async () => {
-                const { data, error } = await supabase.storage
-                  .from("resumes")
-                  .createSignedUrl(app.resume_url!, 60);
-                if (error) {
-                  toast({ title: "Fehler", description: "Lebenslauf konnte nicht geladen werden", variant: "destructive" });
-                  return;
-                }
-                window.open(data.signedUrl, "_blank");
-              }}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-sm font-medium"
-            >
+            <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
               <Paperclip className="h-3.5 w-3.5" />
-              Lebenslauf öffnen
-            </button>
+              Lebenslauf vorhanden
+            </span>
           )}
         </div>
         {app.applicant_role && (
@@ -668,6 +670,13 @@ const EmployerDashboard = () => {
   const archivedApplications = applications?.filter((a) => a.is_archived) || [];
   const pendingApplications = activeApplications.filter((a) => a.status === "pending");
 
+  // Applications where the applicant updated their profile since the employer last viewed
+  const updatedApplications = activeApplications.filter((a: any) => {
+    if (!a.applicant_updated_at) return false;
+    if (!a.last_viewed_by_employer) return true; // never viewed but applicant updated
+    return new Date(a.applicant_updated_at) > new Date(a.last_viewed_by_employer);
+  });
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -768,6 +777,16 @@ const EmployerDashboard = () => {
             companyId={companyId}
             applications={applications}
             onOpenChat={(app) => { setChatApp(app); setChatOpen(true); }}
+          />
+
+          {/* Updated Profiles Widget */}
+          <UpdatedProfilesWidget
+            updatedApplications={updatedApplications}
+            onViewProfile={(app) => {
+              setActiveTab("applications");
+              setApplicationsTab("active");
+              setSelectedApplicant(app);
+            }}
           />
 
           {/* Main Content Tabs */}
