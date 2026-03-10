@@ -99,7 +99,7 @@ export function buildNewApplicationEmail(data: NewApplicationData) {
       ${infoRow("Rolle:", data.applicantRole || "–")}
     </table>
 
-    ${ctaButton("Bewerbung ansehen →", `${DASHBOARD_URL}/arbeitgeber`)}
+    ${ctaButton("Bewerbung ansehen →", `${DASHBOARD_URL}/login`)}
 
     <p style="margin:0;font-size:13px;color:#A0AEC0;line-height:1.5;">
       Diese E-Mail wurde automatisch versendet. Sie können direkt über Ihr Dashboard auf die Bewerbung reagieren.
