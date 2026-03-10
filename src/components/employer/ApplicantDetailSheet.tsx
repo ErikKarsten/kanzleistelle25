@@ -38,7 +38,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import jsPDF from "jspdf";
-import { buildSafeDocumentName, downloadApplicationDocument, triggerBlobDownload } from "@/lib/documentAccess";
+import { buildSafeDocumentName, handleDownload } from "@/lib/documentAccess";
 
 interface ApplicantDetailSheetProps {
   application: any;
