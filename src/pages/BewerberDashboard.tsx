@@ -158,12 +158,12 @@ const BewerberDashboard = () => {
   });
 
   // Check profile completeness for onboarding popup
-  const profileIncomplete = useMemo(() => {
-    if (!applications || applications.length === 0) return false;
-    const app = applications[0];
-    const fields = ["resume_url", "earliest_start_date", "salary_expectation", "notice_period", "special_skills"];
-    return fields.some((f) => !app[f] || String(app[f]).trim() === "");
+  const profileCompletion = useMemo(() => {
+    if (!applications || applications.length === 0) return null;
+    return calculateProfileCompletion(applications[0]);
   }, [applications]);
+
+  const profileIncomplete = profileCompletion ? profileCompletion.percentage < 100 : false;
 
   useEffect(() => {
     if (profileIncomplete && !onboardingShown.current && applications && applications.length > 0) {
