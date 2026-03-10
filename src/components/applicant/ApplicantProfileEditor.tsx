@@ -78,24 +78,14 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
     }
   }, [application?.id]);
 
-  // Calculate profile completion
-  const { percentage, missing } = useMemo(() => {
-    const fields = [
-      { key: "first_name", label: "Vorname", filled: !!formData.first_name },
-      { key: "last_name", label: "Nachname", filled: !!formData.last_name },
-      { key: "email", label: "E-Mail", filled: !!formData.email },
-      { key: "phone", label: "Telefon", filled: !!formData.phone },
-      { key: "earliest_start_date", label: "Frühestmögliches Eintrittsdatum", filled: !!formData.earliest_start_date },
-      { key: "salary_expectation", label: "Gehaltsvorstellung", filled: !!formData.salary_expectation },
-      { key: "notice_period", label: "Kündigungsfrist", filled: !!formData.notice_period },
-      { key: "special_skills", label: "Besondere Fachkenntnisse", filled: !!formData.special_skills },
-      { key: "resume_url", label: "Lebenslauf", filled: !!application?.resume_url },
-    ];
-    const filled = fields.filter((f) => f.filled).length;
-    const pct = Math.round((filled / fields.length) * 100);
-    const missingFields = fields.filter((f) => !f.filled).map((f) => f.label);
-    return { percentage: pct, missing: missingFields };
-  }, [formData, application?.resume_url]);
+  // Calculate profile completion using shared weighted logic with live form data
+  const completion = useMemo(() => {
+    const liveApp = {
+      ...application,
+      ...formData,
+    };
+    return calculateProfileCompletion(liveApp);
+  }, [formData, application]);
 
   const saveMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
