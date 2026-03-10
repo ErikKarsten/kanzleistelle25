@@ -10,6 +10,8 @@
 
 const YEAR = new Date().getFullYear();
 const DASHBOARD_URL = "https://kanzleistelle24.de";
+const LOGO_URL =
+  "https://myvjwpbhdnnrkwazudnh.supabase.co/storage/v1/object/public/logos/Kanzleistelle24%20Logo.png";
 
 /* ------------------------------------------------------------------ */
 /* Shared layout                                                       */
@@ -25,8 +27,10 @@ function wrap(body: string): string {
 
   <!-- HEADER -->
   <tr><td style="background:#003366;padding:28px 32px;text-align:center;">
-    <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;letter-spacing:0.5px;">Kanzleistelle24</h1>
-    <p style="margin:6px 0 0;color:#00AEEF;font-size:13px;font-weight:500;">Ihre Karriereplattform für Steuerkanzleien</p>
+    <a href="${DASHBOARD_URL}" style="text-decoration:none;">
+      <img src="${LOGO_URL}" alt="Kanzleistelle24" height="60" style="display:block;margin:0 auto;max-height:60px;width:auto;" />
+    </a>
+    <p style="margin:12px 0 0;color:#00AEEF;font-size:13px;font-weight:500;letter-spacing:0.3px;">Dein Partner für Kanzlei-Karrieren</p>
   </td></tr>
 
   <!-- BODY -->
