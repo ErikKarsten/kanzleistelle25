@@ -25,17 +25,18 @@ function wrap(body: string): string {
 <tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:10px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.07);max-width:600px;width:100%;">
 
-  <!-- HEADER -->
-  <tr><td style="background:#003366;padding:28px 32px;text-align:center;">
-    <a href="${DASHBOARD_URL}" style="text-decoration:none;">
-      <img src="${LOGO_URL}" alt="Kanzleistelle24" height="60" style="display:block;margin:0 auto;max-height:60px;width:auto;" />
-    </a>
-    <p style="margin:12px 0 0;color:#00AEEF;font-size:13px;font-weight:500;letter-spacing:0.3px;">Dein Partner für Kanzlei-Karrieren</p>
-  </td></tr>
-
   <!-- BODY -->
-  <tr><td style="padding:36px 32px 28px;">
+  <tr><td style="padding:36px 32px 12px;">
     ${body}
+
+    <!-- SIGN-OFF + LOGO -->
+    <p style="margin:28px 0 12px;font-size:15px;color:#4A5568;line-height:1.5;">
+      Viele Grüße<br/>
+      <strong style="color:#003366;">Dein Team von Kanzleistelle24</strong>
+    </p>
+    <a href="${DASHBOARD_URL}" style="text-decoration:none;">
+      <img src="${LOGO_URL}" alt="Kanzleistelle24" height="40" style="display:block;max-height:40px;width:auto;margin:0;" />
+    </a>
   </td></tr>
 
   <!-- FOOTER -->
@@ -166,11 +167,7 @@ export function buildApplicantConfirmationEmail(data: ApplicantConfirmationData)
       Je vollständiger dein Profil ist, desto besser stehen deine Chancen auf eine Einladung zum Vorstellungsgespräch.
     </p>
 
-    ${ctaButton("Zum Dashboard →", `${DASHBOARD_URL}/bewerber`)}
-
-    <p style="margin:0;font-size:13px;color:#A0AEC0;line-height:1.5;">
-      Diese E-Mail wurde automatisch versendet. Bitte antworte nicht darauf.
-    </p>`;
+    ${ctaButton("Zum Dashboard →", `${DASHBOARD_URL}/bewerber`)}`;
 
   return {
     subject: "Deine Bewerbung bei Kanzleistelle24 – Profil aktualisiert",
@@ -202,7 +199,7 @@ export function buildWelcomeApplicantEmail(data: WelcomeApplicantData) {
   }
 
   const body = `
-    <p style="margin:0 0 6px;font-size:20px;font-weight:700;color:#003366;">${greeting}! 🎉</p>
+    <p style="margin:0 0 16px;font-size:16px;color:#2D3748;">${greeting}! 🎉</p>
     <p style="margin:0 0 24px;font-size:15px;color:#4A5568;line-height:1.6;">
       Schön, dass du dich bei <strong style="color:#003366;">Kanzleistelle24</strong> registriert hast – deiner Karriereplattform für Steuerkanzleien. Dein Konto ist jetzt aktiv!
     </p>
@@ -216,9 +213,6 @@ export function buildWelcomeApplicantEmail(data: WelcomeApplicantData) {
 
     ${ctaButton("Jetzt Profil vervollständigen →", `${DASHBOARD_URL}/bewerber`)}
 
-    <p style="margin:0 0 8px;font-size:15px;color:#4A5568;line-height:1.6;">
-      Je vollständiger dein Profil ist, desto schneller finden Kanzleien den Weg zu dir.
-    </p>
     <p style="margin:0;font-size:13px;color:#A0AEC0;line-height:1.5;">
       Bei Fragen erreichst du uns jederzeit unter <a href="mailto:info@kanzleistelle24.de" style="color:#00AEEF;text-decoration:none;">info@kanzleistelle24.de</a>.
     </p>`;
