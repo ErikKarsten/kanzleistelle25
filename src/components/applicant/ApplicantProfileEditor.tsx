@@ -257,6 +257,15 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
     }
   }, [getDocumentName, previewUrl]);
 
+  const handlePreviewOpenChange = useCallback((open: boolean) => {
+    setPreviewOpen(open);
+    if (!open && previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+      setPreviewFileName("");
+    }
+  }, [previewUrl]);
+
   const FileUploadSlot = ({ type, label, icon: Icon, currentUrl }: { type: "resume" | "certificates" | "cover_letter"; label: string; icon: any; currentUrl: string | null }) => {
     // Extract readable filename from storage path
     const fileName = currentUrl
