@@ -12,13 +12,67 @@ const YEAR = new Date().getFullYear();
 const DASHBOARD_URL = "https://kanzleistelle24.de";
 const LOGO_URL =
   "https://myvjwpbhdnnrkwazudnh.supabase.co/storage/v1/object/public/logos/Kanzleistelle24%20Logo.png";
-
 const NEELE_IMG =
   "https://myvjwpbhdnnrkwazudnh.supabase.co/storage/v1/object/public/logos/Neele%20Business.jpg";
+
+/* ------------------------------------------------------------------ */
+/* Signature variants                                                  */
+/* ------------------------------------------------------------------ */
+
+type Audience = "bewerber" | "kanzlei";
+
+function signatureBlock(audience: Audience): string {
+  const isBewerber = audience === "bewerber";
+  const greeting = isBewerber ? "Herzliche Grüße," : "Mit freundlichen Grüßen,";
+  const tagline = isBewerber
+    ? "Deine persönliche Begleiterin<br/>bei Kanzleistelle24"
+    : "Ihre persönliche Ansprechpartnerin<br/>bei Kanzleistelle24";
+
+  return `
+    <!-- SEPARATOR – elegant blue gradient line -->
+    <table cellpadding="0" cellspacing="0" style="width:100%;margin:32px 0 0;">
+      <tr><td style="padding:0;">
+        <div style="height:2px;background:linear-gradient(90deg,#00AEEF 0%,#E2E8F0 40%,transparent 100%);border-radius:2px;"></div>
+      </td></tr>
+    </table>
+
+    <!-- PERSONAL SIGNATURE -->
+    <table cellpadding="0" cellspacing="0" style="width:100%;margin:24px 0 0;">
+      <tr>
+        <!-- LEFT: greeting + logo -->
+        <td style="vertical-align:top;padding:0 20px 0 0;">
+          <p style="margin:0 0 4px;font-size:15px;color:#4A5568;line-height:1.5;">${greeting}</p>
+          <p style="margin:0 0 2px;font-size:22px;color:#003366;font-family:Georgia,'Times New Roman',serif;font-style:italic;font-weight:700;">Neele Ehlers</p>
+          <p style="margin:0 0 24px;font-size:13px;color:#718096;line-height:1.4;">${tagline}</p>
+          <a href="${DASHBOARD_URL}" style="text-decoration:none;">
+            <img src="${LOGO_URL}" alt="Kanzleistelle24" width="280" style="display:block;max-width:280px;width:100%;height:auto;margin:0;" />
+          </a>
+        </td>
+        <!-- RIGHT: Neele portrait with blue accent -->
+        <td style="vertical-align:top;width:200px;text-align:right;">
+          <table cellpadding="0" cellspacing="0" style="margin:0 0 0 auto;">
+            <tr><td style="text-align:center;">
+              <!--[if mso]>
+              <v:oval style="width:190px;height:190px;" fillcolor="#00AEEF" stroked="f">
+              <v:fill type="gradient" color="#00AEEF" color2="#003366" />
+              </v:oval>
+              <![endif]-->
+              <div style="width:190px;height:190px;border-radius:50%;background:radial-gradient(circle at 60% 40%,rgba(0,174,239,0.25) 0%,rgba(0,51,102,0.10) 70%,transparent 100%);display:flex;align-items:center;justify-content:center;margin:0 auto;">
+                <img src="${NEELE_IMG}" alt="Neele Ehlers" width="180" height="180" style="display:block;width:180px;height:180px;border-radius:50%;object-fit:cover;box-shadow:0 6px 24px rgba(0,51,102,0.20);border:3px solid #ffffff;margin:5px;" />
+              </div>
+            </td></tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+    <div style="height:20px;"></div>`;
+}
+
+/* ------------------------------------------------------------------ */
 /* Shared layout                                                       */
 /* ------------------------------------------------------------------ */
 
-function wrap(body: string): string {
+function wrap(body: string, audience: Audience = "bewerber"): string {
   return `<!DOCTYPE html>
 <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
 <body style="margin:0;padding:0;background:#F4F7F6;font-family:Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%;">
@@ -30,30 +84,7 @@ function wrap(body: string): string {
   <tr><td style="padding:36px 32px 12px;">
     ${body}
 
-    <!-- SEPARATOR -->
-    <table cellpadding="0" cellspacing="0" style="width:100%;margin:32px 0 0;">
-      <tr><td style="padding:0;">
-        <div style="height:2px;background:linear-gradient(90deg,#00AEEF 0%,#E2E8F0 40%,transparent 100%);border-radius:2px;"></div>
-      </td></tr>
-    </table>
-
-    <!-- PERSONAL SIGNATURE -->
-    <table cellpadding="0" cellspacing="0" style="width:100%;margin:24px 0 0;">
-      <tr>
-        <td style="vertical-align:top;padding:0 20px 0 0;">
-          <p style="margin:0 0 4px;font-size:15px;color:#4A5568;line-height:1.5;">Herzliche Grüße,</p>
-          <p style="margin:0 0 2px;font-size:20px;color:#003366;font-family:Georgia,'Times New Roman',serif;font-style:italic;font-weight:700;">Neele Ehlers</p>
-          <p style="margin:0 0 20px;font-size:13px;color:#718096;line-height:1.4;">Deine persönliche Begleiterin<br/>bei Kanzleistelle24</p>
-          <a href="${DASHBOARD_URL}" style="text-decoration:none;">
-            <img src="${LOGO_URL}" alt="Kanzleistelle24" height="50" style="display:block;max-height:50px;width:auto;margin:0;" />
-          </a>
-        </td>
-        <td style="vertical-align:top;width:200px;text-align:right;">
-          <img src="${NEELE_IMG}" alt="Neele Ehlers" width="180" height="180" style="display:block;width:180px;height:180px;border-radius:12px;object-fit:cover;margin:0 0 0 auto;box-shadow:0 4px 16px rgba(0,51,102,0.15);" />
-        </td>
-      </tr>
-    </table>
-    <div style="height:20px;"></div>
+    ${signatureBlock(audience)}
   </td></tr>
 
   <!-- FOOTER -->
@@ -124,7 +155,7 @@ export function buildNewApplicationEmail(data: NewApplicationData) {
 
   return {
     subject: `Neue Bewerbung: ${data.applicantName} für ${data.jobTitle}`,
-    html: wrap(body),
+    html: wrap(body, "kanzlei"),
   };
 }
 
@@ -162,7 +193,7 @@ export function buildProfileUpdateEmail(data: ProfileUpdateData) {
 
   return {
     subject: `Profil-Update: ${data.applicantName} – ${data.jobTitle}`,
-    html: wrap(body),
+    html: wrap(body, "kanzlei"),
   };
 }
 
@@ -188,7 +219,7 @@ export function buildApplicantConfirmationEmail(data: ApplicantConfirmationData)
 
   return {
     subject: "Deine Bewerbung bei Kanzleistelle24 – Profil aktualisiert",
-    html: wrap(body),
+    html: wrap(body, "bewerber"),
   };
 }
 
@@ -236,6 +267,6 @@ export function buildWelcomeApplicantEmail(data: WelcomeApplicantData) {
 
   return {
     subject: "Willkommen bei Kanzleistelle24 – Dein Karrierestart! 🚀",
-    html: wrap(body),
+    html: wrap(body, "bewerber"),
   };
 }
