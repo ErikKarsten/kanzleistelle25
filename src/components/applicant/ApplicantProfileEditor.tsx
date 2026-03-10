@@ -177,24 +177,19 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
   }, [application?.id, queryClient]);
 
   const openFile = useCallback(async (path: string) => {
-    // Legacy files were uploaded to "resumes" bucket with "applications/" prefix
-    const isLegacy = path.startsWith("applications/");
-    if (isLegacy) {
-      const { data, error } = await supabase.storage.from("resumes").createSignedUrl(path, 120);
-      if (error || !data?.signedUrl) {
-        toast.error("Datei konnte nicht geladen werden");
+    try {
+      // Determine correct bucket based on legacy path prefix
+      const isLegacy = path.startsWith("applications/");
+      const bucket = isLegacy ? "resumes" : "applications";
+      const { data, error } = await supabase.storage.from(bucket).download(path);
+      if (error || !data) {
+        toast.error("Datei konnte nicht geladen werden. Bitte deaktiviere deinen Ad-Blocker, falls der Download nicht startet.");
         return;
       }
-      console.log("[openFile] legacy signed URL:", data.signedUrl);
-      window.open(data.signedUrl, "_blank");
-    } else {
-      const { data } = supabase.storage.from("applications").getPublicUrl(path);
-      console.log("[openFile] public URL:", data?.publicUrl);
-      if (!data?.publicUrl) {
-        toast.error("Datei konnte nicht geladen werden");
-        return;
-      }
-      window.open(data.publicUrl, "_blank");
+      const url = URL.createObjectURL(data);
+      window.open(url, "_blank");
+    } catch {
+      toast.error("Datei konnte nicht geladen werden. Bitte deaktiviere deinen Ad-Blocker, falls der Download nicht startet.");
     }
   }, []);
 
