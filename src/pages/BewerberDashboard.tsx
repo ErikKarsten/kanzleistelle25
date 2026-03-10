@@ -12,6 +12,8 @@ import ApplicationDetailModal from "@/components/applicant/ApplicationDetailModa
 import RecentMessagesApplicant from "@/components/applicant/RecentMessagesApplicant";
 import ApplicantProfileEditor from "@/components/applicant/ApplicantProfileEditor";
 import ProfileOnboardingPopup from "@/components/applicant/ProfileOnboardingPopup";
+import ProfileProgressBar from "@/components/applicant/ProfileProgressBar";
+import { calculateProfileCompletion } from "@/lib/profileCompletion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
