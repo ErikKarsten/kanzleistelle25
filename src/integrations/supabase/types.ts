@@ -36,6 +36,7 @@ export type Database = {
           job_id: string | null
           kanzlei_id: string | null
           last_name: string | null
+          last_profile_update: string | null
           lebenslauf_url: string | null
           notice_period: string | null
           phone: string | null
@@ -68,6 +69,7 @@ export type Database = {
           job_id?: string | null
           kanzlei_id?: string | null
           last_name?: string | null
+          last_profile_update?: string | null
           lebenslauf_url?: string | null
           notice_period?: string | null
           phone?: string | null
@@ -100,6 +102,7 @@ export type Database = {
           job_id?: string | null
           kanzlei_id?: string | null
           last_name?: string | null
+          last_profile_update?: string | null
           lebenslauf_url?: string | null
           notice_period?: string | null
           phone?: string | null
