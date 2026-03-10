@@ -457,6 +457,20 @@ const BewerberDashboard = () => {
         open={showDeleteAccount}
         onOpenChange={setShowDeleteAccount}
       />
+
+      {applications && applications.length > 0 && (
+        <ProfileOnboardingPopup
+          open={onboardingOpen}
+          onOpenChange={setOnboardingOpen}
+          application={applications[0]}
+          firstName={applications[0]?.first_name || user?.user_metadata?.first_name || ""}
+          onComplete={() => {
+            setOnboardingOpen(false);
+            setProfileApp(applications[0]);
+            setMainTab("profile");
+          }}
+        />
+      )}
     </div>
   );
 };
