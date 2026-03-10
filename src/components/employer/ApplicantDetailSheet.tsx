@@ -144,47 +144,41 @@ const ApplicantDetailSheet = ({
     });
   }, [application?.first_name, application?.last_name]);
 
-  const handleDownloadDocument = useCallback(async (path: string, label: string) => {
+  const runDocumentDownload = useCallback(async (path: string, label: string, action: "preview" | "download") => {
+    const actionKey = `${action}:${path}`;
+    setActiveDownloadKey(actionKey);
+    setActiveDownloadLabel(label);
+
     try {
-      const result = await downloadApplicationDocument(path);
-      if (!result) {
+      const success = await handleDownload(path, getDocumentName(path, label));
+      if (!success) {
         toast({ title: "Fehler", description: "Dokument konnte nicht vom Server abgerufen werden.", variant: "destructive" });
         return;
       }
-      triggerBlobDownload(result.blob, getDocumentName(path, label));
+
+      if (action === "preview") {
+        toast({ title: "Info", description: "Vorschau wird als sicherer Download bereitgestellt." });
+      }
     } catch (error) {
-      console.error("[document-download] failed", { path, error });
-      toast({ title: "Fehler", description: "Dokument konnte nicht vom Server abgerufen werden.", variant: "destructive" });
+      console.error("[document-download] failed", { path, action, error });
+      toast({
+        title: "Fehler",
+        description: "Download blockiert? Bitte prüfe deine Browser-Erweiterungen oder Ad-Blocker.",
+        variant: "destructive",
+      });
+    } finally {
+      setActiveDownloadKey(null);
+      setActiveDownloadLabel("");
     }
   }, [getDocumentName, toast]);
 
+  const handleDownloadDocument = useCallback(async (path: string, label: string) => {
+    await runDocumentDownload(path, label, "download");
+  }, [runDocumentDownload]);
+
   const handleOpenDocument = useCallback(async (path: string, label: string) => {
-    try {
-      const result = await downloadApplicationDocument(path);
-      if (!result) {
-        toast({ title: "Fehler", description: "Dokument konnte nicht vom Server abgerufen werden.", variant: "destructive" });
-        return;
-      }
-
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-      const objectUrl = URL.createObjectURL(result.blob);
-      setPreviewUrl(objectUrl);
-      setPreviewFileName(getDocumentName(path, label));
-      setPreviewOpen(true);
-    } catch (error) {
-      console.error("[document-preview] failed", { path, error });
-      toast({ title: "Fehler", description: "Dokument konnte nicht vom Server abgerufen werden.", variant: "destructive" });
-    }
-  }, [getDocumentName, previewUrl, toast]);
-
-  const handlePreviewOpenChange = useCallback((nextOpen: boolean) => {
-    setPreviewOpen(nextOpen);
-    if (!nextOpen && previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
-      setPreviewFileName("");
-    }
-  }, [previewUrl]);
+    await runDocumentDownload(path, label, "preview");
+  }, [runDocumentDownload]);
 
   const handleExportPDF = async () => {
     if (!application) return;
