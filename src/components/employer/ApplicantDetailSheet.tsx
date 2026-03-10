@@ -131,39 +131,38 @@ const ApplicantDetailSheet = ({
     },
   });
 
-  const getDocumentUrl = async (path: string): Promise<string | null> => {
+  const downloadBlob = async (path: string): Promise<Blob | null> => {
     const isLegacy = path.startsWith("applications/");
-    if (isLegacy) {
-      const { data, error } = await supabase.storage.from("resumes").createSignedUrl(path, 120);
-      if (error || !data?.signedUrl) return null;
-      console.log("[employer] legacy signed URL:", data.signedUrl);
-      return data.signedUrl;
-    } else {
-      const { data } = supabase.storage.from("applications").getPublicUrl(path);
-      console.log("[employer] public URL:", data?.publicUrl);
-      return data?.publicUrl || null;
-    }
+    const bucket = isLegacy ? "resumes" : "applications";
+    const { data, error } = await supabase.storage.from(bucket).download(path);
+    if (error || !data) return null;
+    return data;
   };
 
   const handleOpenDocument = async (path: string, label: string) => {
-    const url = await getDocumentUrl(path);
-    if (!url) {
-      toast({ title: "Fehler", description: `${label} konnte nicht geladen werden`, variant: "destructive" });
+    const blob = await downloadBlob(path);
+    if (!blob) {
+      toast({ title: "Fehler", description: `${label} konnte nicht geladen werden. Bitte deaktiviere deinen Ad-Blocker, falls der Download nicht startet.`, variant: "destructive" });
       return;
     }
+    const url = URL.createObjectURL(blob);
     window.open(url, "_blank");
   };
 
   const handleDownloadDocument = async (path: string, label: string) => {
-    const url = await getDocumentUrl(path);
-    if (!url) {
-      toast({ title: "Fehler", description: `${label} konnte nicht heruntergeladen werden`, variant: "destructive" });
+    const blob = await downloadBlob(path);
+    if (!blob) {
+      toast({ title: "Fehler", description: `${label} konnte nicht heruntergeladen werden. Bitte deaktiviere deinen Ad-Blocker, falls der Download nicht startet.`, variant: "destructive" });
       return;
     }
+    const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
     link.download = path.split("/").pop()?.replace(/^(resume|certificates|cover_letter)_\d+_/, "") || "dokument.pdf";
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const handleOpenResume = () => {
