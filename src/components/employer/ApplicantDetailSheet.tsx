@@ -131,15 +131,25 @@ const ApplicantDetailSheet = ({
     },
   });
 
-  const handleOpenDocument = async (path: string, label: string) => {
-    const { data, error } = await supabase.storage
-      .from("resumes")
-      .createSignedUrl(path, 60);
-    if (error) {
+  const handleOpenDocument = (path: string, label: string) => {
+    const { data } = supabase.storage.from("applications").getPublicUrl(path);
+    if (!data?.publicUrl) {
       toast({ title: "Fehler", description: `${label} konnte nicht geladen werden`, variant: "destructive" });
       return;
     }
-    window.open(data.signedUrl, "_blank");
+    window.open(data.publicUrl, "_blank");
+  };
+
+  const handleDownloadDocument = async (path: string, label: string) => {
+    const { data } = supabase.storage.from("applications").getPublicUrl(path, { download: true });
+    if (!data?.publicUrl) {
+      toast({ title: "Fehler", description: `${label} konnte nicht heruntergeladen werden`, variant: "destructive" });
+      return;
+    }
+    const link = document.createElement("a");
+    link.href = data.publicUrl;
+    link.download = path.split("/").pop()?.replace(/^(resume|certificates|cover_letter)_\d+_/, "") || "dokument.pdf";
+    link.click();
   };
 
   const handleOpenResume = () => {
