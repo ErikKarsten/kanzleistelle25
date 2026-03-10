@@ -120,8 +120,9 @@ const ApplicantDetailSheet = ({
   useEffect(() => {
     return () => {
       if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
-  }, [autoSaveTimeout]);
+  }, [autoSaveTimeout, previewUrl]);
 
   // Status mutation
   const updateStatusMutation = useMutation({
