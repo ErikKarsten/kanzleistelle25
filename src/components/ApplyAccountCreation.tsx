@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { buildWelcomeApplicantEmail } from "@/lib/emailTemplates";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -68,6 +69,14 @@ const ApplyAccountCreation = ({
           console.error("Error linking application:", linkError);
         }
       }
+
+      // Send welcome email
+      try {
+        const tpl = buildWelcomeApplicantEmail({ firstName });
+        await supabase.functions.invoke("send-contact-email", {
+          body: { to_email: email, to_name: firstName || email, subject: tpl.subject, html: tpl.html },
+        });
+      } catch (e) { console.warn("[welcome-email] Send error:", e); }
 
       toast({
         title: "Konto gesichert! 🎉",

@@ -173,3 +173,54 @@ export function buildApplicantConfirmationEmail(data: ApplicantConfirmationData)
     html: wrap(body),
   };
 }
+
+/* ------------------------------------------------------------------ */
+/* Template D – Willkommens-E-Mail für neue Bewerber                   */
+/* ------------------------------------------------------------------ */
+
+interface WelcomeApplicantData {
+  firstName?: string;
+}
+
+export function buildWelcomeApplicantEmail(data: WelcomeApplicantData) {
+  const greeting = data.firstName ? `Hallo ${data.firstName}` : "Herzlich willkommen";
+
+  function step(num: number, title: string, desc: string): string {
+    return `<tr>
+      <td style="width:44px;vertical-align:top;padding:0 16px 20px 0;">
+        <div style="width:36px;height:36px;border-radius:50%;background:#00AEEF;color:#ffffff;font-size:16px;font-weight:700;line-height:36px;text-align:center;">${num}</div>
+      </td>
+      <td style="vertical-align:top;padding:0 0 20px;">
+        <p style="margin:0 0 2px;font-size:15px;font-weight:700;color:#003366;">${title}</p>
+        <p style="margin:0;font-size:14px;color:#4A5568;line-height:1.5;">${desc}</p>
+      </td>
+    </tr>`;
+  }
+
+  const body = `
+    <p style="margin:0 0 6px;font-size:20px;font-weight:700;color:#003366;">${greeting}! 🎉</p>
+    <p style="margin:0 0 24px;font-size:15px;color:#4A5568;line-height:1.6;">
+      Schön, dass du dich bei <strong style="color:#003366;">Kanzleistellen24</strong> registriert hast – deiner Karriereplattform für Steuerkanzleien. Dein Konto ist jetzt aktiv!
+    </p>
+
+    <p style="margin:0 0 16px;font-size:16px;font-weight:700;color:#003366;">So geht's weiter:</p>
+    <table cellpadding="0" cellspacing="0" style="width:100%;">
+      ${step(1, "Profil vervollständigen", "Lade deinen Lebenslauf hoch und ergänze Fachkenntnisse, Gehaltsvorstellung und Eintrittsdatum.")}
+      ${step(2, "Passende Stellen entdecken", "Durchstöbere aktuelle Stellenangebote aus Steuerkanzleien in deiner Region.")}
+      ${step(3, "Direkt bewerben", "Bewirb dich mit einem Klick – dein Profil wird automatisch übermittelt.")}
+    </table>
+
+    ${ctaButton("Jetzt Profil vervollständigen →", `${DASHBOARD_URL}/bewerber`)}
+
+    <p style="margin:0 0 8px;font-size:15px;color:#4A5568;line-height:1.6;">
+      Je vollständiger dein Profil ist, desto schneller finden Kanzleien den Weg zu dir.
+    </p>
+    <p style="margin:0;font-size:13px;color:#A0AEC0;line-height:1.5;">
+      Bei Fragen erreichst du uns jederzeit unter <a href="mailto:info@kanzleistellen24.de" style="color:#00AEEF;text-decoration:none;">info@kanzleistellen24.de</a>.
+    </p>`;
+
+  return {
+    subject: "Willkommen bei Kanzleistellen24 – Dein Karrierestart! 🚀",
+    html: wrap(body),
+  };
+}
