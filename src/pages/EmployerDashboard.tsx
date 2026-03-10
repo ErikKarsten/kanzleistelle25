@@ -154,22 +154,10 @@ const ApplicationCard = ({
             </a>
           )}
           {app.resume_url && (
-            <button
-              onClick={async () => {
-                const { data, error } = await supabase.storage
-                  .from("resumes")
-                  .createSignedUrl(app.resume_url!, 60);
-                if (error) {
-                  toast({ title: "Fehler", description: "Lebenslauf konnte nicht geladen werden", variant: "destructive" });
-                  return;
-                }
-                window.open(data.signedUrl, "_blank");
-              }}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-sm font-medium"
-            >
+            <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
               <Paperclip className="h-3.5 w-3.5" />
-              Lebenslauf öffnen
-            </button>
+              Lebenslauf vorhanden
+            </span>
           )}
         </div>
         {app.applicant_role && (
