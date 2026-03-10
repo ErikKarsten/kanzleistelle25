@@ -176,9 +176,9 @@ const BewerberDashboard = () => {
       <Header />
       <main className="flex-1 container py-8 max-w-3xl">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-foreground">Meine Bewerbungen</h1>
+          <h1 className="text-2xl font-bold text-foreground">Mein Dashboard</h1>
           <p className="text-muted-foreground mt-1">
-            Verfolge den Status deiner Bewerbungen und kommuniziere direkt mit Kanzleien.
+            Verfolge den Status deiner Bewerbungen, vervollständige dein Profil und kommuniziere direkt mit Kanzleien.
           </p>
         </div>
 
@@ -190,125 +190,186 @@ const BewerberDashboard = () => {
           onOpenChat={openChat}
         />
 
-        {isLoading ? (
-          <div className="space-y-4">
-            {[1, 2, 3].map((i) => (
-              <Skeleton key={i} className="h-28 rounded-xl" />
-            ))}
-          </div>
-        ) : applications && applications.length > 0 ? (
-          <div className="space-y-4">
-            {applications.map((app: any) => {
-              const status = statusConfig[app.status || "pending"] || statusConfig.pending;
-              const companyLogo = app.jobs?.company_id ? getCompanyLogo(app.jobs.company_id) : null;
-              const unread = unreadCounts?.[app.id] || 0;
-              const withdrawn = isWithdrawn(app.status);
+        <Tabs value={mainTab} onValueChange={setMainTab} className="mt-6">
+          <TabsList className="mb-6">
+            <TabsTrigger value="applications" className="flex items-center gap-2">
+              <Briefcase className="h-4 w-4" />
+              Meine Bewerbungen
+              {applications && applications.length > 0 && (
+                <Badge variant="secondary" className="ml-1 text-xs">{applications.length}</Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="profile" className="flex items-center gap-2">
+              <UserCircle className="h-4 w-4" />
+              Profil bearbeiten
+            </TabsTrigger>
+          </TabsList>
 
-              return (
-                <Card key={app.id} className={`overflow-hidden transition-shadow cursor-pointer ${withdrawn ? "opacity-60" : "hover:shadow-md"}`} onClick={() => !withdrawn && setDetailApp(app)}>
-                  <CardContent className="p-4">
-                    <div className="flex items-start gap-4">
-                      <Avatar className="h-12 w-12 rounded-lg border border-border shrink-0">
-                        {companyLogo ? (
-                          <AvatarImage src={companyLogo} alt={app.jobs?.company} className="object-cover" />
-                        ) : null}
-                        <AvatarFallback className="rounded-lg bg-primary/10 text-primary text-sm font-semibold">
-                          {(app.jobs?.company || "??").substring(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
+          {/* Applications Tab */}
+          <TabsContent value="applications">
+            {isLoading ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-28 rounded-xl" />
+                ))}
+              </div>
+            ) : applications && applications.length > 0 ? (
+              <div className="space-y-4">
+                {applications.map((app: any) => {
+                  const status = statusConfig[app.status || "pending"] || statusConfig.pending;
+                  const companyLogo = app.jobs?.company_id ? getCompanyLogo(app.jobs.company_id) : null;
+                  const unread = unreadCounts?.[app.id] || 0;
+                  const withdrawn = isWithdrawn(app.status);
 
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="min-w-0">
-                            <h3 className="font-semibold text-foreground truncate">
-                              {app.jobs?.title || "Unbekannte Stelle"}
-                            </h3>
-                            <p className="text-sm text-muted-foreground truncate">
-                              {app.jobs?.company}
-                              {app.jobs?.location && ` · ${app.jobs.location}`}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <Badge variant={status.variant} className={status.className}>
-                              {status.label}
-                            </Badge>
+                  return (
+                    <Card key={app.id} className={`overflow-hidden transition-shadow cursor-pointer ${withdrawn ? "opacity-60" : "hover:shadow-md"}`} onClick={() => !withdrawn && setDetailApp(app)}>
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-4">
+                          <Avatar className="h-12 w-12 rounded-lg border border-border shrink-0">
+                            {companyLogo ? (
+                              <AvatarImage src={companyLogo} alt={app.jobs?.company} className="object-cover" />
+                            ) : null}
+                            <AvatarFallback className="rounded-lg bg-primary/10 text-primary text-sm font-semibold">
+                              {(app.jobs?.company || "??").substring(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <h3 className="font-semibold text-foreground truncate">
+                                  {app.jobs?.title || "Unbekannte Stelle"}
+                                </h3>
+                                <p className="text-sm text-muted-foreground truncate">
+                                  {app.jobs?.company}
+                                  {app.jobs?.location && ` · ${app.jobs.location}`}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <Badge variant={status.variant} className={status.className}>
+                                  {status.label}
+                                </Badge>
+                                {!withdrawn && (
+                                  <div onClick={(e) => e.stopPropagation()}>
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                                          <MoreVertical className="h-4 w-4" />
+                                        </Button>
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent align="end">
+                                        <DropdownMenuItem
+                                          onClick={() => { setProfileApp(app); setMainTab("profile"); }}
+                                        >
+                                          <UserCircle className="h-4 w-4 mr-2" />
+                                          Profil bearbeiten
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem
+                                          onClick={() => setWithdrawApp(app)}
+                                          className="text-destructive focus:text-destructive"
+                                        >
+                                          <XCircle className="h-4 w-4 mr-2" />
+                                          Bewerbung zurückziehen
+                                        </DropdownMenuItem>
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-4 mt-3">
+                              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                {app.created_at && format(new Date(app.created_at), "dd. MMM yyyy", { locale: de })}
+                              </span>
+                              {app.resume_url && (
+                                <span className="text-xs text-primary flex items-center gap-1">
+                                  <FileText className="h-3 w-3" />
+                                  Lebenslauf angehängt
+                                </span>
+                              )}
+                            </div>
+
                             {!withdrawn && (
-                              <div onClick={(e) => e.stopPropagation()}>
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                                      <MoreVertical className="h-4 w-4" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent align="end">
-                                    <DropdownMenuItem
-                                      onClick={() => setWithdrawApp(app)}
-                                      className="text-destructive focus:text-destructive"
-                                    >
-                                      <XCircle className="h-4 w-4 mr-2" />
-                                      Bewerbung zurückziehen
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
+                              <div className="mt-3" onClick={(e) => e.stopPropagation()}>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => openChat(app)}
+                                  className="relative"
+                                >
+                                  <MessageCircle className="h-4 w-4 mr-1.5" />
+                                  Nachricht
+                                  {unread > 0 && (
+                                    <span className="absolute -top-1.5 -right-1.5 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                      {unread}
+                                    </span>
+                                  )}
+                                </Button>
                               </div>
                             )}
                           </div>
                         </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            ) : (
+              <Card className="text-center py-12">
+                <CardContent>
+                  <Briefcase className="h-12 w-12 mx-auto mb-4 text-muted-foreground/30" />
+                  <h3 className="text-lg font-semibold text-foreground mb-2">
+                    Noch keine Bewerbungen
+                  </h3>
+                  <p className="text-muted-foreground mb-4">
+                    Stöbere durch unsere Stellenangebote und bewirb dich in 30 Sekunden!
+                  </p>
+                  <Button onClick={() => navigate("/")} variant="default">
+                    Stellenangebote ansehen
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
 
-                        <div className="flex items-center gap-4 mt-3">
-                          <span className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Calendar className="h-3 w-3" />
-                            {app.created_at && format(new Date(app.created_at), "dd. MMM yyyy", { locale: de })}
-                          </span>
-                          {app.resume_url && (
-                            <span className="text-xs text-primary flex items-center gap-1">
-                              <FileText className="h-3 w-3" />
-                              Lebenslauf angehängt
-                            </span>
-                          )}
-                        </div>
-
-                        {!withdrawn && (
-                          <div className="mt-3" onClick={(e) => e.stopPropagation()}>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => openChat(app)}
-                              className="relative"
-                            >
-                              <MessageCircle className="h-4 w-4 mr-1.5" />
-                              Nachricht
-                              {unread > 0 && (
-                                <span className="absolute -top-1.5 -right-1.5 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                                  {unread}
-                                </span>
-                              )}
-                            </Button>
-                          </div>
-                        )}
-                      </div>
+          {/* Profile Tab */}
+          <TabsContent value="profile">
+            {applications && applications.length > 0 ? (
+              <>
+                {applications.length > 1 && (
+                  <div className="mb-6">
+                    <p className="text-sm text-muted-foreground mb-2">Wähle die Bewerbung, deren Profil du bearbeiten möchtest:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {applications.map((app: any) => (
+                        <Button
+                          key={app.id}
+                          variant={profileApp?.id === app.id ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setProfileApp(app)}
+                        >
+                          {app.jobs?.title || "Bewerbung"} – {app.jobs?.company || ""}
+                        </Button>
+                      ))}
                     </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        ) : (
-          <Card className="text-center py-12">
-            <CardContent>
-              <Briefcase className="h-12 w-12 mx-auto mb-4 text-muted-foreground/30" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">
-                Noch keine Bewerbungen
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Stöbere durch unsere Stellenangebote und bewirb dich in 30 Sekunden!
-              </p>
-              <Button onClick={() => navigate("/")} variant="default">
-                Stellenangebote ansehen
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+                  </div>
+                )}
+                <ApplicantProfileEditor
+                  application={profileApp || applications[0]}
+                  userId={user?.id || ""}
+                />
+              </>
+            ) : (
+              <Card className="text-center py-12">
+                <CardContent>
+                  <UserCircle className="h-12 w-12 mx-auto mb-4 text-muted-foreground/30" />
+                  <p className="text-muted-foreground">Bewirb dich zuerst, um dein Profil zu vervollständigen.</p>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
 
         {/* Account Settings Section */}
         <Separator className="my-10" />
