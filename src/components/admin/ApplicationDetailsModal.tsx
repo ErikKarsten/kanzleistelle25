@@ -14,7 +14,7 @@ import {
   Briefcase, 
   Calendar, 
   FileText,
-  ExternalLink,
+  Download,
   Archive,
   Trash2
 } from "lucide-react";
@@ -31,8 +31,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { handleDownload, buildSafeDocumentName } from "@/lib/documentAccess";
 
 interface ApplicationWithJob {
   id: string;
@@ -84,17 +84,16 @@ const ApplicationDetailsModal = ({
 
   const handleDownloadResume = async () => {
     if (!application.resume_url) return;
-
-    const { data, error } = await supabase.storage
-      .from("resumes")
-      .createSignedUrl(application.resume_url, 60);
-
-    if (error) {
-      toast.error("Lebenslauf konnte nicht geladen werden");
-      return;
+    const fileName = buildSafeDocumentName({
+      label: "Lebenslauf",
+      firstName: application.first_name,
+      lastName: application.last_name,
+      rawPath: application.resume_url,
+    });
+    const success = await handleDownload(application.resume_url, fileName);
+    if (!success) {
+      toast.error("Dokument konnte nicht vom Server abgerufen werden.");
     }
-
-    window.open(data.signedUrl, "_blank");
   };
 
   const status = statusConfig[application.status || "pending"] || statusConfig.pending;
@@ -225,8 +224,8 @@ const ApplicationDetailsModal = ({
               className="w-full"
               variant="outline"
             >
-              <ExternalLink className="h-4 w-4 mr-2" />
-              Lebenslauf öffnen
+              <Download className="h-4 w-4 mr-2" />
+              Lebenslauf herunterladen
             </Button>
           )}
 

@@ -11,7 +11,7 @@ import { FileText } from "lucide-react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import StatusSelect from "./StatusSelect";
-import { supabase } from "@/integrations/supabase/client";
+import { handleDownload, buildSafeDocumentName } from "@/lib/documentAccess";
 import { toast } from "sonner";
 
 interface ApplicationWithJob {
@@ -40,17 +40,18 @@ interface ApplicationsTableProps {
 }
 
 const ApplicationsTable = ({ applications, onViewDetails }: ApplicationsTableProps) => {
-  const handleOpenResume = async (resumePath: string) => {
-    const { data, error } = await supabase.storage
-      .from("resumes")
-      .createSignedUrl(resumePath, 60);
-
-    if (error) {
+  const handleOpenResume = async (app: ApplicationWithJob) => {
+    if (!app.resume_url) return;
+    const fileName = buildSafeDocumentName({
+      label: "Lebenslauf",
+      firstName: app.first_name,
+      lastName: app.last_name,
+      rawPath: app.resume_url,
+    });
+    const success = await handleDownload(app.resume_url, fileName);
+    if (!success) {
       toast.error("Lebenslauf konnte nicht geladen werden");
-      return;
     }
-
-    window.open(data.signedUrl, "_blank");
   };
 
   if (applications.length === 0) {
@@ -130,8 +131,8 @@ const ApplicationsTable = ({ applications, onViewDetails }: ApplicationsTablePro
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleOpenResume(app.resume_url!)}
-                      title="Lebenslauf öffnen"
+                      onClick={() => handleOpenResume(app)}
+                      title="Lebenslauf herunterladen"
                     >
                       <FileText className="h-4 w-4" />
                     </Button>

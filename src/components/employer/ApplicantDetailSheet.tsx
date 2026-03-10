@@ -30,7 +30,6 @@ import {
   DollarSign,
   Clock,
   Sparkles,
-  Eye,
 } from "lucide-react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -144,8 +143,8 @@ const ApplicantDetailSheet = ({
     });
   }, [application?.first_name, application?.last_name]);
 
-  const runDocumentDownload = useCallback(async (path: string, label: string, action: "preview" | "download") => {
-    const actionKey = `${action}:${path}`;
+  const handleDownloadDocument = useCallback(async (path: string, label: string) => {
+    const actionKey = `download:${path}`;
     setActiveDownloadKey(actionKey);
     setActiveDownloadLabel(label);
 
@@ -153,14 +152,9 @@ const ApplicantDetailSheet = ({
       const success = await handleDownload(path, getDocumentName(path, label));
       if (!success) {
         toast({ title: "Fehler", description: "Dokument konnte nicht vom Server abgerufen werden.", variant: "destructive" });
-        return;
-      }
-
-      if (action === "preview") {
-        toast({ title: "Info", description: "Vorschau wird als sicherer Download bereitgestellt." });
       }
     } catch (error) {
-      console.error("[document-download] failed", { path, action, error });
+      console.error("[document-download] failed", { path, error });
       toast({
         title: "Fehler",
         description: "Download blockiert? Bitte prüfe deine Browser-Erweiterungen oder Ad-Blocker.",
@@ -171,14 +165,6 @@ const ApplicantDetailSheet = ({
       setActiveDownloadLabel("");
     }
   }, [getDocumentName, toast]);
-
-  const handleDownloadDocument = useCallback(async (path: string, label: string) => {
-    await runDocumentDownload(path, label, "download");
-  }, [runDocumentDownload]);
-
-  const handleOpenDocument = useCallback(async (path: string, label: string) => {
-    await runDocumentDownload(path, label, "preview");
-  }, [runDocumentDownload]);
 
   const handleExportPDF = async () => {
     if (!application) return;
@@ -584,14 +570,9 @@ const ApplicantDetailSheet = ({
                     </div>
                   </div>
                   {url && (
-                    <div className="flex items-center gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" title="Ansehen (sicherer Download)" onClick={() => handleOpenDocument(url, label)} disabled={activeDownloadKey !== null}>
-                        <Eye className="h-4 w-4 text-primary" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" title="Herunterladen" onClick={() => handleDownloadDocument(url, label)} disabled={activeDownloadKey !== null}>
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" title="Herunterladen" onClick={() => handleDownloadDocument(url, label)} disabled={activeDownloadKey !== null}>
+                      <Download className="h-4 w-4 text-primary" />
+                    </Button>
                   )}
                 </div>
               ))}
