@@ -98,7 +98,7 @@ const ApplicationCard = ({
   return (
   <div
     onClick={() => onClickDetail?.(app)}
-    className={`p-4 border rounded-lg transition-colors cursor-pointer ${
+    className={`p-4 border rounded-lg transition-all duration-300 cursor-pointer ${
       !isArchived && app.status === "pending"
         ? "border-orange-200 bg-orange-50/50"
         : isArchived
