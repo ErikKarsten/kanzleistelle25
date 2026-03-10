@@ -118,12 +118,12 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
 
     setUploading(type);
     const cleanName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const path = `applications/${application.id}/${type}_${Date.now()}_${cleanName}`;
+    const path = `${application.id}/${type}_${Date.now()}_${cleanName}`;
 
     try {
       const { error: uploadError } = await supabase.storage
-        .from("resumes")
-        .upload(path, file);
+        .from("applications")
+        .upload(path, file, { upsert: true });
       if (uploadError) throw uploadError;
 
       const columnMap: Record<string, string> = {
