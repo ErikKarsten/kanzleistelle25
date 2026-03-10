@@ -20,7 +20,7 @@ const PasswortVergessen = () => {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/passwort-zuruecksetzen`,
+        redirectTo: "https://kanzleistelle24.de/passwort-zuruecksetzen",
       });
 
       if (error) throw error;

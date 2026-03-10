@@ -270,3 +270,51 @@ export function buildWelcomeApplicantEmail(data: WelcomeApplicantData) {
     html: wrap(body, "bewerber"),
   };
 }
+
+/* ------------------------------------------------------------------ */
+/* Template E – Passwort zurücksetzen (Bewerber = Du / Kanzlei = Sie)  */
+/* ------------------------------------------------------------------ */
+
+interface PasswordResetData {
+  resetLink: string;
+  audience?: Audience;
+}
+
+export function buildPasswordResetEmail(data: PasswordResetData) {
+  const isKanzlei = data.audience === "kanzlei";
+
+  const subject = isKanzlei
+    ? "Passwort zurücksetzen für Ihr Kanzleistelle24-Konto"
+    : "Passwort zurücksetzen für Dein Kanzleistelle24-Konto";
+
+  const body = isKanzlei
+    ? `<p style="margin:0 0 16px;font-size:16px;color:#2D3748;">Guten Tag,</p>
+       <p style="margin:0 0 16px;font-size:15px;color:#4A5568;line-height:1.6;">
+         wir haben eine Anfrage zum Zurücksetzen Ihres Passworts erhalten. Kein Problem – klicken Sie einfach auf den Button unten, um ein neues Passwort festzulegen.
+       </p>
+       <p style="margin:0 0 24px;font-size:15px;color:#4A5568;line-height:1.6;">
+         Falls Sie diese Anfrage nicht gestellt haben, können Sie diese E-Mail ignorieren. Ihr Passwort bleibt unverändert.
+       </p>
+       ${ctaButton("Neues Passwort festlegen →", data.resetLink)}
+       <p style="margin:0;font-size:13px;color:#A0AEC0;line-height:1.5;">
+         Dieser Link ist aus Sicherheitsgründen nur für begrenzte Zeit gültig. Bei Fragen erreichen Sie uns unter
+         <a href="mailto:info@kanzleistelle24.de" style="color:#00AEEF;text-decoration:none;">info@kanzleistelle24.de</a>.
+       </p>`
+    : `<p style="margin:0 0 16px;font-size:16px;color:#2D3748;">Hallo! 👋</p>
+       <p style="margin:0 0 16px;font-size:15px;color:#4A5568;line-height:1.6;">
+         Kein Problem, das passiert den Besten. Klicke auf den Button unten, um ein neues Passwort festzulegen.
+       </p>
+       <p style="margin:0 0 24px;font-size:15px;color:#4A5568;line-height:1.6;">
+         Falls du diese Anfrage nicht gestellt hast, kannst du diese E-Mail einfach ignorieren. Dein Passwort bleibt unverändert.
+       </p>
+       ${ctaButton("Neues Passwort festlegen →", data.resetLink)}
+       <p style="margin:0;font-size:13px;color:#A0AEC0;line-height:1.5;">
+         Dieser Link ist aus Sicherheitsgründen nur für begrenzte Zeit gültig. Bei Fragen erreichst du uns unter
+         <a href="mailto:info@kanzleistelle24.de" style="color:#00AEEF;text-decoration:none;">info@kanzleistelle24.de</a>.
+       </p>`;
+
+  return {
+    subject,
+    html: wrap(body, data.audience || "bewerber"),
+  };
+}
