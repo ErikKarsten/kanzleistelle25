@@ -570,14 +570,9 @@ const ApplicantDetailSheet = ({
                     </div>
                   </div>
                   {url && (
-                    <div className="flex items-center gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" title="Ansehen (sicherer Download)" onClick={() => handleOpenDocument(url, label)} disabled={activeDownloadKey !== null}>
-                        <Eye className="h-4 w-4 text-primary" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" title="Herunterladen" onClick={() => handleDownloadDocument(url, label)} disabled={activeDownloadKey !== null}>
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" title="Herunterladen" onClick={() => handleDownloadDocument(url, label)} disabled={activeDownloadKey !== null}>
+                      <Download className="h-4 w-4 text-primary" />
+                    </Button>
                   )}
                 </div>
               ))}
