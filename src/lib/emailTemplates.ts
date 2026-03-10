@@ -167,7 +167,7 @@ export function buildApplicantConfirmationEmail(data: ApplicantConfirmationData)
       Je vollständiger dein Profil ist, desto besser stehen deine Chancen auf eine Einladung zum Vorstellungsgespräch.
     </p>
 
-    ${ctaButton("Zum Dashboard →", `${DASHBOARD_URL}/bewerber`)}`;
+    ${ctaButton("Zum Dashboard →", `${DASHBOARD_URL}/login`)}`;
 
   return {
     subject: "Deine Bewerbung bei Kanzleistelle24 – Profil aktualisiert",
