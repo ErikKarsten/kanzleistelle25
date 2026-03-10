@@ -791,6 +791,16 @@ const EmployerDashboard = () => {
             onOpenChat={(app) => { setChatApp(app); setChatOpen(true); }}
           />
 
+          {/* Updated Profiles Widget */}
+          <UpdatedProfilesWidget
+            updatedApplications={updatedApplications}
+            onViewProfile={(app) => {
+              setActiveTab("applications");
+              setApplicationsTab("active");
+              setSelectedApplicant(app);
+            }}
+          />
+
           {/* Main Content Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="mb-6">
