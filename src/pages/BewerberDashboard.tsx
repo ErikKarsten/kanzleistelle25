@@ -155,6 +155,23 @@ const BewerberDashboard = () => {
     enabled: !!user?.id && !!applications && applications.length > 0,
   });
 
+  // Check profile completeness for onboarding popup
+  const profileIncomplete = useMemo(() => {
+    if (!applications || applications.length === 0) return false;
+    const app = applications[0];
+    const fields = ["resume_url", "earliest_start_date", "salary_expectation", "notice_period", "special_skills"];
+    return fields.some((f) => !app[f] || String(app[f]).trim() === "");
+  }, [applications]);
+
+  useEffect(() => {
+    if (profileIncomplete && !onboardingShown.current && applications && applications.length > 0) {
+      onboardingShown.current = true;
+      // Small delay so dashboard renders first
+      const t = setTimeout(() => setOnboardingOpen(true), 600);
+      return () => clearTimeout(t);
+    }
+  }, [profileIncomplete, applications]);
+
   const getCompanyLogo = (companyId: string) => {
     return companies?.find((c: any) => c.id === companyId)?.logo_url || null;
   };
