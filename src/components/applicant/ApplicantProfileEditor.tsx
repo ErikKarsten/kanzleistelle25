@@ -21,7 +21,6 @@ import {
   DollarSign,
   Clock,
   Sparkles,
-  Eye,
   Download,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
