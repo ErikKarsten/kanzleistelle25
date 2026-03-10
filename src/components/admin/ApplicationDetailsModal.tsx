@@ -84,17 +84,16 @@ const ApplicationDetailsModal = ({
 
   const handleDownloadResume = async () => {
     if (!application.resume_url) return;
-
-    const { data, error } = await supabase.storage
-      .from("resumes")
-      .createSignedUrl(application.resume_url, 60);
-
-    if (error) {
-      toast.error("Lebenslauf konnte nicht geladen werden");
-      return;
+    const fileName = buildSafeDocumentName({
+      label: "Lebenslauf",
+      firstName: application.first_name,
+      lastName: application.last_name,
+      rawPath: application.resume_url,
+    });
+    const success = await handleDownload(application.resume_url, fileName);
+    if (!success) {
+      toast.error("Dokument konnte nicht vom Server abgerufen werden.");
     }
-
-    window.open(data.signedUrl, "_blank");
   };
 
   const status = statusConfig[application.status || "pending"] || statusConfig.pending;
