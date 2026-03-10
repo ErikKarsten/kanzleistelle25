@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { buildNewApplicationEmail } from "@/lib/emailTemplates";
 import {
   Dialog,
   DialogContent,
