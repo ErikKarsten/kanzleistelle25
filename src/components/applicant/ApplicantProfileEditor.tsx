@@ -161,7 +161,7 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
 
     try {
       if (currentPath) {
-        await supabase.storage.from("resumes").remove([currentPath]);
+        await supabase.storage.from("applications").remove([currentPath]);
       }
       const { error } = await supabase
         .from("applications")
