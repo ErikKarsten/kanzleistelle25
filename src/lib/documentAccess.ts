@@ -67,6 +67,33 @@ const buildCandidateTargets = (rawPath: string): DownloadTarget[] => {
   return [...deduped.values()];
 };
 
+const triggerAnchorDownload = (url: string, fileName: string) => {
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+const trySignedUrlDownload = async (target: DownloadTarget, fileName: string): Promise<boolean> => {
+  const { data, error } = await supabase.storage.from(target.bucket).createSignedUrl(target.path, 60, {
+    download: fileName,
+  });
+
+  if (error || !data?.signedUrl) {
+    console.error("[document-download] Signed URL failed", {
+      bucket: target.bucket,
+      path: target.path,
+      error,
+    });
+    return false;
+  }
+
+  triggerAnchorDownload(data.signedUrl, fileName);
+  return true;
+};
+
 export const downloadApplicationDocument = async (rawPath: string): Promise<DownloadSuccess | null> => {
   const candidates = buildCandidateTargets(rawPath);
 
@@ -92,13 +119,25 @@ export const downloadApplicationDocument = async (rawPath: string): Promise<Down
 
 export const triggerBlobDownload = (blob: Blob, fileName: string) => {
   const objectUrl = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = objectUrl;
-  link.download = fileName;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  triggerAnchorDownload(objectUrl, fileName);
   URL.revokeObjectURL(objectUrl);
+};
+
+export const handleDownload = async (rawPath: string, fileName: string): Promise<boolean> => {
+  const candidates = buildCandidateTargets(rawPath);
+
+  for (const candidate of candidates) {
+    const signedDownloadStarted = await trySignedUrlDownload(candidate, fileName);
+    if (signedDownloadStarted) {
+      return true;
+    }
+  }
+
+  const blobResult = await downloadApplicationDocument(rawPath);
+  if (!blobResult) return false;
+
+  triggerBlobDownload(blobResult.blob, fileName);
+  return true;
 };
 
 export const buildSafeDocumentName = (params: {
@@ -113,11 +152,10 @@ export const buildSafeDocumentName = (params: {
 
   const rawTail = params.rawPath?.split("/").pop() || "";
   const fromStorage = rawTail.replace(/^(resume|certificates|cover_letter)_\d+_/, "");
-  const hasPdfExtension = /\.pdf$/i.test(fromStorage);
 
   if (fromStorage) {
     const base = cleanSegment(fromStorage.replace(/\.pdf$/i, ""));
-    return `${label}_${first}_${last}_${base}${hasPdfExtension ? ".pdf" : ".pdf"}`;
+    return `${label}_${first}_${last}_${base}.pdf`;
   }
 
   return `${label}_${first}_${last}.pdf`;

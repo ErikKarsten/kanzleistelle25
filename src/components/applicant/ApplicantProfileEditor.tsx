@@ -5,13 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
 
 import {
   User,
@@ -34,12 +28,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { calculateProfileCompletion } from "@/lib/profileCompletion";
-import {
-  buildSafeDocumentName,
-  downloadApplicationDocument,
-  normalizeStoragePath,
-  triggerBlobDownload,
-} from "@/lib/documentAccess";
+import { buildSafeDocumentName, handleDownload, normalizeStoragePath } from "@/lib/documentAccess";
 import { cn } from "@/lib/utils";
 
 interface ApplicantProfileEditorProps {
@@ -74,9 +63,8 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
   });
 
   const [uploading, setUploading] = useState<string | null>(null);
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [previewFileName, setPreviewFileName] = useState("");
+  const [activeDownloadKey, setActiveDownloadKey] = useState<string | null>(null);
+  const [activeDownloadLabel, setActiveDownloadLabel] = useState("");
 
   useEffect(() => {
     if (application) {
@@ -93,11 +81,6 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
     }
   }, [application?.id]);
 
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
 
   // Calculate profile completion using shared weighted logic with live form data
   const completion = useMemo(() => {
@@ -225,47 +208,37 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
     });
   }, [formData.first_name, formData.last_name, application?.first_name, application?.last_name]);
 
-  const handleDownloadFile = useCallback(async (path: string, label: string) => {
+  const runDocumentDownload = useCallback(async (path: string, label: string, action: "preview" | "download") => {
+    const actionKey = `${action}:${path}`;
+    setActiveDownloadKey(actionKey);
+    setActiveDownloadLabel(label);
+
     try {
-      const result = await downloadApplicationDocument(path);
-      if (!result) {
+      const success = await handleDownload(path, getDocumentName(path, label));
+      if (!success) {
         toast.error("Dokument konnte nicht vom Server abgerufen werden.");
         return;
       }
-      triggerBlobDownload(result.blob, getDocumentName(path, label));
+
+      if (action === "preview") {
+        toast.success("Vorschau wird als sicherer Download bereitgestellt.");
+      }
     } catch (error) {
-      console.error("[document-download] failed", { path, error });
-      toast.error("Dokument konnte nicht vom Server abgerufen werden.");
+      console.error("[document-download] failed", { path, action, error });
+      toast.error("Download blockiert? Bitte prüfe deine Browser-Erweiterungen oder Ad-Blocker.");
+    } finally {
+      setActiveDownloadKey(null);
+      setActiveDownloadLabel("");
     }
   }, [getDocumentName]);
 
+  const handleDownloadFile = useCallback(async (path: string, label: string) => {
+    await runDocumentDownload(path, label, "download");
+  }, [runDocumentDownload]);
+
   const handlePreviewFile = useCallback(async (path: string, label: string) => {
-    try {
-      const result = await downloadApplicationDocument(path);
-      if (!result) {
-        toast.error("Dokument konnte nicht vom Server abgerufen werden.");
-        return;
-      }
-
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-      const objectUrl = URL.createObjectURL(result.blob);
-      setPreviewUrl(objectUrl);
-      setPreviewFileName(getDocumentName(path, label));
-      setPreviewOpen(true);
-    } catch (error) {
-      console.error("[document-preview] failed", { path, error });
-      toast.error("Dokument konnte nicht vom Server abgerufen werden.");
-    }
-  }, [getDocumentName, previewUrl]);
-
-  const handlePreviewOpenChange = useCallback((open: boolean) => {
-    setPreviewOpen(open);
-    if (!open && previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
-      setPreviewFileName("");
-    }
-  }, [previewUrl]);
+    await runDocumentDownload(path, label, "preview");
+  }, [runDocumentDownload]);
 
   const FileUploadSlot = ({ type, label, icon: Icon, currentUrl }: { type: "resume" | "certificates" | "cover_letter"; label: string; icon: any; currentUrl: string | null }) => {
     // Extract readable filename from storage path
@@ -300,8 +273,9 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8"
-                title="Ansehen"
+                title="Ansehen (sicherer Download)"
                 onClick={() => handlePreviewFile(currentUrl, label)}
+                disabled={activeDownloadKey !== null}
               >
                 <Eye className="h-4 w-4 text-primary" />
               </Button>
@@ -311,6 +285,7 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
                 className="h-8 w-8"
                 title="Herunterladen"
                 onClick={() => handleDownloadFile(currentUrl, label)}
+                disabled={activeDownloadKey !== null}
               >
                 <Download className="h-4 w-4" />
               </Button>
@@ -533,23 +508,16 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
         </Button>
       </div>
 
-      <Dialog open={previewOpen} onOpenChange={handlePreviewOpenChange}>
-        <DialogContent className="max-w-4xl h-[85vh] p-0 overflow-hidden">
-          <DialogHeader className="px-6 pt-5 pb-2">
-            <DialogTitle>Dokumentvorschau</DialogTitle>
-            <DialogDescription>{previewFileName || "PDF-Vorschau"}</DialogDescription>
-          </DialogHeader>
-          <div className="px-6 pb-6 h-full">
-            {previewUrl ? (
-              <iframe title={previewFileName || "Dokument"} src={previewUrl} className="w-full h-full rounded-md border" />
-            ) : (
-              <div className="h-full w-full rounded-md border bg-muted flex items-center justify-center text-sm text-muted-foreground">
-                Dokument konnte nicht vom Server abgerufen werden.
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+      {activeDownloadKey && (
+        <Card>
+          <CardContent className="pt-6 space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Dokument wird sicher heruntergeladen: <span className="font-medium text-foreground">{activeDownloadLabel}</span>
+            </p>
+            <Progress value={70} className="h-2" />
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

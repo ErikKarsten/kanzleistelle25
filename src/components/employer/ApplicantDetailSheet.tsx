@@ -5,13 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
 import {
   Select,
   SelectContent,
@@ -44,7 +38,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import jsPDF from "jspdf";
-import { buildSafeDocumentName, downloadApplicationDocument, triggerBlobDownload } from "@/lib/documentAccess";
+import { buildSafeDocumentName, handleDownload } from "@/lib/documentAccess";
 
 interface ApplicantDetailSheetProps {
   application: any;
@@ -74,9 +68,8 @@ const ApplicantDetailSheet = ({
   const [notes, setNotes] = useState("");
   const [notesSaved, setNotesSaved] = useState(true);
   const [autoSaveTimeout, setAutoSaveTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [previewFileName, setPreviewFileName] = useState("");
+  const [activeDownloadKey, setActiveDownloadKey] = useState<string | null>(null);
+  const [activeDownloadLabel, setActiveDownloadLabel] = useState("");
 
   // Sync notes when application changes
   useEffect(() => {
@@ -120,9 +113,8 @@ const ApplicantDetailSheet = ({
   useEffect(() => {
     return () => {
       if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
-  }, [autoSaveTimeout, previewUrl]);
+  }, [autoSaveTimeout]);
 
   // Status mutation
   const updateStatusMutation = useMutation({
@@ -152,47 +144,41 @@ const ApplicantDetailSheet = ({
     });
   }, [application?.first_name, application?.last_name]);
 
-  const handleDownloadDocument = useCallback(async (path: string, label: string) => {
+  const runDocumentDownload = useCallback(async (path: string, label: string, action: "preview" | "download") => {
+    const actionKey = `${action}:${path}`;
+    setActiveDownloadKey(actionKey);
+    setActiveDownloadLabel(label);
+
     try {
-      const result = await downloadApplicationDocument(path);
-      if (!result) {
+      const success = await handleDownload(path, getDocumentName(path, label));
+      if (!success) {
         toast({ title: "Fehler", description: "Dokument konnte nicht vom Server abgerufen werden.", variant: "destructive" });
         return;
       }
-      triggerBlobDownload(result.blob, getDocumentName(path, label));
+
+      if (action === "preview") {
+        toast({ title: "Info", description: "Vorschau wird als sicherer Download bereitgestellt." });
+      }
     } catch (error) {
-      console.error("[document-download] failed", { path, error });
-      toast({ title: "Fehler", description: "Dokument konnte nicht vom Server abgerufen werden.", variant: "destructive" });
+      console.error("[document-download] failed", { path, action, error });
+      toast({
+        title: "Fehler",
+        description: "Download blockiert? Bitte prüfe deine Browser-Erweiterungen oder Ad-Blocker.",
+        variant: "destructive",
+      });
+    } finally {
+      setActiveDownloadKey(null);
+      setActiveDownloadLabel("");
     }
   }, [getDocumentName, toast]);
 
+  const handleDownloadDocument = useCallback(async (path: string, label: string) => {
+    await runDocumentDownload(path, label, "download");
+  }, [runDocumentDownload]);
+
   const handleOpenDocument = useCallback(async (path: string, label: string) => {
-    try {
-      const result = await downloadApplicationDocument(path);
-      if (!result) {
-        toast({ title: "Fehler", description: "Dokument konnte nicht vom Server abgerufen werden.", variant: "destructive" });
-        return;
-      }
-
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-      const objectUrl = URL.createObjectURL(result.blob);
-      setPreviewUrl(objectUrl);
-      setPreviewFileName(getDocumentName(path, label));
-      setPreviewOpen(true);
-    } catch (error) {
-      console.error("[document-preview] failed", { path, error });
-      toast({ title: "Fehler", description: "Dokument konnte nicht vom Server abgerufen werden.", variant: "destructive" });
-    }
-  }, [getDocumentName, previewUrl, toast]);
-
-  const handlePreviewOpenChange = useCallback((nextOpen: boolean) => {
-    setPreviewOpen(nextOpen);
-    if (!nextOpen && previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
-      setPreviewFileName("");
-    }
-  }, [previewUrl]);
+    await runDocumentDownload(path, label, "preview");
+  }, [runDocumentDownload]);
 
   const handleExportPDF = async () => {
     if (!application) return;
@@ -599,10 +585,10 @@ const ApplicantDetailSheet = ({
                   </div>
                   {url && (
                     <div className="flex items-center gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" title="Ansehen" onClick={() => handleOpenDocument(url, label)}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" title="Ansehen (sicherer Download)" onClick={() => handleOpenDocument(url, label)} disabled={activeDownloadKey !== null}>
                         <Eye className="h-4 w-4 text-primary" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" title="Herunterladen" onClick={() => handleDownloadDocument(url, label)}>
+                      <Button variant="ghost" size="icon" className="h-8 w-8" title="Herunterladen" onClick={() => handleDownloadDocument(url, label)} disabled={activeDownloadKey !== null}>
                         <Download className="h-4 w-4" />
                       </Button>
                     </div>
@@ -665,23 +651,14 @@ const ApplicantDetailSheet = ({
           </Button>
         </div>
 
-        <Dialog open={previewOpen} onOpenChange={handlePreviewOpenChange}>
-          <DialogContent className="max-w-5xl h-[85vh] p-0 overflow-hidden">
-            <DialogHeader className="px-6 pt-5 pb-2">
-              <DialogTitle>Dokumentvorschau</DialogTitle>
-              <DialogDescription>{previewFileName || "PDF-Dokument"}</DialogDescription>
-            </DialogHeader>
-            <div className="px-6 pb-6 h-full">
-              {previewUrl ? (
-                <iframe title={previewFileName || "Dokument"} src={previewUrl} className="w-full h-full rounded-md border" />
-              ) : (
-                <div className="h-full w-full rounded-md border bg-muted flex items-center justify-center text-sm text-muted-foreground">
-                  Dokument konnte nicht vom Server abgerufen werden.
-                </div>
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
+        {activeDownloadKey && (
+          <div className="mt-4 space-y-2 rounded-lg border p-3 bg-secondary/20">
+            <p className="text-xs text-muted-foreground">
+              Dokument wird sicher heruntergeladen: <span className="font-medium text-foreground">{activeDownloadLabel}</span>
+            </p>
+            <Progress value={70} className="h-2" />
+          </div>
+        )}
       </SheetContent>
     </Sheet>
   );
