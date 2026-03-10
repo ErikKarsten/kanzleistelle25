@@ -70,6 +70,14 @@ const ApplyAccountCreation = ({
         }
       }
 
+      // Send welcome email
+      try {
+        const tpl = buildWelcomeApplicantEmail({ firstName });
+        await supabase.functions.invoke("send-contact-email", {
+          body: { to_email: email, to_name: firstName || email, subject: tpl.subject, html: tpl.html },
+        });
+      } catch (e) { console.warn("[welcome-email] Send error:", e); }
+
       toast({
         title: "Konto gesichert! 🎉",
         description: "Willkommen im Bewerber-Portal. Du wirst weitergeleitet…",
