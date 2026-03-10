@@ -209,6 +209,24 @@ const ApplicantDetailSheet = ({
     addField("Erfahrung", application.experience || "Keine Angabe");
     y += 4;
 
+    // Additional profile details
+    if (application.earliest_start_date || application.salary_expectation || application.notice_period || application.special_skills) {
+      doc.setDrawColor(200);
+      doc.line(margin, y, 190, y);
+      y += 8;
+      doc.setFontSize(13);
+      doc.setFont("helvetica", "bold");
+      doc.text("Zusätzliche Angaben", margin, y);
+      y += 8;
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      if (application.earliest_start_date) addField("Eintrittsdatum", format(new Date(application.earliest_start_date), "dd. MMMM yyyy", { locale: de }));
+      if (application.salary_expectation) addField("Gehaltsvorstellung", application.salary_expectation);
+      if (application.notice_period) addField("Kündigungsfrist", application.notice_period);
+      if (application.special_skills) addField("Fachkenntnisse", application.special_skills);
+      y += 4;
+    }
+
     // Job info
     doc.setDrawColor(200);
     doc.line(margin, y, 190, y);
@@ -223,6 +241,30 @@ const ApplicantDetailSheet = ({
     addField("Status", statusOptions.find(s => s.value === application.status)?.label || application.status || "—");
     if (application.created_at) {
       addField("Beworben am", format(new Date(application.created_at), "dd. MMMM yyyy", { locale: de }));
+    }
+
+    // Documents section
+    const docs = [
+      { url: application.resume_url, label: "Lebenslauf" },
+      { url: application.certificates_url, label: "Zeugnisse / Zertifikate" },
+      { url: application.cover_letter_url, label: "Anschreiben (Datei)" },
+    ].filter((d) => d.url);
+    if (docs.length > 0) {
+      y += 4;
+      doc.setDrawColor(200);
+      doc.line(margin, y, 190, y);
+      y += 8;
+      doc.setFontSize(13);
+      doc.setFont("helvetica", "bold");
+      doc.text("Hochgeladene Unterlagen", margin, y);
+      y += 8;
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      for (const d of docs) {
+        if (y > 270) { doc.addPage(); y = margin; }
+        const fileName = d.url!.split("/").pop()?.replace(/^(resume|certificates|cover_letter)_\d+_/, "") || "Dokument";
+        addField(d.label, fileName);
+      }
     }
     y += 4;
 
