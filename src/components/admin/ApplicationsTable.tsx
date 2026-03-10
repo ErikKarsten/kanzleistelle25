@@ -40,17 +40,18 @@ interface ApplicationsTableProps {
 }
 
 const ApplicationsTable = ({ applications, onViewDetails }: ApplicationsTableProps) => {
-  const handleOpenResume = async (resumePath: string) => {
-    const { data, error } = await supabase.storage
-      .from("resumes")
-      .createSignedUrl(resumePath, 60);
-
-    if (error) {
+  const handleOpenResume = async (app: ApplicationWithJob) => {
+    if (!app.resume_url) return;
+    const fileName = buildSafeDocumentName({
+      label: "Lebenslauf",
+      firstName: app.first_name,
+      lastName: app.last_name,
+      rawPath: app.resume_url,
+    });
+    const success = await handleDownload(app.resume_url, fileName);
+    if (!success) {
       toast.error("Lebenslauf konnte nicht geladen werden");
-      return;
     }
-
-    window.open(data.signedUrl, "_blank");
   };
 
   if (applications.length === 0) {
