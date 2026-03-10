@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       applications: {
         Row: {
+          anschreiben_url: string | null
           applicant_id: string | null
           applicant_role: string | null
           certificates_url: string | null
@@ -24,15 +25,18 @@ export type Database = {
           cover_letter_url: string | null
           created_at: string | null
           earliest_start_date: string | null
+          eintrittsdatum: string | null
           email: string | null
           experience: string | null
           first_name: string | null
+          gehaltsvorstellung: string | null
           id: string
           internal_notes: string | null
           is_archived: boolean
           job_id: string | null
           kanzlei_id: string | null
           last_name: string | null
+          lebenslauf_url: string | null
           notice_period: string | null
           phone: string | null
           resume_url: string | null
@@ -41,8 +45,10 @@ export type Database = {
           status: string | null
           updated_at: string | null
           user_id: string | null
+          zeugnis_url: string | null
         }
         Insert: {
+          anschreiben_url?: string | null
           applicant_id?: string | null
           applicant_role?: string | null
           certificates_url?: string | null
@@ -51,15 +57,18 @@ export type Database = {
           cover_letter_url?: string | null
           created_at?: string | null
           earliest_start_date?: string | null
+          eintrittsdatum?: string | null
           email?: string | null
           experience?: string | null
           first_name?: string | null
+          gehaltsvorstellung?: string | null
           id?: string
           internal_notes?: string | null
           is_archived?: boolean
           job_id?: string | null
           kanzlei_id?: string | null
           last_name?: string | null
+          lebenslauf_url?: string | null
           notice_period?: string | null
           phone?: string | null
           resume_url?: string | null
@@ -68,8 +77,10 @@ export type Database = {
           status?: string | null
           updated_at?: string | null
           user_id?: string | null
+          zeugnis_url?: string | null
         }
         Update: {
+          anschreiben_url?: string | null
           applicant_id?: string | null
           applicant_role?: string | null
           certificates_url?: string | null
@@ -78,15 +89,18 @@ export type Database = {
           cover_letter_url?: string | null
           created_at?: string | null
           earliest_start_date?: string | null
+          eintrittsdatum?: string | null
           email?: string | null
           experience?: string | null
           first_name?: string | null
+          gehaltsvorstellung?: string | null
           id?: string
           internal_notes?: string | null
           is_archived?: boolean
           job_id?: string | null
           kanzlei_id?: string | null
           last_name?: string | null
+          lebenslauf_url?: string | null
           notice_period?: string | null
           phone?: string | null
           resume_url?: string | null
@@ -95,6 +109,7 @@ export type Database = {
           status?: string | null
           updated_at?: string | null
           user_id?: string | null
+          zeugnis_url?: string | null
         }
         Relationships: [
           {

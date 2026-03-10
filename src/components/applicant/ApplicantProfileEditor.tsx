@@ -92,22 +92,36 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
 
   const saveMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
+      const updatePayload: Record<string, any> = {
+        first_name: data.first_name || null,
+        last_name: data.last_name || null,
+        email: data.email || null,
+        phone: data.phone || null,
+        earliest_start_date: data.earliest_start_date || null,
+        salary_expectation: data.salary_expectation || null,
+        notice_period: data.notice_period || null,
+        special_skills: data.special_skills || null,
+        updated_at: new Date().toISOString(),
+      };
+
       const { error } = await supabase
         .from("applications")
-        .update({
-          ...data,
-          updated_at: new Date().toISOString(),
-        } as any)
+        .update(updatePayload)
         .eq("id", application.id);
-      if (error) throw error;
+
+      if (error) {
+        console.error("[profile-save] Supabase error:", JSON.stringify(error, null, 2));
+        throw error;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["applicant-applications"] });
       toast.success("Profil gespeichert");
-      // Notify employer via realtime (the update triggers postgres_changes)
     },
-    onError: () => {
-      toast.error("Fehler beim Speichern");
+    onError: (error: any) => {
+      console.error("[profile-save] Full error:", error);
+      const detail = error?.message || error?.details || "Unbekannter Fehler";
+      toast.error(`Fehler beim Speichern: ${detail}`);
     },
   });
 
