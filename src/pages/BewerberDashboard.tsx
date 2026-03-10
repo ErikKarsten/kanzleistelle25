@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +11,7 @@ import DeleteAccountDialog from "@/components/applicant/DeleteAccountDialog";
 import ApplicationDetailModal from "@/components/applicant/ApplicationDetailModal";
 import RecentMessagesApplicant from "@/components/applicant/RecentMessagesApplicant";
 import ApplicantProfileEditor from "@/components/applicant/ApplicantProfileEditor";
+import ProfileOnboardingPopup from "@/components/applicant/ProfileOnboardingPopup";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -59,6 +60,8 @@ const BewerberDashboard = () => {
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
   const [profileApp, setProfileApp] = useState<any>(null);
   const [mainTab, setMainTab] = useState("applications");
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
+  const onboardingShown = useRef(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -151,6 +154,23 @@ const BewerberDashboard = () => {
     },
     enabled: !!user?.id && !!applications && applications.length > 0,
   });
+
+  // Check profile completeness for onboarding popup
+  const profileIncomplete = useMemo(() => {
+    if (!applications || applications.length === 0) return false;
+    const app = applications[0];
+    const fields = ["resume_url", "earliest_start_date", "salary_expectation", "notice_period", "special_skills"];
+    return fields.some((f) => !app[f] || String(app[f]).trim() === "");
+  }, [applications]);
+
+  useEffect(() => {
+    if (profileIncomplete && !onboardingShown.current && applications && applications.length > 0) {
+      onboardingShown.current = true;
+      // Small delay so dashboard renders first
+      const t = setTimeout(() => setOnboardingOpen(true), 600);
+      return () => clearTimeout(t);
+    }
+  }, [profileIncomplete, applications]);
 
   const getCompanyLogo = (companyId: string) => {
     return companies?.find((c: any) => c.id === companyId)?.logo_url || null;
@@ -437,6 +457,20 @@ const BewerberDashboard = () => {
         open={showDeleteAccount}
         onOpenChange={setShowDeleteAccount}
       />
+
+      {applications && applications.length > 0 && (
+        <ProfileOnboardingPopup
+          open={onboardingOpen}
+          onOpenChange={setOnboardingOpen}
+          application={applications[0]}
+          firstName={applications[0]?.first_name || user?.user_metadata?.first_name || ""}
+          onComplete={() => {
+            setOnboardingOpen(false);
+            setProfileApp(applications[0]);
+            setMainTab("profile");
+          }}
+        />
+      )}
     </div>
   );
 };
