@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { buildNewApplicationEmail } from "@/lib/emailTemplates";
 import {
   Dialog,
   DialogContent,
@@ -169,10 +170,35 @@ const ApplyModal = ({
       
       return { success: true, applicationId: generatedId };
     },
-    onSuccess: (result) => {
+    onSuccess: async (result) => {
       setApplicationId(result.applicationId);
       setCurrentStep(4);
       queryClient.invalidateQueries({ queryKey: ["applications"] });
+
+      // Template A: Notify employer about new application
+      try {
+        const cId = companyId;
+        if (cId) {
+          const { data: comp } = await supabase.from("companies").select("user_id, name").eq("id", cId).maybeSingle();
+          if (comp?.user_id) {
+            const { data: profile } = await supabase.from("profiles").select("email").eq("id", comp.user_id).maybeSingle();
+            if (profile?.email) {
+              const applicantName = `${formData.firstName} ${formData.lastName}`.trim();
+              const tpl = buildNewApplicationEmail({
+                applicantName,
+                applicantEmail: formData.email,
+                applicantPhone: formData.phone,
+                applicantRole: formData.role,
+                jobTitle,
+                companyName: comp.name || company,
+              });
+              await supabase.functions.invoke("send-contact-email", {
+                body: { to_email: profile.email, to_name: comp.name || company, subject: tpl.subject, html: tpl.html },
+              });
+            }
+          }
+        }
+      } catch (e) { console.warn("[ApplyModal] Employer email notification error:", e); }
     },
     onError: (error: any) => {
       console.error('Bewerbung Fehler:', error);
