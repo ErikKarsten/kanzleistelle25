@@ -30,23 +30,26 @@ function wrap(body: string): string {
   <tr><td style="padding:36px 32px 12px;">
     ${body}
 
-    <!-- SIGN-OFF WITH PERSONAL SIGNATURE -->
-    <table cellpadding="0" cellspacing="0" style="width:100%;margin:28px 0 0;">
+    <!-- SEPARATOR -->
+    <table cellpadding="0" cellspacing="0" style="width:100%;margin:32px 0 0;">
+      <tr><td style="padding:0;">
+        <div style="height:2px;background:linear-gradient(90deg,#00AEEF 0%,#E2E8F0 40%,transparent 100%);border-radius:2px;"></div>
+      </td></tr>
+    </table>
+
+    <!-- PERSONAL SIGNATURE -->
+    <table cellpadding="0" cellspacing="0" style="width:100%;margin:24px 0 0;">
       <tr>
-        <td style="vertical-align:top;padding:0 16px 0 0;">
-          <p style="margin:0 0 12px;font-size:15px;color:#4A5568;line-height:1.5;">
-            Viele Grüße<br/>
-            <strong style="color:#003366;">Dein Team von Kanzleistelle24</strong>
-          </p>
+        <td style="vertical-align:top;padding:0 20px 0 0;">
+          <p style="margin:0 0 4px;font-size:15px;color:#4A5568;line-height:1.5;">Herzliche Grüße,</p>
+          <p style="margin:0 0 2px;font-size:20px;color:#003366;font-family:Georgia,'Times New Roman',serif;font-style:italic;font-weight:700;">Neele Ehlers</p>
+          <p style="margin:0 0 20px;font-size:13px;color:#718096;line-height:1.4;">Deine persönliche Begleiterin<br/>bei Kanzleistelle24</p>
           <a href="${DASHBOARD_URL}" style="text-decoration:none;">
-            <img src="${LOGO_URL}" alt="Kanzleistelle24" height="150" style="display:block;max-height:150px;width:auto;margin:0;" />
+            <img src="${LOGO_URL}" alt="Kanzleistelle24" height="50" style="display:block;max-height:50px;width:auto;margin:0;" />
           </a>
         </td>
-        <td style="vertical-align:bottom;width:100px;text-align:right;">
-          <img src="${NEELE_IMG}" alt="Neele Ehlers" width="80" height="80" style="display:block;width:80px;height:80px;border-radius:50%;object-fit:cover;margin:0 0 6px auto;" />
-          <p style="margin:0;font-size:11px;color:#718096;text-align:right;line-height:1.3;">
-            <strong style="color:#003366;">Neele Ehlers</strong><br/>Deine Ansprechpartnerin
-          </p>
+        <td style="vertical-align:top;width:200px;text-align:right;">
+          <img src="${NEELE_IMG}" alt="Neele Ehlers" width="180" height="180" style="display:block;width:180px;height:180px;border-radius:12px;object-fit:cover;margin:0 0 0 auto;box-shadow:0 4px 16px rgba(0,51,102,0.15);" />
         </td>
       </tr>
     </table>
