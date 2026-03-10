@@ -243,7 +243,7 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
                 size="icon"
                 className="h-8 w-8"
                 title="Ansehen"
-                onClick={() => openFile(currentUrl)}
+                onClick={() => openFile(currentUrl, label)}
               >
                 <Eye className="h-4 w-4 text-primary" />
               </Button>

@@ -613,7 +613,7 @@ const ApplicantDetailSheet = ({
                     <Loader2 className="h-3 w-3 animate-spin" /> Speichert…
                   </span>
                 ) : notesSaved ? (
-                  <span className="flex items-center gap-1 text-green-600">
+                  <span className="flex items-center gap-1 text-primary">
                     <CheckCircle2 className="h-3 w-3" /> Gespeichert
                   </span>
                 ) : (
