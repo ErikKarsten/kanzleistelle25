@@ -10,12 +10,14 @@ import WithdrawDialog from "@/components/applicant/WithdrawDialog";
 import DeleteAccountDialog from "@/components/applicant/DeleteAccountDialog";
 import ApplicationDetailModal from "@/components/applicant/ApplicationDetailModal";
 import RecentMessagesApplicant from "@/components/applicant/RecentMessagesApplicant";
+import ApplicantProfileEditor from "@/components/applicant/ApplicantProfileEditor";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,6 +34,7 @@ import {
   XCircle,
   Trash2,
   AlertTriangle,
+  UserCircle,
 } from "lucide-react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
