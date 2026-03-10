@@ -60,6 +60,8 @@ const BewerberDashboard = () => {
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
   const [profileApp, setProfileApp] = useState<any>(null);
   const [mainTab, setMainTab] = useState("applications");
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
+  const onboardingShown = useRef(false);
 
   useEffect(() => {
     if (authLoading) return;
