@@ -202,7 +202,7 @@ const ApplicationCard = ({
         <Button
           variant={isArchived ? "outline" : "ghost"}
           size="sm"
-          onClick={() => onArchiveToggle(app.id)}
+          onClick={(e) => { e.stopPropagation(); onArchiveToggle(app.id); }}
           className="text-xs"
         >
           {isArchived ? (
