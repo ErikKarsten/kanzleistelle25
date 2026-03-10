@@ -142,54 +142,56 @@ const ApplicantDetailSheet = ({
     },
   });
 
-  const getSanitizedDownloadName = (path: string, label: string) => {
-    const extension = path.toLowerCase().endsWith(".pdf") ? ".pdf" : ".pdf";
-    const first = (application?.first_name || "Bewerber").replace(/[^a-zA-Z0-9]/g, "_");
-    const last = (application?.last_name || "Profil").replace(/[^a-zA-Z0-9]/g, "_");
-    const safeLabel = label.replace(/[^a-zA-Z0-9]/g, "_");
-    return `${safeLabel}_${first}_${last}${extension}`;
-  };
+  const getDocumentName = useCallback((path: string, label: string) => {
+    return buildSafeDocumentName({
+      label,
+      firstName: application?.first_name,
+      lastName: application?.last_name,
+      rawPath: path,
+    });
+  }, [application?.first_name, application?.last_name]);
 
-  const triggerDownload = (blob: Blob, fileName: string) => {
-    const objectUrl = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = objectUrl;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(objectUrl);
-  };
-
-  const downloadBlob = async (path: string): Promise<Blob | null> => {
-    const isLegacy = path.startsWith("applications/");
-    const bucket = isLegacy ? "resumes" : "applications";
-    const { data, error } = await supabase.storage.from(bucket).download(path);
-    if (error || !data) return null;
-    return data;
-  };
-
-  const handleOpenDocument = async (path: string, label: string) => {
-    const blob = await downloadBlob(path);
-    if (!blob) {
-      toast({ title: "Fehler", description: "Download blockiert? Bitte prüfe deine Browser-Erweiterungen oder Ad-Blocker.", variant: "destructive" });
-      return;
+  const handleDownloadDocument = useCallback(async (path: string, label: string) => {
+    try {
+      const result = await downloadApplicationDocument(path);
+      if (!result) {
+        toast({ title: "Fehler", description: "Dokument konnte nicht vom Server abgerufen werden.", variant: "destructive" });
+        return;
+      }
+      triggerBlobDownload(result.blob, getDocumentName(path, label));
+    } catch (error) {
+      console.error("[document-download] failed", { path, error });
+      toast({ title: "Fehler", description: "Dokument konnte nicht vom Server abgerufen werden.", variant: "destructive" });
     }
-    triggerDownload(blob, getSanitizedDownloadName(path, label));
-  };
+  }, [getDocumentName, toast]);
 
-  const handleDownloadDocument = async (path: string, label: string) => {
-    const blob = await downloadBlob(path);
-    if (!blob) {
-      toast({ title: "Fehler", description: "Download blockiert? Bitte prüfe deine Browser-Erweiterungen oder Ad-Blocker.", variant: "destructive" });
-      return;
+  const handleOpenDocument = useCallback(async (path: string, label: string) => {
+    try {
+      const result = await downloadApplicationDocument(path);
+      if (!result) {
+        toast({ title: "Fehler", description: "Dokument konnte nicht vom Server abgerufen werden.", variant: "destructive" });
+        return;
+      }
+
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      const objectUrl = URL.createObjectURL(result.blob);
+      setPreviewUrl(objectUrl);
+      setPreviewFileName(getDocumentName(path, label));
+      setPreviewOpen(true);
+    } catch (error) {
+      console.error("[document-preview] failed", { path, error });
+      toast({ title: "Fehler", description: "Dokument konnte nicht vom Server abgerufen werden.", variant: "destructive" });
     }
-    triggerDownload(blob, getSanitizedDownloadName(path, label));
-  };
+  }, [getDocumentName, previewUrl, toast]);
 
-  const handleOpenResume = () => {
-    if (application?.resume_url) handleOpenDocument(application.resume_url, "Lebenslauf");
-  };
+  const handlePreviewOpenChange = useCallback((nextOpen: boolean) => {
+    setPreviewOpen(nextOpen);
+    if (!nextOpen && previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+      setPreviewFileName("");
+    }
+  }, [previewUrl]);
 
   const handleExportPDF = async () => {
     if (!application) return;
