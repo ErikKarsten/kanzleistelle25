@@ -35,7 +35,7 @@ function wrap(body: string): string {
       <strong style="color:#003366;">Dein Team von Kanzleistelle24</strong>
     </p>
     <a href="${DASHBOARD_URL}" style="text-decoration:none;">
-      <img src="${LOGO_URL}" alt="Kanzleistelle24" height="40" style="display:block;max-height:40px;width:auto;margin:0;" />
+      <img src="${LOGO_URL}" alt="Kanzleistelle24" height="140" style="display:block;max-height:140px;width:auto;margin:0 0 20px;" />
     </a>
   </td></tr>
 
