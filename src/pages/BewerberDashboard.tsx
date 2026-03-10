@@ -204,6 +204,22 @@ const BewerberDashboard = () => {
           </p>
         </div>
 
+        {/* Profile Progress Bar */}
+        {profileCompletion && (
+          <ProfileProgressBar
+            completion={profileCompletion}
+            onNavigateToField={(fieldKey) => {
+              setProfileApp(applications?.[0] || null);
+              setMainTab("profile");
+              setTimeout(() => {
+                const el = document.getElementById(fieldKey);
+                el?.scrollIntoView({ behavior: "smooth", block: "center" });
+                el?.focus();
+              }, 300);
+            }}
+          />
+        )}
+
         {/* Recent Messages Section */}
         <RecentMessagesApplicant
           userId={user?.id || ""}
