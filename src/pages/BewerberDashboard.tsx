@@ -57,6 +57,8 @@ const BewerberDashboard = () => {
   const [detailApp, setDetailApp] = useState<any>(null);
   const [withdrawApp, setWithdrawApp] = useState<any>(null);
   const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+  const [profileApp, setProfileApp] = useState<any>(null);
+  const [mainTab, setMainTab] = useState("applications");
 
   useEffect(() => {
     if (authLoading) return;
