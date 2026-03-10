@@ -137,7 +137,7 @@ export function buildProfileUpdateEmail(data: ProfileUpdateData) {
     </p>
     ${fieldsList}
 
-    ${ctaButton("Profil ansehen →", `${DASHBOARD_URL}/arbeitgeber`)}
+    ${ctaButton("Profil ansehen →", `${DASHBOARD_URL}/login`)}
 
     <p style="margin:0;font-size:13px;color:#A0AEC0;line-height:1.5;">
       Sie erhalten diese Benachrichtigung, weil der Bewerber Änderungen an seinem Profil vorgenommen hat.
