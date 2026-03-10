@@ -208,47 +208,37 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
     });
   }, [formData.first_name, formData.last_name, application?.first_name, application?.last_name]);
 
-  const handleDownloadFile = useCallback(async (path: string, label: string) => {
+  const runDocumentDownload = useCallback(async (path: string, label: string, action: "preview" | "download") => {
+    const actionKey = `${action}:${path}`;
+    setActiveDownloadKey(actionKey);
+    setActiveDownloadLabel(label);
+
     try {
-      const result = await downloadApplicationDocument(path);
-      if (!result) {
+      const success = await handleDownload(path, getDocumentName(path, label));
+      if (!success) {
         toast.error("Dokument konnte nicht vom Server abgerufen werden.");
         return;
       }
-      triggerBlobDownload(result.blob, getDocumentName(path, label));
+
+      if (action === "preview") {
+        toast.success("Vorschau wird als sicherer Download bereitgestellt.");
+      }
     } catch (error) {
-      console.error("[document-download] failed", { path, error });
-      toast.error("Dokument konnte nicht vom Server abgerufen werden.");
+      console.error("[document-download] failed", { path, action, error });
+      toast.error("Download blockiert? Bitte prüfe deine Browser-Erweiterungen oder Ad-Blocker.");
+    } finally {
+      setActiveDownloadKey(null);
+      setActiveDownloadLabel("");
     }
   }, [getDocumentName]);
 
+  const handleDownloadFile = useCallback(async (path: string, label: string) => {
+    await runDocumentDownload(path, label, "download");
+  }, [runDocumentDownload]);
+
   const handlePreviewFile = useCallback(async (path: string, label: string) => {
-    try {
-      const result = await downloadApplicationDocument(path);
-      if (!result) {
-        toast.error("Dokument konnte nicht vom Server abgerufen werden.");
-        return;
-      }
-
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-      const objectUrl = URL.createObjectURL(result.blob);
-      setPreviewUrl(objectUrl);
-      setPreviewFileName(getDocumentName(path, label));
-      setPreviewOpen(true);
-    } catch (error) {
-      console.error("[document-preview] failed", { path, error });
-      toast.error("Dokument konnte nicht vom Server abgerufen werden.");
-    }
-  }, [getDocumentName, previewUrl]);
-
-  const handlePreviewOpenChange = useCallback((open: boolean) => {
-    setPreviewOpen(open);
-    if (!open && previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
-      setPreviewFileName("");
-    }
-  }, [previewUrl]);
+    await runDocumentDownload(path, label, "preview");
+  }, [runDocumentDownload]);
 
   const FileUploadSlot = ({ type, label, icon: Icon, currentUrl }: { type: "resume" | "certificates" | "cover_letter"; label: string; icon: any; currentUrl: string | null }) => {
     // Extract readable filename from storage path
