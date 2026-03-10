@@ -81,11 +81,6 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
     }
   }, [application?.id]);
 
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
 
   // Calculate profile completion using shared weighted logic with live form data
   const completion = useMemo(() => {
