@@ -35,7 +35,7 @@ function wrap(body: string): string {
       <strong style="color:#003366;">Dein Team von Kanzleistelle24</strong>
     </p>
     <a href="${DASHBOARD_URL}" style="text-decoration:none;">
-      <img src="${LOGO_URL}" alt="Kanzleistelle24" height="140" style="display:block;max-height:140px;width:auto;margin:0 0 20px;" />
+      <img src="${LOGO_URL}" alt="Kanzleistelle24" height="150" style="display:block;max-height:150px;width:auto;margin:0 0 20px;" />
     </a>
   </td></tr>
 
@@ -99,7 +99,7 @@ export function buildNewApplicationEmail(data: NewApplicationData) {
       ${infoRow("Rolle:", data.applicantRole || "–")}
     </table>
 
-    ${ctaButton("Bewerbung ansehen →", `${DASHBOARD_URL}/arbeitgeber`)}
+    ${ctaButton("Bewerbung ansehen →", `${DASHBOARD_URL}/login`)}
 
     <p style="margin:0;font-size:13px;color:#A0AEC0;line-height:1.5;">
       Diese E-Mail wurde automatisch versendet. Sie können direkt über Ihr Dashboard auf die Bewerbung reagieren.
@@ -137,7 +137,7 @@ export function buildProfileUpdateEmail(data: ProfileUpdateData) {
     </p>
     ${fieldsList}
 
-    ${ctaButton("Profil ansehen →", `${DASHBOARD_URL}/arbeitgeber`)}
+    ${ctaButton("Profil ansehen →", `${DASHBOARD_URL}/login`)}
 
     <p style="margin:0;font-size:13px;color:#A0AEC0;line-height:1.5;">
       Sie erhalten diese Benachrichtigung, weil der Bewerber Änderungen an seinem Profil vorgenommen hat.
@@ -167,7 +167,7 @@ export function buildApplicantConfirmationEmail(data: ApplicantConfirmationData)
       Je vollständiger dein Profil ist, desto besser stehen deine Chancen auf eine Einladung zum Vorstellungsgespräch.
     </p>
 
-    ${ctaButton("Zum Dashboard →", `${DASHBOARD_URL}/bewerber`)}`;
+    ${ctaButton("Zum Dashboard →", `${DASHBOARD_URL}/login`)}`;
 
   return {
     subject: "Deine Bewerbung bei Kanzleistelle24 – Profil aktualisiert",
@@ -211,7 +211,7 @@ export function buildWelcomeApplicantEmail(data: WelcomeApplicantData) {
       ${step(3, "Direkt bewerben", "Bewirb dich mit einem Klick – dein Profil wird automatisch übermittelt.")}
     </table>
 
-    ${ctaButton("Jetzt Profil vervollständigen →", `${DASHBOARD_URL}/bewerber`)}
+    ${ctaButton("Jetzt Profil vervollständigen →", `${DASHBOARD_URL}/login`)}
 
     <p style="margin:0;font-size:13px;color:#A0AEC0;line-height:1.5;">
       Bei Fragen erreichst du uns jederzeit unter <a href="mailto:info@kanzleistelle24.de" style="color:#00AEEF;text-decoration:none;">info@kanzleistelle24.de</a>.
