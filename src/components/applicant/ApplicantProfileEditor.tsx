@@ -4,9 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+
 import {
   User,
   Upload,
@@ -25,8 +24,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { format } from "date-fns";
-import { de } from "date-fns/locale";
+import { calculateProfileCompletion } from "@/lib/profileCompletion";
+import { cn } from "@/lib/utils";
 
 interface ApplicantProfileEditorProps {
   application: any;
@@ -76,24 +75,14 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
     }
   }, [application?.id]);
 
-  // Calculate profile completion
-  const { percentage, missing } = useMemo(() => {
-    const fields = [
-      { key: "first_name", label: "Vorname", filled: !!formData.first_name },
-      { key: "last_name", label: "Nachname", filled: !!formData.last_name },
-      { key: "email", label: "E-Mail", filled: !!formData.email },
-      { key: "phone", label: "Telefon", filled: !!formData.phone },
-      { key: "earliest_start_date", label: "Frühestmögliches Eintrittsdatum", filled: !!formData.earliest_start_date },
-      { key: "salary_expectation", label: "Gehaltsvorstellung", filled: !!formData.salary_expectation },
-      { key: "notice_period", label: "Kündigungsfrist", filled: !!formData.notice_period },
-      { key: "special_skills", label: "Besondere Fachkenntnisse", filled: !!formData.special_skills },
-      { key: "resume_url", label: "Lebenslauf", filled: !!application?.resume_url },
-    ];
-    const filled = fields.filter((f) => f.filled).length;
-    const pct = Math.round((filled / fields.length) * 100);
-    const missingFields = fields.filter((f) => !f.filled).map((f) => f.label);
-    return { percentage: pct, missing: missingFields };
-  }, [formData, application?.resume_url]);
+  // Calculate profile completion using shared weighted logic with live form data
+  const completion = useMemo(() => {
+    const liveApp = {
+      ...application,
+      ...formData,
+    };
+    return calculateProfileCompletion(liveApp);
+  }, [formData, application]);
 
   const saveMutation = useMutation({
     mutationFn: async (data: typeof formData) => {
@@ -247,23 +236,31 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
               <Sparkles className="h-5 w-5 text-primary" />
               <h3 className="font-semibold text-foreground">Profil-Vollständigkeit</h3>
             </div>
-            <Badge variant={percentage === 100 ? "default" : "secondary"} className={percentage === 100 ? "bg-green-100 text-green-700 border-green-200" : ""}>
-              {percentage}%
+            <Badge variant={completion.percentage === 100 ? "default" : "secondary"} className={completion.percentage === 100 ? "bg-green-100 text-green-700 border-green-200" : ""}>
+              {completion.percentage}%
             </Badge>
           </div>
-          <Progress value={percentage} className="h-2.5 mb-3" />
-          {missing.length > 0 && (
+          <div className="relative h-2.5 w-full rounded-full bg-secondary overflow-hidden mb-3">
+            <div
+              className={cn(
+                "h-full rounded-full transition-all duration-700 ease-out",
+                completion.percentage < 40 ? "bg-orange-500" : completion.percentage < 70 ? "bg-amber-500" : "bg-emerald-500"
+              )}
+              style={{ width: `${completion.percentage}%` }}
+            />
+          </div>
+          {completion.missing.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
-              {missing.map((field) => (
-                <Badge key={field} variant="outline" className="text-xs text-muted-foreground">
+              {completion.missing.map((field) => (
+                <Badge key={field.key} variant="outline" className="text-xs text-muted-foreground">
                   <AlertCircle className="h-3 w-3 mr-1" />
-                  {field}
+                  {field.label}
                 </Badge>
               ))}
             </div>
           )}
-          {percentage === 100 && (
-            <p className="text-sm text-green-600 flex items-center gap-1.5">
+          {completion.percentage === 100 && (
+            <p className="text-sm flex items-center gap-1.5 text-primary">
               <CheckCircle2 className="h-4 w-4" />
               Dein Profil ist vollständig – du hebst dich positiv ab!
             </p>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -12,6 +12,8 @@ import ApplicationDetailModal from "@/components/applicant/ApplicationDetailModa
 import RecentMessagesApplicant from "@/components/applicant/RecentMessagesApplicant";
 import ApplicantProfileEditor from "@/components/applicant/ApplicantProfileEditor";
 import ProfileOnboardingPopup from "@/components/applicant/ProfileOnboardingPopup";
+import ProfileProgressBar from "@/components/applicant/ProfileProgressBar";
+import { calculateProfileCompletion } from "@/lib/profileCompletion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -156,12 +158,12 @@ const BewerberDashboard = () => {
   });
 
   // Check profile completeness for onboarding popup
-  const profileIncomplete = useMemo(() => {
-    if (!applications || applications.length === 0) return false;
-    const app = applications[0];
-    const fields = ["resume_url", "earliest_start_date", "salary_expectation", "notice_period", "special_skills"];
-    return fields.some((f) => !app[f] || String(app[f]).trim() === "");
+  const profileCompletion = useMemo(() => {
+    if (!applications || applications.length === 0) return null;
+    return calculateProfileCompletion(applications[0]);
   }, [applications]);
+
+  const profileIncomplete = profileCompletion ? profileCompletion.percentage < 100 : false;
 
   useEffect(() => {
     if (profileIncomplete && !onboardingShown.current && applications && applications.length > 0) {
@@ -201,6 +203,22 @@ const BewerberDashboard = () => {
             Verfolge den Status deiner Bewerbungen, vervollständige dein Profil und kommuniziere direkt mit Kanzleien.
           </p>
         </div>
+
+        {/* Profile Progress Bar */}
+        {profileCompletion && (
+          <ProfileProgressBar
+            completion={profileCompletion}
+            onNavigateToField={(fieldKey) => {
+              setProfileApp(applications?.[0] || null);
+              setMainTab("profile");
+              setTimeout(() => {
+                const el = document.getElementById(fieldKey);
+                el?.scrollIntoView({ behavior: "smooth", block: "center" });
+                el?.focus();
+              }, 300);
+            }}
+          />
+        )}
 
         {/* Recent Messages Section */}
         <RecentMessagesApplicant

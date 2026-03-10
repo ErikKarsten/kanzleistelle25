@@ -7,9 +7,10 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle2, Circle, Rocket } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { calculateProfileCompletion } from "@/lib/profileCompletion";
 
 interface ProfileOnboardingPopupProps {
   open: boolean;
@@ -19,18 +20,6 @@ interface ProfileOnboardingPopupProps {
   onComplete: () => void;
 }
 
-const CHECKLIST = [
-  { key: "first_name", label: "Vorname angegeben" },
-  { key: "last_name", label: "Nachname angegeben" },
-  { key: "email", label: "E-Mail hinterlegt" },
-  { key: "phone", label: "Telefonnummer" },
-  { key: "resume_url", label: "Lebenslauf hochgeladen" },
-  { key: "earliest_start_date", label: "Eintrittsdatum" },
-  { key: "salary_expectation", label: "Gehaltsvorstellung" },
-  { key: "notice_period", label: "Kündigungsfrist" },
-  { key: "special_skills", label: "Fachkenntnisse" },
-] as const;
-
 const ProfileOnboardingPopup = ({
   open,
   onOpenChange,
@@ -38,15 +27,15 @@ const ProfileOnboardingPopup = ({
   firstName,
   onComplete,
 }: ProfileOnboardingPopupProps) => {
-  const { percentage, items } = useMemo(() => {
-    if (!application) return { percentage: 0, items: CHECKLIST.map((c) => ({ ...c, done: false })) };
-    const mapped = CHECKLIST.map((c) => ({
-      ...c,
-      done: !!application[c.key] && String(application[c.key]).trim() !== "",
-    }));
-    const done = mapped.filter((i) => i.done).length;
-    return { percentage: Math.round((done / mapped.length) * 100), items: mapped };
-  }, [application]);
+  const completion = useMemo(() => calculateProfileCompletion(application), [application]);
+  const { percentage, items } = completion;
+
+  const progressColor =
+    percentage < 40
+      ? "bg-orange-500"
+      : percentage < 70
+      ? "bg-amber-500"
+      : "bg-emerald-500";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -71,7 +60,12 @@ const ProfileOnboardingPopup = ({
               <span className="font-medium text-foreground">Dein Profil</span>
               <Badge variant="secondary">{percentage}% fertig</Badge>
             </div>
-            <Progress value={percentage} className="h-2.5" />
+            <div className="relative h-2.5 w-full rounded-full bg-secondary overflow-hidden">
+              <div
+                className={cn("h-full rounded-full transition-all duration-700 ease-out", progressColor)}
+                style={{ width: `${percentage}%` }}
+              />
+            </div>
           </div>
 
           {/* Checklist */}
@@ -86,6 +80,7 @@ const ProfileOnboardingPopup = ({
                 <span className={item.done ? "text-muted-foreground line-through" : "text-foreground"}>
                   {item.label}
                 </span>
+                <span className="ml-auto text-xs text-muted-foreground">+{item.weight}%</span>
               </div>
             ))}
           </div>
