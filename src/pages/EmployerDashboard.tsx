@@ -532,7 +532,9 @@ const EmployerDashboard = () => {
     },
     onSuccess: (_, { archive }) => {
       queryClient.invalidateQueries({ queryKey: ["employer-applications", companyId] });
-      toast({ title: archive ? "Bewerbung archiviert" : "Bewerbung wiederhergestellt" });
+      sonnerToast.success(archive ? "Bewerber erfolgreich archiviert" : "Bewerber wiederhergestellt", {
+        duration: 3000,
+      });
     },
     onError: (error: any) => {
       toast({
