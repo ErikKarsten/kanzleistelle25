@@ -273,8 +273,9 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8"
-                title="Ansehen"
+                title="Ansehen (sicherer Download)"
                 onClick={() => handlePreviewFile(currentUrl, label)}
+                disabled={activeDownloadKey !== null}
               >
                 <Eye className="h-4 w-4 text-primary" />
               </Button>
@@ -284,6 +285,7 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
                 className="h-8 w-8"
                 title="Herunterladen"
                 onClick={() => handleDownloadFile(currentUrl, label)}
+                disabled={activeDownloadKey !== null}
               >
                 <Download className="h-4 w-4" />
               </Button>
