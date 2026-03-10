@@ -169,7 +169,7 @@ const ApplicationCard = ({
           </p>
         )}
       </div>
-      <div className="flex flex-col items-end gap-2">
+      <div className="flex flex-col items-end gap-2" onClick={(e) => e.stopPropagation()}>
         <Select
           value={app.status || "pending"}
           onValueChange={(value) => onStatusChange(app.id, value)}
