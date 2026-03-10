@@ -1,5 +1,5 @@
 /**
- * Branded HTML email templates for Kanzleistellen24.
+ * Branded HTML email templates for Kanzleistelle24.
  * All styles are inline for maximum email-client compatibility.
  *
  * Colors:
@@ -9,7 +9,7 @@
  */
 
 const YEAR = new Date().getFullYear();
-const DASHBOARD_URL = "https://kanzleistelle25.lovable.app";
+const DASHBOARD_URL = "https://kanzleistelle24.de";
 
 /* ------------------------------------------------------------------ */
 /* Shared layout                                                       */
@@ -25,7 +25,7 @@ function wrap(body: string): string {
 
   <!-- HEADER -->
   <tr><td style="background:#003366;padding:28px 32px;text-align:center;">
-    <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;letter-spacing:0.5px;">Kanzleistellen24</h1>
+    <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;letter-spacing:0.5px;">Kanzleistelle24</h1>
     <p style="margin:6px 0 0;color:#00AEEF;font-size:13px;font-weight:500;">Ihre Karriereplattform für Steuerkanzleien</p>
   </td></tr>
 
@@ -36,14 +36,14 @@ function wrap(body: string): string {
 
   <!-- FOOTER -->
   <tr><td style="background:#F4F7F6;padding:20px 32px;text-align:center;border-top:1px solid #E2E8F0;">
-    <p style="margin:0 0 6px;font-size:12px;color:#718096;">© ${YEAR} Kanzleistellen24 · Alle Rechte vorbehalten</p>
+    <p style="margin:0 0 6px;font-size:12px;color:#718096;">© ${YEAR} Kanzleistelle24 · Alle Rechte vorbehalten</p>
     <p style="margin:0;font-size:12px;color:#A0AEC0;">
       <a href="${DASHBOARD_URL}/impressum" style="color:#00AEEF;text-decoration:none;">Impressum</a>
       &nbsp;·&nbsp;
       <a href="${DASHBOARD_URL}/datenschutz" style="color:#00AEEF;text-decoration:none;">Datenschutz</a>
     </p>
     <p style="margin:10px 0 0;font-size:11px;color:#CBD5E0;">
-      Sie erhalten diese E-Mail, weil Sie bei Kanzleistellen24 registriert sind.
+      Sie erhalten diese E-Mail, weil Sie bei Kanzleistelle24 registriert sind.
     </p>
   </td></tr>
 
@@ -169,7 +169,7 @@ export function buildApplicantConfirmationEmail(data: ApplicantConfirmationData)
     </p>`;
 
   return {
-    subject: "Deine Bewerbung bei Kanzleistellen24 – Profil aktualisiert",
+    subject: "Deine Bewerbung bei Kanzleistelle24 – Profil aktualisiert",
     html: wrap(body),
   };
 }
@@ -200,7 +200,7 @@ export function buildWelcomeApplicantEmail(data: WelcomeApplicantData) {
   const body = `
     <p style="margin:0 0 6px;font-size:20px;font-weight:700;color:#003366;">${greeting}! 🎉</p>
     <p style="margin:0 0 24px;font-size:15px;color:#4A5568;line-height:1.6;">
-      Schön, dass du dich bei <strong style="color:#003366;">Kanzleistellen24</strong> registriert hast – deiner Karriereplattform für Steuerkanzleien. Dein Konto ist jetzt aktiv!
+      Schön, dass du dich bei <strong style="color:#003366;">Kanzleistelle24</strong> registriert hast – deiner Karriereplattform für Steuerkanzleien. Dein Konto ist jetzt aktiv!
     </p>
 
     <p style="margin:0 0 16px;font-size:16px;font-weight:700;color:#003366;">So geht's weiter:</p>
@@ -216,11 +216,11 @@ export function buildWelcomeApplicantEmail(data: WelcomeApplicantData) {
       Je vollständiger dein Profil ist, desto schneller finden Kanzleien den Weg zu dir.
     </p>
     <p style="margin:0;font-size:13px;color:#A0AEC0;line-height:1.5;">
-      Bei Fragen erreichst du uns jederzeit unter <a href="mailto:info@kanzleistellen24.de" style="color:#00AEEF;text-decoration:none;">info@kanzleistellen24.de</a>.
+      Bei Fragen erreichst du uns jederzeit unter <a href="mailto:info@kanzleistelle24.de" style="color:#00AEEF;text-decoration:none;">info@kanzleistelle24.de</a>.
     </p>`;
 
   return {
-    subject: "Willkommen bei Kanzleistellen24 – Dein Karrierestart! 🚀",
+    subject: "Willkommen bei Kanzleistelle24 – Dein Karrierestart! 🚀",
     html: wrap(body),
   };
 }

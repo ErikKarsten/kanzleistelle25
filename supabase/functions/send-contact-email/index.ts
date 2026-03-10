@@ -42,8 +42,8 @@ serve(async (req) => {
 
     const payload = {
       sender: {
-        name: from_name || "Kanzleistellen24",
-        email: from_email || "info@kanzleistellen24.de",
+        name: from_name || "Kanzleistelle24",
+        email: from_email || "info@kanzleistelle24.de",
       },
       to: [{ email: to_email, name: to_name || to_email }],
       subject,
