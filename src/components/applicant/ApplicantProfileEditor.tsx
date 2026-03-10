@@ -157,6 +157,7 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
         .update({
           [columnMap[type]]: path,
           updated_at: new Date().toISOString(),
+          applicant_updated_at: new Date().toISOString(),
         } as any)
         .eq("id", application.id);
       if (updateError) throw updateError;
