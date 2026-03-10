@@ -179,13 +179,29 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
       cover_letter: "cover_letter_url",
     };
     const urlKey = columnMap[type] as keyof typeof application;
-    const currentPath = application?.[urlKey];
+    const currentPath = application?.[urlKey] as string | null;
 
     try {
       if (currentPath) {
-        const bucket = currentPath.startsWith("applications/") ? "resumes" : "applications";
-        await supabase.storage.from(bucket).remove([currentPath]);
+        const { path: normalizedPath } = normalizeStoragePath(currentPath);
+        if (normalizedPath) {
+          const deleteTargets = normalizedPath.startsWith("applications/")
+            ? [
+                { bucket: "resumes" as const, path: normalizedPath },
+                { bucket: "applications" as const, path: normalizedPath.replace(/^applications\//, "") },
+              ]
+            : [{ bucket: "applications" as const, path: normalizedPath }];
+
+          for (const target of deleteTargets) {
+            if (!target.path) continue;
+            const { error: removeError } = await supabase.storage.from(target.bucket).remove([target.path]);
+            if (removeError) {
+              console.error("[document-delete] remove failed", target, removeError);
+            }
+          }
+        }
       }
+
       const { error } = await supabase
         .from("applications")
         .update({ [columnMap[type]]: null, updated_at: new Date().toISOString() } as any)
@@ -193,43 +209,53 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
       if (error) throw error;
       queryClient.invalidateQueries({ queryKey: ["applicant-applications"] });
       toast.success("Datei entfernt");
-    } catch {
-      toast.error("Fehler beim Entfernen");
+    } catch (error) {
+      console.error("[document-delete] failed", error);
+      toast.error("Dokument konnte nicht vom Server abgerufen werden.");
     }
-  }, [application?.id, queryClient]);
+  }, [application, queryClient]);
 
-  const getSanitizedDownloadName = useCallback((path: string, label: string) => {
-    const rawName = path.split("/").pop()?.replace(/^(resume|certificates|cover_letter)_\d+_/, "") || "Dokument.pdf";
-    const extension = rawName.toLowerCase().endsWith(".pdf") ? ".pdf" : ".pdf";
-    const first = (formData.first_name || application?.first_name || "Bewerber").replace(/[^a-zA-Z0-9]/g, "_");
-    const last = (formData.last_name || application?.last_name || "Profil").replace(/[^a-zA-Z0-9]/g, "_");
-    const safeLabel = label.replace(/[^a-zA-Z0-9]/g, "_");
-    return `${safeLabel}_${first}_${last}${extension}`;
+  const getDocumentName = useCallback((path: string, label: string) => {
+    return buildSafeDocumentName({
+      label,
+      firstName: formData.first_name || application?.first_name,
+      lastName: formData.last_name || application?.last_name,
+      rawPath: path,
+    });
   }, [formData.first_name, formData.last_name, application?.first_name, application?.last_name]);
 
-  const openFile = useCallback(async (path: string, label: string) => {
+  const handleDownloadFile = useCallback(async (path: string, label: string) => {
     try {
-      const isLegacy = path.startsWith("applications/");
-      const bucket = isLegacy ? "resumes" : "applications";
-      const { data, error } = await supabase.storage.from(bucket).download(path);
-      if (error || !data) {
-        toast.error("Download blockiert? Bitte prüfe deine Browser-Erweiterungen oder Ad-Blocker.");
+      const result = await downloadApplicationDocument(path);
+      if (!result) {
+        toast.error("Dokument konnte nicht vom Server abgerufen werden.");
+        return;
+      }
+      triggerBlobDownload(result.blob, getDocumentName(path, label));
+    } catch (error) {
+      console.error("[document-download] failed", { path, error });
+      toast.error("Dokument konnte nicht vom Server abgerufen werden.");
+    }
+  }, [getDocumentName]);
+
+  const handlePreviewFile = useCallback(async (path: string, label: string) => {
+    try {
+      const result = await downloadApplicationDocument(path);
+      if (!result) {
+        toast.error("Dokument konnte nicht vom Server abgerufen werden.");
         return;
       }
 
-      const fileName = getSanitizedDownloadName(path, label);
-      const objectUrl = URL.createObjectURL(data);
-      const link = document.createElement("a");
-      link.href = objectUrl;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(objectUrl);
-    } catch {
-      toast.error("Download blockiert? Bitte prüfe deine Browser-Erweiterungen oder Ad-Blocker.");
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      const objectUrl = URL.createObjectURL(result.blob);
+      setPreviewUrl(objectUrl);
+      setPreviewFileName(getDocumentName(path, label));
+      setPreviewOpen(true);
+    } catch (error) {
+      console.error("[document-preview] failed", { path, error });
+      toast.error("Dokument konnte nicht vom Server abgerufen werden.");
     }
-  }, [getSanitizedDownloadName]);
+  }, [getDocumentName, previewUrl]);
 
   const FileUploadSlot = ({ type, label, icon: Icon, currentUrl }: { type: "resume" | "certificates" | "cover_letter"; label: string; icon: any; currentUrl: string | null }) => {
     // Extract readable filename from storage path
