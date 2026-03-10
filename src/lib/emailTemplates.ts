@@ -13,7 +13,8 @@ const DASHBOARD_URL = "https://kanzleistelle24.de";
 const LOGO_URL =
   "https://myvjwpbhdnnrkwazudnh.supabase.co/storage/v1/object/public/logos/Kanzleistelle24%20Logo.png";
 
-/* ------------------------------------------------------------------ */
+const NEELE_IMG =
+  "https://myvjwpbhdnnrkwazudnh.supabase.co/storage/v1/object/public/logos/Neele%20Business.jpg";
 /* Shared layout                                                       */
 /* ------------------------------------------------------------------ */
 
