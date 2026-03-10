@@ -664,6 +664,24 @@ const ApplicantDetailSheet = ({
             Kandidaten-Profil exportieren (PDF)
           </Button>
         </div>
+
+        <Dialog open={previewOpen} onOpenChange={handlePreviewOpenChange}>
+          <DialogContent className="max-w-5xl h-[85vh] p-0 overflow-hidden">
+            <DialogHeader className="px-6 pt-5 pb-2">
+              <DialogTitle>Dokumentvorschau</DialogTitle>
+              <DialogDescription>{previewFileName || "PDF-Dokument"}</DialogDescription>
+            </DialogHeader>
+            <div className="px-6 pb-6 h-full">
+              {previewUrl ? (
+                <iframe title={previewFileName || "Dokument"} src={previewUrl} className="w-full h-full rounded-md border" />
+              ) : (
+                <div className="h-full w-full rounded-md border bg-muted flex items-center justify-center text-sm text-muted-foreground">
+                  Dokument konnte nicht vom Server abgerufen werden.
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </SheetContent>
     </Sheet>
   );
