@@ -18,9 +18,12 @@ export type Database = {
         Row: {
           applicant_id: string | null
           applicant_role: string | null
+          certificates_url: string | null
           company_id: string | null
           cover_letter: string | null
+          cover_letter_url: string | null
           created_at: string | null
+          earliest_start_date: string | null
           email: string | null
           experience: string | null
           first_name: string | null
@@ -30,8 +33,11 @@ export type Database = {
           job_id: string | null
           kanzlei_id: string | null
           last_name: string | null
+          notice_period: string | null
           phone: string | null
           resume_url: string | null
+          salary_expectation: string | null
+          special_skills: string | null
           status: string | null
           updated_at: string | null
           user_id: string | null
@@ -39,9 +45,12 @@ export type Database = {
         Insert: {
           applicant_id?: string | null
           applicant_role?: string | null
+          certificates_url?: string | null
           company_id?: string | null
           cover_letter?: string | null
+          cover_letter_url?: string | null
           created_at?: string | null
+          earliest_start_date?: string | null
           email?: string | null
           experience?: string | null
           first_name?: string | null
@@ -51,8 +60,11 @@ export type Database = {
           job_id?: string | null
           kanzlei_id?: string | null
           last_name?: string | null
+          notice_period?: string | null
           phone?: string | null
           resume_url?: string | null
+          salary_expectation?: string | null
+          special_skills?: string | null
           status?: string | null
           updated_at?: string | null
           user_id?: string | null
@@ -60,9 +72,12 @@ export type Database = {
         Update: {
           applicant_id?: string | null
           applicant_role?: string | null
+          certificates_url?: string | null
           company_id?: string | null
           cover_letter?: string | null
+          cover_letter_url?: string | null
           created_at?: string | null
+          earliest_start_date?: string | null
           email?: string | null
           experience?: string | null
           first_name?: string | null
@@ -72,8 +87,11 @@ export type Database = {
           job_id?: string | null
           kanzlei_id?: string | null
           last_name?: string | null
+          notice_period?: string | null
           phone?: string | null
           resume_url?: string | null
+          salary_expectation?: string | null
+          special_skills?: string | null
           status?: string | null
           updated_at?: string | null
           user_id?: string | null
