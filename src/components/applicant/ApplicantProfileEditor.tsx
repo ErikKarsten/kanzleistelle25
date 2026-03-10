@@ -28,12 +28,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { calculateProfileCompletion } from "@/lib/profileCompletion";
-import {
-  buildSafeDocumentName,
-  downloadApplicationDocument,
-  normalizeStoragePath,
-  triggerBlobDownload,
-} from "@/lib/documentAccess";
+import { buildSafeDocumentName, handleDownload, normalizeStoragePath } from "@/lib/documentAccess";
 import { cn } from "@/lib/utils";
 
 interface ApplicantProfileEditorProps {
