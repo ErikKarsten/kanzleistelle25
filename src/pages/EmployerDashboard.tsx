@@ -682,6 +682,13 @@ const EmployerDashboard = () => {
   const archivedApplications = applications?.filter((a) => a.is_archived) || [];
   const pendingApplications = activeApplications.filter((a) => a.status === "pending");
 
+  // Applications where the applicant updated their profile since the employer last viewed
+  const updatedApplications = activeApplications.filter((a: any) => {
+    if (!a.applicant_updated_at) return false;
+    if (!a.last_viewed_by_employer) return true; // never viewed but applicant updated
+    return new Date(a.applicant_updated_at) > new Date(a.last_viewed_by_employer);
+  });
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
