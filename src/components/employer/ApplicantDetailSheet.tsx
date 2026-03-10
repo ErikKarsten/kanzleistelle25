@@ -74,6 +74,9 @@ const ApplicantDetailSheet = ({
   const [notes, setNotes] = useState("");
   const [notesSaved, setNotesSaved] = useState(true);
   const [autoSaveTimeout, setAutoSaveTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewFileName, setPreviewFileName] = useState("");
 
   // Sync notes when application changes
   useEffect(() => {
