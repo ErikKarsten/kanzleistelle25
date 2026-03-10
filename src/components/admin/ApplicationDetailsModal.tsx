@@ -224,8 +224,8 @@ const ApplicationDetailsModal = ({
               className="w-full"
               variant="outline"
             >
-              <ExternalLink className="h-4 w-4 mr-2" />
-              Lebenslauf öffnen
+              <Download className="h-4 w-4 mr-2" />
+              Lebenslauf herunterladen
             </Button>
           )}
 
