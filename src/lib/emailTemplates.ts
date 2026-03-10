@@ -211,7 +211,7 @@ export function buildWelcomeApplicantEmail(data: WelcomeApplicantData) {
       ${step(3, "Direkt bewerben", "Bewirb dich mit einem Klick – dein Profil wird automatisch übermittelt.")}
     </table>
 
-    ${ctaButton("Jetzt Profil vervollständigen →", `${DASHBOARD_URL}/bewerber`)}
+    ${ctaButton("Jetzt Profil vervollständigen →", `${DASHBOARD_URL}/login`)}
 
     <p style="margin:0;font-size:13px;color:#A0AEC0;line-height:1.5;">
       Bei Fragen erreichst du uns jederzeit unter <a href="mailto:info@kanzleistelle24.de" style="color:#00AEEF;text-decoration:none;">info@kanzleistelle24.de</a>.
