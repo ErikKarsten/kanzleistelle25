@@ -6,6 +6,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -37,6 +44,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import jsPDF from "jspdf";
+import { buildSafeDocumentName, downloadApplicationDocument, triggerBlobDownload } from "@/lib/documentAccess";
 
 interface ApplicantDetailSheetProps {
   application: any;
