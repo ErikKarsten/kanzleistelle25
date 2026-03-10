@@ -221,7 +221,7 @@ const ApplicationCard = ({
           <Button
             variant="destructive"
             size="sm"
-            onClick={() => onDelete(app.id)}
+            onClick={(e) => { e.stopPropagation(); onDelete(app.id); }}
             className="text-xs"
           >
             <Trash2 className="h-3 w-3 mr-1" />
