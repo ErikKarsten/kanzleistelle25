@@ -20,6 +20,7 @@ import {
   DollarSign,
   Clock,
   Sparkles,
+  Eye,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -183,48 +184,75 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
     window.open(data.signedUrl, "_blank");
   }, []);
 
-  const FileUploadSlot = ({ type, label, icon: Icon, currentUrl }: { type: "resume" | "certificates" | "cover_letter"; label: string; icon: any; currentUrl: string | null }) => (
-    <div className="flex items-center justify-between p-3 border rounded-lg bg-secondary/20">
-      <div className="flex items-center gap-3 min-w-0">
-        <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-          <Icon className="h-4 w-4 text-primary" />
-        </div>
-        <div className="min-w-0">
-          <p className="text-sm font-medium text-foreground">{label}</p>
-          {currentUrl ? (
-            <button onClick={() => openFile(currentUrl)} className="text-xs text-primary hover:underline truncate block">
-              Dokument ansehen
-            </button>
-          ) : (
-            <p className="text-xs text-muted-foreground">Noch nicht hochgeladen</p>
-          )}
-        </div>
-      </div>
-      <div className="flex items-center gap-2 shrink-0">
-        {currentUrl && (
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDeleteFile(type)}>
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        )}
-        <label className="cursor-pointer">
-          <input
-            type="file"
-            accept=".pdf"
-            className="hidden"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) handleFileUpload(f, type);
-              e.target.value = "";
-            }}
-          />
-          <div className="inline-flex items-center justify-center h-8 px-3 rounded-md border bg-background text-sm font-medium hover:bg-accent transition-colors">
-            {uploading === type ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4 mr-1.5" />}
-            {currentUrl ? "Ersetzen" : "Hochladen"}
+  const FileUploadSlot = ({ type, label, icon: Icon, currentUrl }: { type: "resume" | "certificates" | "cover_letter"; label: string; icon: any; currentUrl: string | null }) => {
+    // Extract readable filename from storage path
+    const fileName = currentUrl
+      ? currentUrl.split("/").pop()?.replace(/^(resume|certificates|cover_letter)_\d+_/, "") || "Dokument"
+      : null;
+
+    return (
+      <div className="flex items-center justify-between p-3 border rounded-lg bg-secondary/20">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className={cn(
+            "w-9 h-9 rounded-lg flex items-center justify-center shrink-0",
+            currentUrl ? "bg-primary/10" : "bg-muted"
+          )}>
+            <Icon className={cn("h-4 w-4", currentUrl ? "text-primary" : "text-muted-foreground")} />
           </div>
-        </label>
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-foreground">{label}</p>
+            {currentUrl ? (
+              <p className="text-xs text-muted-foreground truncate max-w-[200px]" title={fileName || ""}>
+                📄 {fileName}
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground">Noch nicht hochgeladen</p>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0">
+          {currentUrl && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                title="Ansehen"
+                onClick={() => openFile(currentUrl)}
+              >
+                <Eye className="h-4 w-4 text-primary" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                title="Löschen"
+                onClick={() => handleDeleteFile(type)}
+              >
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+            </>
+          )}
+          <label className="cursor-pointer">
+            <input
+              type="file"
+              accept=".pdf"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) handleFileUpload(f, type);
+                e.target.value = "";
+              }}
+            />
+            <div className="inline-flex items-center justify-center h-8 px-3 rounded-md border bg-background text-sm font-medium hover:bg-accent transition-colors">
+              {uploading === type ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4 mr-1.5" />}
+              {currentUrl ? "Ersetzen" : "Hochladen"}
+            </div>
+          </label>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="space-y-6">
