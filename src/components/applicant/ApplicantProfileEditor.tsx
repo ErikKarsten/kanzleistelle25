@@ -175,13 +175,13 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
     }
   }, [application?.id, queryClient]);
 
-  const openFile = useCallback(async (path: string) => {
-    const { data, error } = await supabase.storage.from("resumes").createSignedUrl(path, 60);
-    if (error) {
-      toast.error("Datei konnte nicht geöffnet werden");
+  const openFile = useCallback((path: string) => {
+    const { data } = supabase.storage.from("applications").getPublicUrl(path);
+    if (!data?.publicUrl) {
+      toast.error("Datei konnte nicht geladen werden");
       return;
     }
-    window.open(data.signedUrl, "_blank");
+    window.open(data.publicUrl, "_blank");
   }, []);
 
   const FileUploadSlot = ({ type, label, icon: Icon, currentUrl }: { type: "resume" | "certificates" | "cover_letter"; label: string; icon: any; currentUrl: string | null }) => {
