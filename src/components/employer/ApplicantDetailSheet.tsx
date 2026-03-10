@@ -143,8 +143,8 @@ const ApplicantDetailSheet = ({
     });
   }, [application?.first_name, application?.last_name]);
 
-  const runDocumentDownload = useCallback(async (path: string, label: string, action: "preview" | "download") => {
-    const actionKey = `${action}:${path}`;
+  const handleDownloadDocument = useCallback(async (path: string, label: string) => {
+    const actionKey = `download:${path}`;
     setActiveDownloadKey(actionKey);
     setActiveDownloadLabel(label);
 
@@ -152,14 +152,9 @@ const ApplicantDetailSheet = ({
       const success = await handleDownload(path, getDocumentName(path, label));
       if (!success) {
         toast({ title: "Fehler", description: "Dokument konnte nicht vom Server abgerufen werden.", variant: "destructive" });
-        return;
-      }
-
-      if (action === "preview") {
-        toast({ title: "Info", description: "Vorschau wird als sicherer Download bereitgestellt." });
       }
     } catch (error) {
-      console.error("[document-download] failed", { path, action, error });
+      console.error("[document-download] failed", { path, error });
       toast({
         title: "Fehler",
         description: "Download blockiert? Bitte prüfe deine Browser-Erweiterungen oder Ad-Blocker.",
@@ -170,14 +165,6 @@ const ApplicantDetailSheet = ({
       setActiveDownloadLabel("");
     }
   }, [getDocumentName, toast]);
-
-  const handleDownloadDocument = useCallback(async (path: string, label: string) => {
-    await runDocumentDownload(path, label, "download");
-  }, [runDocumentDownload]);
-
-  const handleOpenDocument = useCallback(async (path: string, label: string) => {
-    await runDocumentDownload(path, label, "preview");
-  }, [runDocumentDownload]);
 
   const handleExportPDF = async () => {
     if (!application) return;
