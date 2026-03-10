@@ -131,16 +131,19 @@ const ApplicantDetailSheet = ({
     },
   });
 
-  const handleOpenResume = async () => {
-    if (!application?.resume_url) return;
+  const handleOpenDocument = async (path: string, label: string) => {
     const { data, error } = await supabase.storage
       .from("resumes")
-      .createSignedUrl(application.resume_url, 60);
+      .createSignedUrl(path, 60);
     if (error) {
-      toast({ title: "Fehler", description: "Lebenslauf konnte nicht geladen werden", variant: "destructive" });
+      toast({ title: "Fehler", description: `${label} konnte nicht geladen werden`, variant: "destructive" });
       return;
     }
     window.open(data.signedUrl, "_blank");
+  };
+
+  const handleOpenResume = () => {
+    if (application?.resume_url) handleOpenDocument(application.resume_url, "Lebenslauf");
   };
 
   const handleExportPDF = async () => {
