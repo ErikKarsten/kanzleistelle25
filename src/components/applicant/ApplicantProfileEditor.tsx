@@ -28,6 +28,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { calculateProfileCompletion } from "@/lib/profileCompletion";
 import { buildSafeDocumentName, handleDownload, normalizeStoragePath } from "@/lib/documentAccess";
+import { buildApplicantConfirmationEmail, buildProfileUpdateEmail } from "@/lib/emailTemplates";
 import { cn } from "@/lib/utils";
 
 interface ApplicantProfileEditorProps {
