@@ -161,7 +161,8 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
 
     try {
       if (currentPath) {
-        await supabase.storage.from("applications").remove([currentPath]);
+        const bucket = currentPath.startsWith("applications/") ? "resumes" : "applications";
+        await supabase.storage.from(bucket).remove([currentPath]);
       }
       const { error } = await supabase
         .from("applications")
@@ -175,13 +176,26 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
     }
   }, [application?.id, queryClient]);
 
-  const openFile = useCallback((path: string) => {
-    const { data } = supabase.storage.from("applications").getPublicUrl(path);
-    if (!data?.publicUrl) {
-      toast.error("Datei konnte nicht geladen werden");
-      return;
+  const openFile = useCallback(async (path: string) => {
+    // Legacy files were uploaded to "resumes" bucket with "applications/" prefix
+    const isLegacy = path.startsWith("applications/");
+    if (isLegacy) {
+      const { data, error } = await supabase.storage.from("resumes").createSignedUrl(path, 120);
+      if (error || !data?.signedUrl) {
+        toast.error("Datei konnte nicht geladen werden");
+        return;
+      }
+      console.log("[openFile] legacy signed URL:", data.signedUrl);
+      window.open(data.signedUrl, "_blank");
+    } else {
+      const { data } = supabase.storage.from("applications").getPublicUrl(path);
+      console.log("[openFile] public URL:", data?.publicUrl);
+      if (!data?.publicUrl) {
+        toast.error("Datei konnte nicht geladen werden");
+        return;
+      }
+      window.open(data.publicUrl, "_blank");
     }
-    window.open(data.publicUrl, "_blank");
   }, []);
 
   const FileUploadSlot = ({ type, label, icon: Icon, currentUrl }: { type: "resume" | "certificates" | "cover_letter"; label: string; icon: any; currentUrl: string | null }) => {

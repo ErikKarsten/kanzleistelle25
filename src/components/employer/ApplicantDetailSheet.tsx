@@ -131,23 +131,37 @@ const ApplicantDetailSheet = ({
     },
   });
 
-  const handleOpenDocument = (path: string, label: string) => {
-    const { data } = supabase.storage.from("applications").getPublicUrl(path);
-    if (!data?.publicUrl) {
+  const getDocumentUrl = async (path: string): Promise<string | null> => {
+    const isLegacy = path.startsWith("applications/");
+    if (isLegacy) {
+      const { data, error } = await supabase.storage.from("resumes").createSignedUrl(path, 120);
+      if (error || !data?.signedUrl) return null;
+      console.log("[employer] legacy signed URL:", data.signedUrl);
+      return data.signedUrl;
+    } else {
+      const { data } = supabase.storage.from("applications").getPublicUrl(path);
+      console.log("[employer] public URL:", data?.publicUrl);
+      return data?.publicUrl || null;
+    }
+  };
+
+  const handleOpenDocument = async (path: string, label: string) => {
+    const url = await getDocumentUrl(path);
+    if (!url) {
       toast({ title: "Fehler", description: `${label} konnte nicht geladen werden`, variant: "destructive" });
       return;
     }
-    window.open(data.publicUrl, "_blank");
+    window.open(url, "_blank");
   };
 
   const handleDownloadDocument = async (path: string, label: string) => {
-    const { data } = supabase.storage.from("applications").getPublicUrl(path, { download: true });
-    if (!data?.publicUrl) {
+    const url = await getDocumentUrl(path);
+    if (!url) {
       toast({ title: "Fehler", description: `${label} konnte nicht heruntergeladen werden`, variant: "destructive" });
       return;
     }
     const link = document.createElement("a");
-    link.href = data.publicUrl;
+    link.href = url;
     link.download = path.split("/").pop()?.replace(/^(resume|certificates|cover_letter)_\d+_/, "") || "dokument.pdf";
     link.click();
   };
