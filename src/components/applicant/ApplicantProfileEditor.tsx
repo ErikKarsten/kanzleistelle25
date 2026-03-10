@@ -207,8 +207,8 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
     });
   }, [formData.first_name, formData.last_name, application?.first_name, application?.last_name]);
 
-  const runDocumentDownload = useCallback(async (path: string, label: string, action: "preview" | "download") => {
-    const actionKey = `${action}:${path}`;
+  const handleDownloadFile = useCallback(async (path: string, label: string) => {
+    const actionKey = `download:${path}`;
     setActiveDownloadKey(actionKey);
     setActiveDownloadLabel(label);
 
@@ -216,28 +216,15 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
       const success = await handleDownload(path, getDocumentName(path, label));
       if (!success) {
         toast.error("Dokument konnte nicht vom Server abgerufen werden.");
-        return;
-      }
-
-      if (action === "preview") {
-        toast.success("Vorschau wird als sicherer Download bereitgestellt.");
       }
     } catch (error) {
-      console.error("[document-download] failed", { path, action, error });
+      console.error("[document-download] failed", { path, error });
       toast.error("Download blockiert? Bitte prüfe deine Browser-Erweiterungen oder Ad-Blocker.");
     } finally {
       setActiveDownloadKey(null);
       setActiveDownloadLabel("");
     }
   }, [getDocumentName]);
-
-  const handleDownloadFile = useCallback(async (path: string, label: string) => {
-    await runDocumentDownload(path, label, "download");
-  }, [runDocumentDownload]);
-
-  const handlePreviewFile = useCallback(async (path: string, label: string) => {
-    await runDocumentDownload(path, label, "preview");
-  }, [runDocumentDownload]);
 
   const FileUploadSlot = ({ type, label, icon: Icon, currentUrl }: { type: "resume" | "certificates" | "cover_letter"; label: string; icon: any; currentUrl: string | null }) => {
     // Extract readable filename from storage path
