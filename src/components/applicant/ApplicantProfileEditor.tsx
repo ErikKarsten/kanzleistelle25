@@ -239,23 +239,31 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
               <Sparkles className="h-5 w-5 text-primary" />
               <h3 className="font-semibold text-foreground">Profil-Vollständigkeit</h3>
             </div>
-            <Badge variant={percentage === 100 ? "default" : "secondary"} className={percentage === 100 ? "bg-green-100 text-green-700 border-green-200" : ""}>
-              {percentage}%
+            <Badge variant={completion.percentage === 100 ? "default" : "secondary"} className={completion.percentage === 100 ? "bg-green-100 text-green-700 border-green-200" : ""}>
+              {completion.percentage}%
             </Badge>
           </div>
-          <Progress value={percentage} className="h-2.5 mb-3" />
-          {missing.length > 0 && (
+          <div className="relative h-2.5 w-full rounded-full bg-secondary overflow-hidden mb-3">
+            <div
+              className={cn(
+                "h-full rounded-full transition-all duration-700 ease-out",
+                completion.percentage < 40 ? "bg-orange-500" : completion.percentage < 70 ? "bg-amber-500" : "bg-emerald-500"
+              )}
+              style={{ width: `${completion.percentage}%` }}
+            />
+          </div>
+          {completion.missing.length > 0 && (
             <div className="flex flex-wrap gap-1.5">
-              {missing.map((field) => (
-                <Badge key={field} variant="outline" className="text-xs text-muted-foreground">
+              {completion.missing.map((field) => (
+                <Badge key={field.key} variant="outline" className="text-xs text-muted-foreground">
                   <AlertCircle className="h-3 w-3 mr-1" />
-                  {field}
+                  {field.label}
                 </Badge>
               ))}
             </div>
           )}
-          {percentage === 100 && (
-            <p className="text-sm text-green-600 flex items-center gap-1.5">
+          {completion.percentage === 100 && (
+            <p className="text-sm flex items-center gap-1.5 text-primary">
               <CheckCircle2 className="h-4 w-4" />
               Dein Profil ist vollständig – du hebst dich positiv ab!
             </p>
