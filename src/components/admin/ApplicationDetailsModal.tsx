@@ -14,7 +14,7 @@ import {
   Briefcase, 
   Calendar, 
   FileText,
-  ExternalLink,
+  Download,
   Archive,
   Trash2
 } from "lucide-react";

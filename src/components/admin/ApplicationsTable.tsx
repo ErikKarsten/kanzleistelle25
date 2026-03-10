@@ -131,8 +131,8 @@ const ApplicationsTable = ({ applications, onViewDetails }: ApplicationsTablePro
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleOpenResume(app.resume_url!)}
-                      title="Lebenslauf öffnen"
+                      onClick={() => handleOpenResume(app)}
+                      title="Lebenslauf herunterladen"
                     >
                       <FileText className="h-4 w-4" />
                     </Button>
