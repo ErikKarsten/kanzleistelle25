@@ -63,9 +63,8 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
   });
 
   const [uploading, setUploading] = useState<string | null>(null);
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [previewFileName, setPreviewFileName] = useState("");
+  const [activeDownloadKey, setActiveDownloadKey] = useState<string | null>(null);
+  const [activeDownloadLabel, setActiveDownloadLabel] = useState("");
 
   useEffect(() => {
     if (application) {
