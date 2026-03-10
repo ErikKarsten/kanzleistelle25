@@ -118,6 +118,19 @@ const ApplicationCard = ({
               Neu
             </Badge>
           )}
+          {!isArchived && app.applicant_updated_at && app.last_viewed_by_employer && 
+           new Date(app.applicant_updated_at) > new Date(app.last_viewed_by_employer) && (
+            <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300 text-xs">
+              <Sparkles className="h-3 w-3 mr-0.5" />
+              Aktualisiert
+            </Badge>
+          )}
+          {!isArchived && app.applicant_updated_at && !app.last_viewed_by_employer && (
+            <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300 text-xs">
+              <Sparkles className="h-3 w-3 mr-0.5" />
+              Aktualisiert
+            </Badge>
+          )}
           {isArchived && (
             <Badge variant="outline" className="text-muted-foreground">
               Archiviert
