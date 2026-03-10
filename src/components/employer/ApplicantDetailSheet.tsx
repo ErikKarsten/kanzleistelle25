@@ -131,6 +131,25 @@ const ApplicantDetailSheet = ({
     },
   });
 
+  const getSanitizedDownloadName = (path: string, label: string) => {
+    const extension = path.toLowerCase().endsWith(".pdf") ? ".pdf" : ".pdf";
+    const first = (application?.first_name || "Bewerber").replace(/[^a-zA-Z0-9]/g, "_");
+    const last = (application?.last_name || "Profil").replace(/[^a-zA-Z0-9]/g, "_");
+    const safeLabel = label.replace(/[^a-zA-Z0-9]/g, "_");
+    return `${safeLabel}_${first}_${last}${extension}`;
+  };
+
+  const triggerDownload = (blob: Blob, fileName: string) => {
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = objectUrl;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(objectUrl);
+  };
+
   const downloadBlob = async (path: string): Promise<Blob | null> => {
     const isLegacy = path.startsWith("applications/");
     const bucket = isLegacy ? "resumes" : "applications";
@@ -142,27 +161,19 @@ const ApplicantDetailSheet = ({
   const handleOpenDocument = async (path: string, label: string) => {
     const blob = await downloadBlob(path);
     if (!blob) {
-      toast({ title: "Fehler", description: `${label} konnte nicht geladen werden. Bitte deaktiviere deinen Ad-Blocker, falls der Download nicht startet.`, variant: "destructive" });
+      toast({ title: "Fehler", description: "Download blockiert? Bitte prüfe deine Browser-Erweiterungen oder Ad-Blocker.", variant: "destructive" });
       return;
     }
-    const url = URL.createObjectURL(blob);
-    window.open(url, "_blank");
+    triggerDownload(blob, getSanitizedDownloadName(path, label));
   };
 
   const handleDownloadDocument = async (path: string, label: string) => {
     const blob = await downloadBlob(path);
     if (!blob) {
-      toast({ title: "Fehler", description: `${label} konnte nicht heruntergeladen werden. Bitte deaktiviere deinen Ad-Blocker, falls der Download nicht startet.`, variant: "destructive" });
+      toast({ title: "Fehler", description: "Download blockiert? Bitte prüfe deine Browser-Erweiterungen oder Ad-Blocker.", variant: "destructive" });
       return;
     }
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = path.split("/").pop()?.replace(/^(resume|certificates|cover_letter)_\d+_/, "") || "dokument.pdf";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    triggerDownload(blob, getSanitizedDownloadName(path, label));
   };
 
   const handleOpenResume = () => {

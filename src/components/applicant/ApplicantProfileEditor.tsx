@@ -176,22 +176,38 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
     }
   }, [application?.id, queryClient]);
 
-  const openFile = useCallback(async (path: string) => {
+  const getSanitizedDownloadName = useCallback((path: string, label: string) => {
+    const rawName = path.split("/").pop()?.replace(/^(resume|certificates|cover_letter)_\d+_/, "") || "Dokument.pdf";
+    const extension = rawName.toLowerCase().endsWith(".pdf") ? ".pdf" : ".pdf";
+    const first = (formData.first_name || application?.first_name || "Bewerber").replace(/[^a-zA-Z0-9]/g, "_");
+    const last = (formData.last_name || application?.last_name || "Profil").replace(/[^a-zA-Z0-9]/g, "_");
+    const safeLabel = label.replace(/[^a-zA-Z0-9]/g, "_");
+    return `${safeLabel}_${first}_${last}${extension}`;
+  }, [formData.first_name, formData.last_name, application?.first_name, application?.last_name]);
+
+  const openFile = useCallback(async (path: string, label: string) => {
     try {
-      // Determine correct bucket based on legacy path prefix
       const isLegacy = path.startsWith("applications/");
       const bucket = isLegacy ? "resumes" : "applications";
       const { data, error } = await supabase.storage.from(bucket).download(path);
       if (error || !data) {
-        toast.error("Datei konnte nicht geladen werden. Bitte deaktiviere deinen Ad-Blocker, falls der Download nicht startet.");
+        toast.error("Download blockiert? Bitte prüfe deine Browser-Erweiterungen oder Ad-Blocker.");
         return;
       }
-      const url = URL.createObjectURL(data);
-      window.open(url, "_blank");
+
+      const fileName = getSanitizedDownloadName(path, label);
+      const objectUrl = URL.createObjectURL(data);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(objectUrl);
     } catch {
-      toast.error("Datei konnte nicht geladen werden. Bitte deaktiviere deinen Ad-Blocker, falls der Download nicht startet.");
+      toast.error("Download blockiert? Bitte prüfe deine Browser-Erweiterungen oder Ad-Blocker.");
     }
-  }, []);
+  }, [getSanitizedDownloadName]);
 
   const FileUploadSlot = ({ type, label, icon: Icon, currentUrl }: { type: "resume" | "certificates" | "cover_letter"; label: string; icon: any; currentUrl: string | null }) => {
     // Extract readable filename from storage path
