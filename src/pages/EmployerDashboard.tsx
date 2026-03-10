@@ -67,6 +67,7 @@ import ChatWindow from "@/components/ChatWindow";
 import UnreadMessagesModal from "@/components/employer/UnreadMessagesModal";
 import RecentMessagesEmployer from "@/components/employer/RecentMessagesEmployer";
 import { useUnreadMessages } from "@/hooks/useUnreadMessages";
+import UpdatedProfilesWidget from "@/components/employer/UpdatedProfilesWidget";
 import { toast as sonnerToast } from "sonner";
 
 // Reusable application card for active/archived views
