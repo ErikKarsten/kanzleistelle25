@@ -20,6 +20,7 @@ import {
   DollarSign,
   Clock,
   Sparkles,
+  Eye,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
