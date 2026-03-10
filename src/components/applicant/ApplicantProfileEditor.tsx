@@ -115,9 +115,61 @@ const ApplicantProfileEditor = ({ application, userId }: ApplicantProfileEditorP
         throw error;
       }
     },
-    onSuccess: () => {
+    onSuccess: async (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["applicant-applications"] });
       toast.success("Profil gespeichert");
+
+      // Send confirmation email via Brevo
+      if (variables.email) {
+        try {
+          const displayName = [variables.first_name, variables.last_name].filter(Boolean).join(" ") || "Bewerber/in";
+          const html = `
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"></head>
+<body style="margin:0;padding:0;background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f8;padding:32px 0;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+  <tr><td style="background:#1a365d;padding:24px 32px;text-align:center;">
+    <h1 style="margin:0;color:#ffffff;font-size:22px;">Kanzleistellen24</h1>
+  </td></tr>
+  <tr><td style="padding:32px;">
+    <p style="margin:0 0 16px;font-size:16px;color:#1a202c;">Hallo ${displayName},</p>
+    <p style="margin:0 0 16px;font-size:15px;color:#4a5568;line-height:1.6;">
+      dein Bewerberprofil wurde erfolgreich aktualisiert. Arbeitgeber können nun deine aktuellen Angaben einsehen.
+    </p>
+    <p style="margin:0 0 24px;font-size:15px;color:#4a5568;line-height:1.6;">
+      Je vollständiger dein Profil ist, desto besser stehen deine Chancen auf eine Einladung zum Gespräch.
+    </p>
+    <table cellpadding="0" cellspacing="0"><tr><td style="background:#1a365d;border-radius:6px;padding:12px 24px;">
+      <a href="https://kanzleistelle25.lovable.app/bewerber" style="color:#ffffff;text-decoration:none;font-size:15px;font-weight:bold;">Zum Dashboard →</a>
+    </td></tr></table>
+    <p style="margin:24px 0 0;font-size:13px;color:#a0aec0;">Diese E-Mail wurde automatisch versendet. Bitte antworte nicht darauf.</p>
+  </td></tr>
+  <tr><td style="background:#f7fafc;padding:16px 32px;text-align:center;border-top:1px solid #e2e8f0;">
+    <p style="margin:0;font-size:12px;color:#a0aec0;">© ${new Date().getFullYear()} Kanzleistellen24 · Alle Rechte vorbehalten</p>
+  </td></tr>
+</table>
+</td></tr></table>
+</body></html>`;
+
+          const { error: emailError } = await supabase.functions.invoke("send-contact-email", {
+            body: {
+              to_email: variables.email,
+              to_name: displayName,
+              subject: "Deine Bewerbung bei Kanzleistellen24 – Profil aktualisiert",
+              html,
+            },
+          });
+
+          if (emailError) {
+            console.warn("[profile-save] Email notification failed:", emailError);
+            toast.info("E-Mail-Bestätigung konnte nicht gesendet werden, Profil wurde aber gespeichert.");
+          }
+        } catch (emailErr) {
+          console.warn("[profile-save] Email send error:", emailErr);
+        }
+      }
     },
     onError: (error: any) => {
       console.error("[profile-save] Full error:", error);
