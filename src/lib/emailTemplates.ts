@@ -45,7 +45,7 @@ function signatureBlock(audience: Audience): string {
           <p style="margin:0 0 2px;font-size:22px;color:#003366;font-family:Georgia,'Times New Roman',serif;font-style:italic;font-weight:700;">Neele Ehlers</p>
           <p style="margin:0 0 24px;font-size:13px;color:#718096;line-height:1.4;">${tagline}</p>
           <a href="${DASHBOARD_URL}" style="text-decoration:none;">
-            <img src="${LOGO_URL}" alt="Kanzleistelle24" width="280" style="display:block;max-width:280px;width:100%;height:auto;margin:0;" />
+            <img src="${LOGO_URL}" alt="Kanzleistelle24" width="210" style="display:block;max-width:210px;width:100%;height:auto;margin:0;" />
           </a>
         </td>
         <!-- RIGHT: Neele portrait with blue accent -->
