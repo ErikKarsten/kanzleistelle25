@@ -98,7 +98,7 @@ const ApplicationCard = ({
   return (
   <div
     onClick={() => onClickDetail?.(app)}
-    className={`p-4 border rounded-lg transition-colors cursor-pointer ${
+    className={`p-4 border rounded-lg transition-all duration-300 cursor-pointer ${
       !isArchived && app.status === "pending"
         ? "border-orange-200 bg-orange-50/50"
         : isArchived
@@ -169,7 +169,7 @@ const ApplicationCard = ({
           </p>
         )}
       </div>
-      <div className="flex flex-col items-end gap-2">
+      <div className="flex flex-col items-end gap-2" onClick={(e) => e.stopPropagation()}>
         <Select
           value={app.status || "pending"}
           onValueChange={(value) => onStatusChange(app.id, value)}
@@ -202,7 +202,7 @@ const ApplicationCard = ({
         <Button
           variant={isArchived ? "outline" : "ghost"}
           size="sm"
-          onClick={() => onArchiveToggle(app.id)}
+          onClick={(e) => { e.stopPropagation(); onArchiveToggle(app.id); }}
           className="text-xs"
         >
           {isArchived ? (
@@ -221,7 +221,7 @@ const ApplicationCard = ({
           <Button
             variant="destructive"
             size="sm"
-            onClick={() => onDelete(app.id)}
+            onClick={(e) => { e.stopPropagation(); onDelete(app.id); }}
             className="text-xs"
           >
             <Trash2 className="h-3 w-3 mr-1" />
@@ -532,7 +532,9 @@ const EmployerDashboard = () => {
     },
     onSuccess: (_, { archive }) => {
       queryClient.invalidateQueries({ queryKey: ["employer-applications", companyId] });
-      toast({ title: archive ? "Bewerbung archiviert" : "Bewerbung wiederhergestellt" });
+      sonnerToast.success(archive ? "Bewerber erfolgreich archiviert" : "Bewerber wiederhergestellt", {
+        duration: 3000,
+      });
     },
     onError: (error: any) => {
       toast({
