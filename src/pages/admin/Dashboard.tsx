@@ -401,6 +401,9 @@ const AdminDashboardContent = () => {
           </CardContent>
         </Card>
 
+        {/* Talent Pool (Initiative Applicants) */}
+        <TalentPool />
+
         {/* Matching & Recommendations */}
         <RecommendationManagement />
 
