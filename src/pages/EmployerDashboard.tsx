@@ -128,7 +128,13 @@ const ApplicationCard = ({
     <div className="flex items-start justify-between gap-4">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-foreground">
+          <h3 className="font-semibold text-foreground flex items-center gap-2">
+            {!isArchived && (
+              <span
+                className={`inline-block w-2.5 h-2.5 rounded-full shrink-0 ${ampelColors[ampel]}`}
+                title={ampel === "green" ? "Aktivität < 3 Tage" : ampel === "yellow" ? "Aktivität 4–7 Tage" : "Keine Aktivität seit > 7 Tagen"}
+              />
+            )}
             {app.first_name} {app.last_name}
           </h3>
           {!isArchived && app.status === "pending" && (
