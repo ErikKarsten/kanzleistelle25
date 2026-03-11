@@ -7,10 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, Clock, Building2, Send, Zap, Search, Briefcase } from "lucide-react";
+import { MapPin, Clock, Building2, Send, Zap, Search, Briefcase, Sparkles } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
 import ApplyModal from "./ApplyModal";
+import InitiativeApplyModal from "./InitiativeApplyModal";
 import { useState, useMemo } from "react";
 
 interface JobWithCompany {
