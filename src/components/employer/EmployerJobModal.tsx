@@ -288,12 +288,22 @@ const EmployerJobModal = ({
           </DialogTitle>
         </DialogHeader>
 
-        {/* Info Banner */}
+        {/* Info Banner for new jobs */}
         {!job && (
           <div className="flex items-start gap-3 rounded-lg border border-yellow-300 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
             <AlertCircle className="h-4 w-4 mt-0.5 shrink-0 text-yellow-600" />
             <p>
               <strong>Hinweis zur Veröffentlichung:</strong> Deine Stelle wird aktuell geprüft und nach Freigabe durch den Admin veröffentlicht.
+            </p>
+          </div>
+        )}
+
+        {/* Warning banner when editing a published job */}
+        {job?.status === "published" && (
+          <div className="flex items-start gap-3 rounded-lg border border-amber-400 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            <AlertCircle className="h-4 w-4 mt-0.5 shrink-0 text-amber-600" />
+            <p>
+              <strong>⚠️ Achtung:</strong> Nach dem Speichern der Änderungen wird die Anzeige zur Sicherheit erneut durch unser Team geprüft und kurzzeitig offline genommen.
             </p>
           </div>
         )}
