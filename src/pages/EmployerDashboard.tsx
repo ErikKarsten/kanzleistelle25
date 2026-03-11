@@ -694,6 +694,12 @@ const EmployerDashboard = () => {
   const archivedApplications = applications?.filter((a) => a.is_archived) || [];
   const pendingApplications = activeApplications.filter((a) => a.status === "pending");
 
+  // Ampel: count applications waiting for response (yellow + red)
+  const waitingApplications = activeApplications.filter((a) => {
+    const ampel = getAmpelStatus(a.updated_at);
+    return ampel === "yellow" || ampel === "red";
+  });
+
   // Applications where the applicant updated their profile since the employer last viewed
   const updatedApplications = activeApplications.filter((a: any) => {
     if (!a.applicant_updated_at) return false;
