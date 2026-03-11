@@ -96,7 +96,7 @@ const AdminDashboardContent = () => {
     };
   }, [queryClient]);
 
-  // Fetch applications
+  // Fetch applications (include updated_at & company_id for ampel monitor)
   const { data: applications, isLoading: applicationsLoading } = useQuery({
     queryKey: ["admin-dashboard-applications"],
     queryFn: async () => {
@@ -114,7 +114,9 @@ const AdminDashboardContent = () => {
           resume_url,
           status,
           created_at,
+          updated_at,
           is_archived,
+          company_id,
           jobs (
             id,
             title,
@@ -127,7 +129,7 @@ const AdminDashboardContent = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data as ApplicationWithJob[];
+      return data as (ApplicationWithJob & { updated_at: string | null; company_id: string | null })[];
     },
   });
 
