@@ -17,7 +17,8 @@ import {
   FileText,
   Download,
   Archive,
-  Trash2
+  Trash2,
+  UserPlus
 } from "lucide-react";
 import {
   AlertDialog,
