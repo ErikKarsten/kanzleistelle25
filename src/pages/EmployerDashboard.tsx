@@ -70,6 +70,22 @@ import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import UpdatedProfilesWidget from "@/components/employer/UpdatedProfilesWidget";
 import { toast as sonnerToast } from "sonner";
 
+// Helper: compute ampel color based on updated_at
+function getAmpelStatus(updatedAt: string | null): "green" | "yellow" | "red" {
+  if (!updatedAt) return "red";
+  const diffMs = Date.now() - new Date(updatedAt).getTime();
+  const diffDays = diffMs / (1000 * 60 * 60 * 24);
+  if (diffDays <= 3) return "green";
+  if (diffDays <= 7) return "yellow";
+  return "red";
+}
+
+const ampelColors = {
+  green: "bg-green-500",
+  yellow: "bg-yellow-400",
+  red: "bg-red-500",
+};
+
 // Reusable application card for active/archived views
 const ApplicationCard = ({
   app,
@@ -96,6 +112,8 @@ const ApplicationCard = ({
     ? new Date(new Date(app.created_at).getTime() + 6 * 30 * 24 * 60 * 60 * 1000)
     : null;
 
+  const ampel = getAmpelStatus(app.updated_at);
+
   return (
   <div
     onClick={() => onClickDetail?.(app)}
@@ -110,7 +128,13 @@ const ApplicationCard = ({
     <div className="flex items-start justify-between gap-4">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-foreground">
+          <h3 className="font-semibold text-foreground flex items-center gap-2">
+            {!isArchived && (
+              <span
+                className={`inline-block w-2.5 h-2.5 rounded-full shrink-0 ${ampelColors[ampel]}`}
+                title={ampel === "green" ? "Aktivität < 3 Tage" : ampel === "yellow" ? "Aktivität 4–7 Tage" : "Keine Aktivität seit > 7 Tagen"}
+              />
+            )}
             {app.first_name} {app.last_name}
           </h3>
           {!isArchived && app.status === "pending" && (
@@ -670,6 +694,12 @@ const EmployerDashboard = () => {
   const archivedApplications = applications?.filter((a) => a.is_archived) || [];
   const pendingApplications = activeApplications.filter((a) => a.status === "pending");
 
+  // Ampel: count applications waiting for response (yellow + red)
+  const waitingApplications = activeApplications.filter((a) => {
+    const ampel = getAmpelStatus(a.updated_at);
+    return ampel === "yellow" || ampel === "red";
+  });
+
   // Applications where the applicant updated their profile since the employer last viewed
   const updatedApplications = activeApplications.filter((a: any) => {
     if (!a.applicant_updated_at) return false;
@@ -711,6 +741,28 @@ const EmployerDashboard = () => {
               </Button>
             </div>
           </div>
+
+          {/* Ampel Warning Banner */}
+          {waitingApplications.length > 0 && (
+            <div className="flex items-center gap-3 mb-6 p-4 rounded-lg border border-amber-300 bg-amber-50">
+              <div className="flex items-center gap-1.5">
+                <span className="inline-block w-3 h-3 rounded-full bg-yellow-400" />
+                <span className="inline-block w-3 h-3 rounded-full bg-red-500" />
+              </div>
+              <p className="text-sm text-amber-900 font-medium">
+                {waitingApplications.length} Bewerber {waitingApplications.length === 1 ? "wartet" : "warten"} auf Rückmeldung
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="ml-auto border-amber-400 text-amber-900 hover:bg-amber-100"
+                onClick={() => { setActiveTab("applications"); setApplicationsTab("active"); }}
+              >
+                <ArrowRight className="h-3.5 w-3.5 mr-1" />
+                Jetzt antworten
+              </Button>
+            </div>
+          )}
 
           {/* Quick Stats */}
           <div className="grid gap-4 md:grid-cols-4 mb-8">

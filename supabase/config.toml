@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.send-contact-email]
 verify_jwt = false
+
+[functions.applicant-reminder]
+verify_jwt = false
