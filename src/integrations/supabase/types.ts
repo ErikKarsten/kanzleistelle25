@@ -353,6 +353,7 @@ export type Database = {
       }
       jobs: {
         Row: {
+          admin_feedback: string | null
           benefits: string[] | null
           company: string
           company_id: string | null
@@ -374,6 +375,7 @@ export type Database = {
           working_model: string | null
         }
         Insert: {
+          admin_feedback?: string | null
           benefits?: string[] | null
           company: string
           company_id?: string | null
@@ -395,6 +397,7 @@ export type Database = {
           working_model?: string | null
         }
         Update: {
+          admin_feedback?: string | null
           benefits?: string[] | null
           company?: string
           company_id?: string | null
