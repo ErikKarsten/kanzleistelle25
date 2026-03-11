@@ -366,6 +366,18 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
           </div>
         )}
       </div>
+      {/* Initiative Apply CTA */}
+      <div className="mt-8 text-center">
+        <div className="inline-flex flex-col items-center gap-2 bg-primary/5 border border-primary/10 rounded-xl px-8 py-6">
+          <Sparkles className="h-6 w-6 text-primary" />
+          <p className="text-sm font-medium text-foreground">Keine passende Stelle dabei?</p>
+          <p className="text-xs text-muted-foreground max-w-sm">Bewirb dich initiativ – wir finden die richtige Kanzlei für dich!</p>
+          <Button variant="outline" className="mt-2 gap-2" onClick={() => setInitiativeOpen(true)}>
+            <Sparkles className="h-4 w-4" />
+            Initiativ bewerben
+          </Button>
+        </div>
+      </div>
        
       {selectedJob && (
         <ApplyModal
@@ -377,6 +389,11 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
           companyId={selectedJob.company_id}
         />
       )}
+
+      <InitiativeApplyModal
+        open={initiativeOpen}
+        onOpenChange={setInitiativeOpen}
+      />
     </section>
   );
 };
