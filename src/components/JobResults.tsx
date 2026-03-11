@@ -7,10 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, Clock, Building2, Send, Zap, Search, Briefcase } from "lucide-react";
+import { MapPin, Clock, Building2, Send, Zap, Search, Briefcase, Sparkles } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
 import ApplyModal from "./ApplyModal";
+import InitiativeApplyModal from "./InitiativeApplyModal";
 import { useState, useMemo } from "react";
 
 interface JobWithCompany {
@@ -60,6 +61,7 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
   const [selectedJob, setSelectedJob] = useState<JobWithCompany | null>(null);
   const [localTitleFilter, setLocalTitleFilter] = useState("");
   const [localLocationFilter, setLocalLocationFilter] = useState("");
+  const [initiativeOpen, setInitiativeOpen] = useState(false);
 
   const { data: jobs, isLoading, error } = useQuery({
     queryKey: ["jobs", searchFilters],
@@ -344,20 +346,37 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
             <h3 className="text-xl font-semibold text-foreground mb-2">
               Keine Stellenangebote gefunden
             </h3>
-            <p className="text-muted-foreground max-w-md mx-auto">
-              Versuchen Sie es mit anderen Suchbegriffen oder schauen Sie später wieder vorbei.
+            <p className="text-muted-foreground max-w-md mx-auto mb-4">
+              Versuchen Sie es mit anderen Suchbegriffen oder bewerben Sie sich initiativ – wir finden die passende Kanzlei für Sie!
             </p>
-            {(localTitleFilter || localLocationFilter) && (
-              <Button 
-                variant="outline" 
-                className="mt-4"
-                onClick={() => { setLocalTitleFilter(""); setLocalLocationFilter(""); }}
-              >
-                Filter zurücksetzen
+            <div className="flex items-center justify-center gap-3">
+              {(localTitleFilter || localLocationFilter) && (
+                <Button 
+                  variant="outline" 
+                  onClick={() => { setLocalTitleFilter(""); setLocalLocationFilter(""); }}
+                >
+                  Filter zurücksetzen
+                </Button>
+              )}
+              <Button onClick={() => setInitiativeOpen(true)} className="gap-2">
+                <Sparkles className="h-4 w-4" />
+                Initiativ bewerben
               </Button>
-            )}
+            </div>
           </div>
         )}
+      </div>
+      {/* Initiative Apply CTA */}
+      <div className="mt-8 text-center">
+        <div className="inline-flex flex-col items-center gap-2 bg-primary/5 border border-primary/10 rounded-xl px-8 py-6">
+          <Sparkles className="h-6 w-6 text-primary" />
+          <p className="text-sm font-medium text-foreground">Keine passende Stelle dabei?</p>
+          <p className="text-xs text-muted-foreground max-w-sm">Bewirb dich initiativ – wir finden die richtige Kanzlei für dich!</p>
+          <Button variant="outline" className="mt-2 gap-2" onClick={() => setInitiativeOpen(true)}>
+            <Sparkles className="h-4 w-4" />
+            Initiativ bewerben
+          </Button>
+        </div>
       </div>
        
       {selectedJob && (
@@ -370,6 +389,11 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
           companyId={selectedJob.company_id}
         />
       )}
+
+      <InitiativeApplyModal
+        open={initiativeOpen}
+        onOpenChange={setInitiativeOpen}
+      />
     </section>
   );
 };
