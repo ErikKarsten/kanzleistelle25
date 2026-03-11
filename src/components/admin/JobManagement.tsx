@@ -102,6 +102,7 @@ const JobManagement = () => {
           is_active,
           status,
           created_at,
+          updated_at,
           companies (
             name,
             logo_url,
