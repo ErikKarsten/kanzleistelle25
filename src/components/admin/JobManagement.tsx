@@ -663,7 +663,15 @@ const PendingJobsTable = ({ jobs, onPreview, onApprove, onDelete }: PendingJobsT
               onClick={() => onPreview(job)}
             >
               <TableCell>
-                <div className="font-medium text-primary hover:underline">{job.title}</div>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-primary hover:underline">{job.title}</span>
+                  {job.status === "pending_review" && job.updated_at && job.created_at && 
+                   new Date(job.updated_at).getTime() - new Date(job.created_at).getTime() > 60000 && (
+                    <Badge className="bg-blue-100 text-blue-800 border border-blue-300 text-[10px] px-1.5 py-0">
+                      Update
+                    </Badge>
+                  )}
+                </div>
                 {job.employment_type && (
                   <Badge variant="secondary" className="text-xs mt-1">{job.employment_type}</Badge>
                 )}
