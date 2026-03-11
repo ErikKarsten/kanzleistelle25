@@ -142,6 +142,12 @@ const ApplicationCard = ({
               Neu
             </Badge>
           )}
+          {app.internal_notes?.includes("source: recommendation") && (
+            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-xs">
+              <Sparkles className="h-3 w-3 mr-0.5" />
+              Empfohlen
+            </Badge>
+          )}
           {!isArchived && app.applicant_updated_at && app.last_viewed_by_employer && 
            new Date(app.applicant_updated_at) > new Date(app.last_viewed_by_employer) && (
             <Badge variant="outline" className="bg-blue-100 text-blue-700 border-blue-300 text-xs">

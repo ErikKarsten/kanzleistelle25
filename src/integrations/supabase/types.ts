@@ -516,6 +516,76 @@ export type Database = {
         }
         Relationships: []
       }
+      recommendations: {
+        Row: {
+          admin_id: string
+          admin_note: string | null
+          applicant_name: string | null
+          applicant_user_id: string
+          company_id: string
+          company_name: string | null
+          confirmed_at: string | null
+          created_at: string
+          id: string
+          job_id: string | null
+          job_title: string | null
+          resulting_application_id: string | null
+          status: string
+        }
+        Insert: {
+          admin_id: string
+          admin_note?: string | null
+          applicant_name?: string | null
+          applicant_user_id: string
+          company_id: string
+          company_name?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          id?: string
+          job_id?: string | null
+          job_title?: string | null
+          resulting_application_id?: string | null
+          status?: string
+        }
+        Update: {
+          admin_id?: string
+          admin_note?: string | null
+          applicant_name?: string | null
+          applicant_user_id?: string
+          company_id?: string
+          company_name?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          id?: string
+          job_id?: string | null
+          job_title?: string | null
+          resulting_application_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recommendations_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recommendations_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "public_companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recommendations_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
