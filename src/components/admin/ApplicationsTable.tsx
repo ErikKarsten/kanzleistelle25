@@ -167,6 +167,7 @@ const ApplicationsTable = ({ applications, onViewDetails }: ApplicationsTablePro
           onOpenChange={(o) => { if (!o) setMatchApp(null); }}
           applicantUserId={matchApp.user_id || matchApp.applicant_id || null}
           applicantName={[matchApp.first_name, matchApp.last_name].filter(Boolean).join(" ") || "Unbekannt"}
+          applicantEmail={matchApp.email || null}
         />
       )}
     </>
