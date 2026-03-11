@@ -347,7 +347,15 @@ const JobManagement = () => {
         <CardContent className="space-y-6">
           {/* Stats Cards */}
           <div className="grid gap-4 md:grid-cols-4">
-            <div className="flex items-center gap-3 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+            <button
+              onClick={() => setActiveTab("pending")}
+              className="relative flex items-center gap-3 p-4 bg-yellow-50 rounded-lg border border-yellow-200 hover:bg-yellow-100 transition-colors cursor-pointer text-left w-full"
+            >
+              {stats.pendingJobs > 0 && (
+                <span className="absolute -top-2 -right-2 inline-flex items-center justify-center h-6 w-6 rounded-full bg-destructive text-destructive-foreground text-xs font-bold animate-pulse">
+                  {stats.pendingJobs}
+                </span>
+              )}
               <div className="p-2 bg-yellow-100 rounded-full">
                 <Clock className="h-5 w-5 text-yellow-600" />
               </div>
@@ -357,7 +365,7 @@ const JobManagement = () => {
                 </p>
                 <p className="text-sm text-yellow-600">Zur Freigabe</p>
               </div>
-            </div>
+            </button>
 
             <div className="flex items-center gap-3 p-4 bg-green-50 rounded-lg border border-green-200">
               <div className="p-2 bg-green-100 rounded-full">
