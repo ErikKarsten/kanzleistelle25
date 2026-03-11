@@ -47,6 +47,8 @@ interface ApplicationWithJob {
   status: string | null;
   created_at: string | null;
   is_archived?: boolean;
+  user_id?: string | null;
+  applicant_id?: string | null;
   jobs: {
     title: string;
     company: string;
