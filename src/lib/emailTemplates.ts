@@ -401,3 +401,35 @@ export function buildApplicantReminderEmail(data: ApplicantReminderData) {
     html: wrap(body, "kanzlei"),
   };
 }
+
+/* ------------------------------------------------------------------ */
+/* Template H – Stellenanzeige freigegeben (an die Kanzlei)            */
+/* ------------------------------------------------------------------ */
+
+interface JobApprovedData {
+  jobTitle: string;
+  companyName: string;
+}
+
+export function buildJobApprovedEmail(data: JobApprovedData) {
+  const body = `
+    <p style="margin:0 0 8px;font-size:18px;font-weight:700;color:#003366;">Gute Nachrichten! ✨</p>
+    <p style="margin:0 0 20px;font-size:15px;color:#4A5568;line-height:1.6;">
+      Ihre Änderungen an der Anzeige <strong style="color:#003366;">"${data.jobTitle}"</strong> wurden soeben geprüft und veröffentlicht.
+    </p>
+    <p style="margin:0 0 24px;font-size:15px;color:#4A5568;line-height:1.6;">
+      Die Stelle ist ab sofort wieder für Bewerber sichtbar. Wir wünschen Ihnen viel Erfolg bei der Besetzung!
+    </p>
+
+    ${ctaButton("Zum Dashboard →", `${DASHBOARD_URL}/login`)}
+
+    <p style="margin:0;font-size:13px;color:#A0AEC0;line-height:1.5;">
+      Bei Fragen erreichen Sie uns jederzeit unter
+      <a href="mailto:info@kanzleistelle24.de" style="color:#00AEEF;text-decoration:none;">info@kanzleistelle24.de</a>.
+    </p>`;
+
+  return {
+    subject: `✅ Ihre Anzeige "${data.jobTitle}" wurde freigegeben`,
+    html: wrap(body, "kanzlei"),
+  };
+}
