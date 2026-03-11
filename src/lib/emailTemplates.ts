@@ -318,3 +318,32 @@ export function buildPasswordResetEmail(data: PasswordResetData) {
     html: wrap(body, data.audience || "bewerber"),
   };
 }
+
+/* ------------------------------------------------------------------ */
+/* Template F – Stellenanzeige wartet auf Freigabe (an Admin)          */
+/* ------------------------------------------------------------------ */
+
+interface JobPendingReviewData {
+  jobTitle: string;
+  companyName: string;
+}
+
+export function buildJobPendingReviewEmail(data: JobPendingReviewData) {
+  const body = `
+    <p style="margin:0 0 8px;font-size:18px;font-weight:700;color:#003366;">Stellenanzeige bearbeitet – Freigabe erforderlich</p>
+    <p style="margin:0 0 20px;font-size:15px;color:#4A5568;line-height:1.6;">
+      Die Kanzlei <strong style="color:#003366;">${data.companyName}</strong> hat die Stellenanzeige
+      <strong style="color:#003366;">"${data.jobTitle}"</strong> bearbeitet. Die Anzeige wurde automatisch offline genommen und wartet auf erneute Freigabe.
+    </p>
+
+    ${ctaButton("Im Admin-Dashboard prüfen →", `${DASHBOARD_URL}/admin/dashboard`)}
+
+    <p style="margin:0;font-size:13px;color:#A0AEC0;line-height:1.5;">
+      Diese E-Mail wurde automatisch versendet, weil eine veröffentlichte Stellenanzeige bearbeitet wurde.
+    </p>`;
+
+  return {
+    subject: `⚠️ Freigabe nötig: "${data.jobTitle}" von ${data.companyName}`,
+    html: wrap(body, "kanzlei"),
+  };
+}
