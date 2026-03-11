@@ -146,16 +146,16 @@ const AdminDashboardContent = () => {
     },
   });
 
-  // Fetch companies for filter
+  // Fetch companies for filter (include user_id for nudge function)
   const { data: companies } = useQuery({
     queryKey: ["admin-dashboard-companies"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("companies")
-        .select("id, name")
+        .select("id, name, user_id")
         .order("name");
       if (error) throw error;
-      return data as { id: string; name: string }[];
+      return data as { id: string; name: string; user_id: string | null }[];
     },
   });
 
