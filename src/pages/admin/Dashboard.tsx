@@ -15,6 +15,7 @@ import JobManagement from "@/components/admin/JobManagement";
 import ArticleManagement from "@/components/admin/ArticleManagement";
 import LeadManagement from "@/components/admin/LeadManagement";
 import NewLeadsModal, { useNewLeadsCount } from "@/components/admin/NewLeadsModal";
+import CriticalApplicationsMonitor from "@/components/admin/CriticalApplicationsMonitor";
 import { toast } from "sonner";
 
 interface ApplicationWithJob {
