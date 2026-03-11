@@ -237,8 +237,18 @@ const ApplicationDetailsModal = ({
           <Separator />
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex gap-2">
+              {(application.user_id || application.applicant_id) && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setMatchOpen(true)}
+                >
+                  <UserPlus className="h-4 w-4 mr-1" />
+                  Kanzlei vorschlagen
+                </Button>
+              )}
               {onArchive && (
                 <Button
                   variant="secondary"
@@ -282,6 +292,13 @@ const ApplicationDetailsModal = ({
           </div>
         </div>
       </DialogContent>
+
+      <MatchApplicantDialog
+        open={matchOpen}
+        onOpenChange={setMatchOpen}
+        applicantUserId={application.user_id || application.applicant_id || null}
+        applicantName={[application.first_name, application.last_name].filter(Boolean).join(" ") || "Unbekannt"}
+      />
     </Dialog>
   );
 };
