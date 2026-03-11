@@ -481,6 +481,51 @@ interface RecommendationAcceptedData {
   jobTitle: string | null;
 }
 
+/* ------------------------------------------------------------------ */
+/* Template K – Neuer Vorschlag an den Bewerber (Du-Form)              */
+/* ------------------------------------------------------------------ */
+
+interface RecommendationNotifyData {
+  applicantName: string;
+  companyName: string;
+  jobTitle: string | null;
+  adminNote: string | null;
+}
+
+export function buildRecommendationNotifyEmail(data: RecommendationNotifyData) {
+  const jobRef = data.jobTitle
+    ? ` für die Stelle <strong style="color:#003366;">"${data.jobTitle}"</strong>`
+    : "";
+
+  const noteBlock = data.adminNote
+    ? `<div style="background:#F4F7F6;border-left:4px solid #00AEEF;border-radius:6px;padding:16px 20px;margin:0 0 24px;font-size:14px;color:#2D3748;line-height:1.6;">${data.adminNote}</div>`
+    : "";
+
+  const body = `
+    <p style="margin:0 0 8px;font-size:18px;font-weight:700;color:#003366;">Ich habe ein neues Match für dich! ✨</p>
+    <p style="margin:0 0 20px;font-size:15px;color:#4A5568;line-height:1.6;">
+      Hallo ${data.applicantName}!<br/><br/>
+      Tolle Neuigkeiten: Die Kanzlei <strong style="color:#003366;">"${data.companyName}"</strong> möchte dich gerne kennenlernen${jobRef}. Ich glaube, das könnte sehr gut passen!
+    </p>
+
+    ${noteBlock}
+
+    <p style="margin:0 0 24px;font-size:15px;color:#4A5568;line-height:1.6;">
+      Schau dir den Vorschlag in deinem Dashboard an und bestätige dort die Vorstellung – dann leite ich alles für dich in die Wege.
+    </p>
+
+    ${ctaButton("Vorschlag ansehen →", `${DASHBOARD_URL}/login`)}
+
+    <p style="margin:0;font-size:13px;color:#A0AEC0;line-height:1.5;">
+      Du möchtest nicht vorgestellt werden? Kein Problem – du kannst den Vorschlag einfach ablehnen.
+    </p>`;
+
+  return {
+    subject: `✨ Neues Match: ${data.companyName} möchte dich kennenlernen!`,
+    html: wrap(body, "bewerber"),
+  };
+}
+
 export function buildRecommendationAcceptedEmail(data: RecommendationAcceptedData) {
   const jobRef = data.jobTitle
     ? ` für die Stelle <strong style="color:#003366;">"${data.jobTitle}"</strong>`
