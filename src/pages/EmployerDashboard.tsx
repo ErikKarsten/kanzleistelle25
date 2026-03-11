@@ -145,7 +145,7 @@ const ApplicationCard = ({
           {app.internal_notes?.includes("source: recommendation") && (
             <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-xs">
               <Sparkles className="h-3 w-3 mr-0.5" />
-              Empfohlen
+              {app.cover_letter?.includes("Initiativbewerbung") ? "Initiativ-Empfehlung durch Neele" : "Empfohlen von Neele"}
             </Badge>
           )}
           {!isArchived && app.applicant_updated_at && app.last_viewed_by_employer && 
