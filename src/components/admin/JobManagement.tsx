@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -63,12 +63,15 @@ interface JobWithCompany {
   is_active: boolean | null;
   status: string | null;
   created_at: string | null;
+  updated_at: string | null;
   companies: {
     name: string;
     logo_url: string | null;
     is_active: boolean;
   } | null;
 }
+
+const isPendingStatus = (status: string | null) => status === "pending" || status === "pending_review";
 
 const JobManagement = () => {
   const [selectedJob, setSelectedJob] = useState<JobWithCompany | null>(null);
@@ -77,6 +80,52 @@ const JobManagement = () => {
   const [createOpen, setCreateOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("pending");
   const queryClient = useQueryClient();
+  const prevPendingCountRef = useRef<number | null>(null);
+
+  // Realtime: listen for jobs changes
+  useEffect(() => {
+    const channel = supabase
+      .channel("admin-jobs-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "jobs" },
+        (payload) => {
+          queryClient.invalidateQueries({ queryKey: ["admin-jobs"] });
+          queryClient.invalidateQueries({ queryKey: ["featured-jobs"] });
+
+          // Toast on new pending_review
+          const newJob = payload.new as JobWithCompany | undefined;
+          if (newJob && isPendingStatus(newJob.status)) {
+            const companyName = newJob.company || "Unbekannt";
+            toast.info(`🔔 Neue Freigabe erforderlich: ${companyName} hat eine Anzeige aktualisiert.`, {
+              duration: 10000,
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
+  // Generate a proper notification sound using AudioContext
+  const playNotificationSound = useCallback(() => {
+    try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.1);
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.4);
+    } catch {}
+  }, []);
 
   // Fetch jobs with company info
   const { data: jobs, isLoading } = useQuery({
@@ -101,6 +150,7 @@ const JobManagement = () => {
           is_active,
           status,
           created_at,
+          updated_at,
           companies (
             name,
             logo_url,
@@ -202,9 +252,9 @@ const JobManagement = () => {
       return { activeJobs: 0, inactiveJobs: 0, pendingJobs: 0, jobsWithoutApps: 0, popularJob: null as string | null };
     }
 
-    const activeJobs = jobs.filter((job) => job.is_active && job.status !== "pending").length;
-    const inactiveJobs = jobs.filter((job) => !job.is_active && job.status !== "pending").length;
-    const pendingJobs = jobs.filter((job) => job.status === "pending").length;
+    const activeJobs = jobs.filter((job) => job.is_active && !isPendingStatus(job.status)).length;
+    const inactiveJobs = jobs.filter((job) => !job.is_active && !isPendingStatus(job.status)).length;
+    const pendingJobs = jobs.filter((job) => isPendingStatus(job.status)).length;
 
     const jobsWithoutApps = jobs.filter(
       (job) => job.is_active && (!applicationCounts[job.id] || applicationCounts[job.id] === 0)
@@ -226,17 +276,25 @@ const JobManagement = () => {
     return { activeJobs, inactiveJobs, pendingJobs, jobsWithoutApps, popularJob };
   }, [jobs, applicationCounts]);
 
+  // Track pending count changes for sound
+  useEffect(() => {
+    if (prevPendingCountRef.current !== null && stats.pendingJobs > prevPendingCountRef.current) {
+      playNotificationSound();
+    }
+    prevPendingCountRef.current = stats.pendingJobs;
+  }, [stats.pendingJobs, playNotificationSound]);
+
   // Filter jobs by active tab
   const filteredJobs = useMemo(() => {
     if (!jobs) return [];
-    if (activeTab === "pending") return jobs.filter((job) => job.status === "pending");
-    if (activeTab === "active") return jobs.filter((job) => job.is_active === true && job.status !== "pending");
-    return jobs.filter((job) => (job.is_active === false || job.is_active === null) && job.status !== "pending");
+    if (activeTab === "pending") return jobs.filter((job) => isPendingStatus(job.status));
+    if (activeTab === "active") return jobs.filter((job) => job.is_active === true && !isPendingStatus(job.status));
+    return jobs.filter((job) => (job.is_active === false || job.is_active === null) && !isPendingStatus(job.status));
   }, [jobs, activeTab]);
 
   const handleJobClick = (job: JobWithCompany) => {
     setSelectedJob(job);
-    if (job.status === "pending") {
+    if (isPendingStatus(job.status)) {
       setPreviewOpen(true);
     } else {
       setDetailsOpen(true);
@@ -279,7 +337,15 @@ const JobManagement = () => {
         <CardContent className="space-y-6">
           {/* Stats Cards */}
           <div className="grid gap-4 md:grid-cols-4">
-            <div className="flex items-center gap-3 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+            <button
+              onClick={() => setActiveTab("pending")}
+              className="relative flex items-center gap-3 p-4 bg-yellow-50 rounded-lg border border-yellow-200 hover:bg-yellow-100 transition-colors cursor-pointer text-left w-full"
+            >
+              {stats.pendingJobs > 0 && (
+                <span className="absolute -top-2 -right-2 inline-flex items-center justify-center h-6 w-6 rounded-full bg-destructive text-destructive-foreground text-xs font-bold animate-pulse">
+                  {stats.pendingJobs}
+                </span>
+              )}
               <div className="p-2 bg-yellow-100 rounded-full">
                 <Clock className="h-5 w-5 text-yellow-600" />
               </div>
@@ -289,7 +355,7 @@ const JobManagement = () => {
                 </p>
                 <p className="text-sm text-yellow-600">Zur Freigabe</p>
               </div>
-            </div>
+            </button>
 
             <div className="flex items-center gap-3 p-4 bg-green-50 rounded-lg border border-green-200">
               <div className="p-2 bg-green-100 rounded-full">
@@ -587,7 +653,15 @@ const PendingJobsTable = ({ jobs, onPreview, onApprove, onDelete }: PendingJobsT
               onClick={() => onPreview(job)}
             >
               <TableCell>
-                <div className="font-medium text-primary hover:underline">{job.title}</div>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-primary hover:underline">{job.title}</span>
+                  {job.status === "pending_review" && job.updated_at && job.created_at && 
+                   new Date(job.updated_at).getTime() - new Date(job.created_at).getTime() > 60000 && (
+                    <Badge className="bg-blue-100 text-blue-800 border border-blue-300 text-[10px] px-1.5 py-0">
+                      Update
+                    </Badge>
+                  )}
+                </div>
                 {job.employment_type && (
                   <Badge variant="secondary" className="text-xs mt-1">{job.employment_type}</Badge>
                 )}
