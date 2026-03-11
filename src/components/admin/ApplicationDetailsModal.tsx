@@ -304,6 +304,7 @@ const ApplicationDetailsModal = ({
       applicantName={[application.first_name, application.last_name].filter(Boolean).join(" ") || "Unbekannt"}
       applicantEmail={application.email || null}
     />
+    </>
   );
 };
 
