@@ -306,6 +306,12 @@ const AdminDashboardContent = () => {
           />
         )}
 
+        {/* Bewerber-Ampel-Monitor */}
+        <CriticalApplicationsMonitor
+          applications={applications}
+          companies={companies}
+        />
+
         {/* Applications Card with Tabs */}
         <Card className="border-none shadow-md">
           <CardHeader className="pb-4">
