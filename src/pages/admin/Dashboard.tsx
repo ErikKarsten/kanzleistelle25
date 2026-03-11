@@ -15,6 +15,7 @@ import JobManagement from "@/components/admin/JobManagement";
 import ArticleManagement from "@/components/admin/ArticleManagement";
 import LeadManagement from "@/components/admin/LeadManagement";
 import NewLeadsModal, { useNewLeadsCount } from "@/components/admin/NewLeadsModal";
+import CriticalApplicationsMonitor from "@/components/admin/CriticalApplicationsMonitor";
 import { toast } from "sonner";
 
 interface ApplicationWithJob {
@@ -95,7 +96,7 @@ const AdminDashboardContent = () => {
     };
   }, [queryClient]);
 
-  // Fetch applications
+  // Fetch applications (include updated_at & company_id for ampel monitor)
   const { data: applications, isLoading: applicationsLoading } = useQuery({
     queryKey: ["admin-dashboard-applications"],
     queryFn: async () => {
@@ -113,7 +114,9 @@ const AdminDashboardContent = () => {
           resume_url,
           status,
           created_at,
+          updated_at,
           is_archived,
+          company_id,
           jobs (
             id,
             title,
@@ -126,7 +129,7 @@ const AdminDashboardContent = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data as ApplicationWithJob[];
+      return data as (ApplicationWithJob & { updated_at: string | null; company_id: string | null })[];
     },
   });
 
@@ -143,16 +146,16 @@ const AdminDashboardContent = () => {
     },
   });
 
-  // Fetch companies for filter
+  // Fetch companies for filter (include user_id for nudge function)
   const { data: companies } = useQuery({
     queryKey: ["admin-dashboard-companies"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("companies")
-        .select("id, name")
+        .select("id, name, user_id")
         .order("name");
       if (error) throw error;
-      return data as { id: string; name: string }[];
+      return data as { id: string; name: string; user_id: string | null }[];
     },
   });
 
@@ -302,6 +305,12 @@ const AdminDashboardContent = () => {
             openPositions={stats.openPositions}
           />
         )}
+
+        {/* Bewerber-Ampel-Monitor */}
+        <CriticalApplicationsMonitor
+          applications={applications}
+          companies={companies}
+        />
 
         {/* Applications Card with Tabs */}
         <Card className="border-none shadow-md">
