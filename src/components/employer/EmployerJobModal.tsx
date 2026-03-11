@@ -201,6 +201,8 @@ const EmployerJobModal = ({
     mutationFn: async (data: typeof formData) => {
       if (!job) throw new Error("Keine Stelle ausgewählt");
 
+      const wasPublished = job.status === "published";
+
       const { error } = await supabase
         .from("jobs")
         .update({
@@ -216,10 +218,37 @@ const EmployerJobModal = ({
         })
         .eq("id", job.id);
       if (error) throw error;
+
+      // Send admin notification if job was published and will be reset to pending_review
+      if (wasPublished) {
+        try {
+          const { buildJobPendingReviewEmail } = await import("@/lib/emailTemplates");
+          const emailData = buildJobPendingReviewEmail({
+            jobTitle: data.title,
+            companyName,
+          });
+          await supabase.functions.invoke("send-contact-email", {
+            body: {
+              to_email: "info@kanzleistelle24.de",
+              to_name: "Kanzleistelle24 Admin",
+              subject: emailData.subject,
+              html: emailData.html,
+            },
+          });
+        } catch (emailErr) {
+          console.error("Admin notification email failed:", emailErr);
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employer-jobs"] });
-      toast({ title: "Stelle aktualisiert!" });
+      const wasPublished = job?.status === "published";
+      toast({
+        title: wasPublished ? "Stelle zur Prüfung eingereicht" : "Stelle aktualisiert!",
+        description: wasPublished
+          ? "Die Anzeige wird nach erneuter Freigabe durch unser Team wieder veröffentlicht."
+          : undefined,
+      });
       onOpenChange(false);
     },
     onError: (error: any) => {
