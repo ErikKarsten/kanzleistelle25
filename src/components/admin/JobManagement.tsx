@@ -304,7 +304,7 @@ const JobManagement = () => {
 
   const handleJobClick = (job: JobWithCompany) => {
     setSelectedJob(job);
-    if (job.status === "pending") {
+    if (isPendingStatus(job.status)) {
       setPreviewOpen(true);
     } else {
       setDetailsOpen(true);
