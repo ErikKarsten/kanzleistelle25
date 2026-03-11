@@ -106,6 +106,7 @@ const ApplicationDetailsModal = ({
   const status = statusConfig[application.status || "pending"] || statusConfig.pending;
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -294,14 +295,16 @@ const ApplicationDetailsModal = ({
           </div>
         </div>
       </DialogContent>
-
-      <MatchApplicantDialog
-        open={matchOpen}
-        onOpenChange={setMatchOpen}
-        applicantUserId={application.user_id || application.applicant_id || null}
-        applicantName={[application.first_name, application.last_name].filter(Boolean).join(" ") || "Unbekannt"}
-      />
     </Dialog>
+
+    <MatchApplicantDialog
+      open={matchOpen}
+      onOpenChange={setMatchOpen}
+      applicantUserId={application.user_id || application.applicant_id || null}
+      applicantName={[application.first_name, application.last_name].filter(Boolean).join(" ") || "Unbekannt"}
+      applicantEmail={application.email || null}
+    />
+    </>
   );
 };
 

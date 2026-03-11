@@ -21,12 +21,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowRight } from "lucide-react";
 import { toast } from "sonner";
+import { buildRecommendationNotifyEmail } from "@/lib/emailTemplates";
 
 interface MatchApplicantDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   applicantUserId: string | null;
   applicantName: string;
+  applicantEmail?: string | null;
 }
 
 const MatchApplicantDialog = ({
@@ -34,6 +36,7 @@ const MatchApplicantDialog = ({
   onOpenChange,
   applicantUserId,
   applicantName,
+  applicantEmail,
 }: MatchApplicantDialogProps) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -88,6 +91,25 @@ const MatchApplicantDialog = ({
         job_title: job?.title || null,
       });
       if (error) throw error;
+
+      // Send email notification to applicant
+      const emailAddr = applicantEmail || await getApplicantEmail(applicantUserId);
+      if (emailAddr) {
+        const emailData = buildRecommendationNotifyEmail({
+          applicantName: applicantName.split(" ")[0] || applicantName,
+          companyName: company?.name || "Unbekannt",
+          jobTitle: job?.title || null,
+          adminNote: adminNote || null,
+        });
+        await supabase.functions.invoke("send-contact-email", {
+          body: {
+            to_email: emailAddr,
+            to_name: applicantName,
+            subject: emailData.subject,
+            html: emailData.html,
+          },
+        });
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-recommendations"] });
@@ -170,5 +192,15 @@ const MatchApplicantDialog = ({
     </Dialog>
   );
 };
+
+/** Helper: fetch email from profiles if not passed as prop */
+async function getApplicantEmail(userId: string): Promise<string | null> {
+  const { data } = await supabase
+    .from("profiles")
+    .select("email")
+    .eq("id", userId)
+    .single();
+  return data?.email || null;
+}
 
 export default MatchApplicantDialog;
