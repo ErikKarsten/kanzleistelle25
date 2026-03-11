@@ -891,19 +891,23 @@ const EmployerDashboard = () => {
                     <div className="space-y-4">
                       {jobs.map((job) => {
                         const isPublished = job.status === "published";
-                        const isPending = job.status === "pending" || !job.status;
+                        const isPending = job.status === "pending" || job.status === "pending_review" || !job.status;
+                        const isRejected = job.status === "rejected";
                         return (
                         <div
                           key={job.id}
                           onClick={() => { setJobDetailsJob(job); setJobDetailsOpen(true); }}
-                          className={`flex items-center justify-between p-4 border rounded-lg transition-colors cursor-pointer ${
-                            isPending
-                              ? "border-muted bg-muted/20"
-                              : job.is_active 
-                                ? "hover:bg-secondary/50" 
-                                : "bg-muted/30 opacity-75"
+                          className={`flex flex-col p-4 border rounded-lg transition-colors cursor-pointer ${
+                            isRejected
+                              ? "border-destructive/40 bg-destructive/5"
+                              : isPending
+                                ? "border-muted bg-muted/20"
+                                : job.is_active 
+                                  ? "hover:bg-secondary/50" 
+                                  : "bg-muted/30 opacity-75"
                           }`}
                         >
+                          <div className="flex items-center justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 flex-wrap">
                               <h3 className="font-semibold text-foreground">{job.title}</h3>
@@ -915,6 +919,11 @@ const EmployerDashboard = () => {
                               {isPending && (
                                 <Badge variant="outline" className="text-xs text-muted-foreground bg-muted/50">
                                   In Prüfung
+                                </Badge>
+                              )}
+                              {isRejected && (
+                                <Badge variant="outline" className="text-xs border-destructive text-destructive">
+                                  ⚠️ Korrektur erforderlich
                                 </Badge>
                               )}
                               {isPublished && !job.is_active && (
@@ -939,6 +948,49 @@ const EmployerDashboard = () => {
                               </p>
                             )}
                           </div>
+                          <div className="flex items-center gap-4" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-muted-foreground">
+                                {isRejected ? "Abgelehnt" : isPending ? "Offline" : job.is_active ? "Aktiv" : "Inaktiv"}
+                              </span>
+                              <Switch
+                                checked={isPublished ? (job.is_active || false) : false}
+                                disabled={isPending || isRejected}
+                                onCheckedChange={(checked) =>
+                                  toggleJobMutation.mutate({ jobId: job.id, isActive: checked })
+                                }
+                              />
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => { setSelectedJob(job); setJobModalOpen(true); }}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          </div>
+
+                          {/* Admin Feedback Display */}
+                          {isRejected && job.admin_feedback && (
+                            <div className="mt-3 p-3 rounded-md border border-destructive/30 bg-destructive/5">
+                              <p className="text-xs font-semibold text-destructive mb-1 flex items-center gap-1">
+                                <AlertCircle className="h-3 w-3" />
+                                Feedback vom Kanzleistelle24-Team:
+                              </p>
+                              <p className="text-sm text-foreground whitespace-pre-line">{job.admin_feedback}</p>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="mt-2 text-xs"
+                                onClick={(e) => { e.stopPropagation(); setSelectedJob(job); setJobModalOpen(true); }}
+                              >
+                                <Pencil className="h-3 w-3 mr-1" />
+                                Jetzt bearbeiten & erneut einreichen
+                              </Button>
+                            </div>
+                          )}
+                        </div>
                           <div className="flex items-center gap-4" onClick={(e) => e.stopPropagation()}>
                             <div className="flex items-center gap-2">
                               <span className="text-sm text-muted-foreground">
