@@ -470,3 +470,40 @@ export function buildJobApprovedEmail(data: JobApprovedData) {
     html: wrap(body, "kanzlei"),
   };
 }
+
+/* ------------------------------------------------------------------ */
+/* Template J – Empfohlener Kandidat hat zugestimmt (an die Kanzlei)   */
+/* ------------------------------------------------------------------ */
+
+interface RecommendationAcceptedData {
+  applicantName: string;
+  companyName: string;
+  jobTitle: string | null;
+}
+
+export function buildRecommendationAcceptedEmail(data: RecommendationAcceptedData) {
+  const jobRef = data.jobTitle
+    ? ` für die Stelle <strong style="color:#003366;">"${data.jobTitle}"</strong>`
+    : "";
+
+  const body = `
+    <p style="margin:0 0 8px;font-size:18px;font-weight:700;color:#003366;">Gute Nachrichten! 🎉</p>
+    <p style="margin:0 0 20px;font-size:15px;color:#4A5568;line-height:1.6;">
+      Wir haben <strong style="color:#003366;">${data.applicantName}</strong> Ihre Kanzlei vorgeschlagen${jobRef} und der Kandidat hat soeben einer Vorstellung zugestimmt.
+    </p>
+    <p style="margin:0 0 24px;font-size:15px;color:#4A5568;line-height:1.6;">
+      Das Profil ist jetzt in Ihrem Dashboard freigeschaltet. Schauen Sie sich die Bewerbung an und nehmen Sie zeitnah Kontakt auf!
+    </p>
+
+    ${ctaButton("Direkt zum Kandidaten-Profil →", `${DASHBOARD_URL}/login`)}
+
+    <p style="margin:0;font-size:13px;color:#A0AEC0;line-height:1.5;">
+      Bei Fragen erreichen Sie uns jederzeit unter
+      <a href="mailto:info@kanzleistelle24.de" style="color:#00AEEF;text-decoration:none;">info@kanzleistelle24.de</a>.
+    </p>`;
+
+  return {
+    subject: `🎉 Neuer Kandidat empfohlen: ${data.applicantName}`,
+    html: wrap(body, "kanzlei"),
+  };
+}
