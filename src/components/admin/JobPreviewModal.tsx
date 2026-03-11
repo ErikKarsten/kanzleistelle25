@@ -40,7 +40,7 @@ import {
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
-import { buildJobApprovedEmail } from "@/lib/emailTemplates";
+import { buildJobApprovedEmail, buildJobRejectionEmail } from "@/lib/emailTemplates";
 
 interface JobPreviewModalProps {
   job: {
