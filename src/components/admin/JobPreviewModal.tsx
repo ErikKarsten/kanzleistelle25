@@ -179,6 +179,52 @@ const JobPreviewModal = ({
     },
   });
 
+  // Reject mutation
+  const rejectMutation = useMutation({
+    mutationFn: async () => {
+      if (!job) return;
+      const { error } = await supabase
+        .from("jobs")
+        .update({
+          status: "rejected",
+          is_active: false,
+          admin_feedback: rejectionNote || null,
+        })
+        .eq("id", job.id);
+      if (error) throw error;
+
+      // Send rejection feedback email
+      const companyName = job.companies?.name || job.company;
+      const recipientEmail = companyProfile?.email || contactPerson?.email;
+
+      if (recipientEmail && rejectionNote) {
+        const emailData = buildJobRejectionEmail({
+          jobTitle: job.title,
+          companyName,
+          feedback: rejectionNote,
+        });
+
+        await supabase.functions.invoke("send-contact-email", {
+          body: {
+            to: recipientEmail,
+            subject: emailData.subject,
+            html: emailData.html,
+          },
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["featured-jobs"] });
+      toast.success("Anzeige abgelehnt und Kanzlei benachrichtigt");
+      setRejectionNote("");
+      onOpenChange(false);
+    },
+    onError: () => {
+      toast.error("Fehler beim Ablehnen");
+    },
+  });
+
   if (!job) return null;
 
   const companyName = job.companies?.name || job.company;
