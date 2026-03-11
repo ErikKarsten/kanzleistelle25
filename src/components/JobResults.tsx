@@ -61,6 +61,7 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
   const [selectedJob, setSelectedJob] = useState<JobWithCompany | null>(null);
   const [localTitleFilter, setLocalTitleFilter] = useState("");
   const [localLocationFilter, setLocalLocationFilter] = useState("");
+  const [initiativeOpen, setInitiativeOpen] = useState(false);
 
   const { data: jobs, isLoading, error } = useQuery({
     queryKey: ["jobs", searchFilters],
