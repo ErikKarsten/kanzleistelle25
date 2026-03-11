@@ -80,7 +80,6 @@ const JobManagement = () => {
   const [createOpen, setCreateOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("pending");
   const queryClient = useQueryClient();
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const prevPendingCountRef = useRef<number | null>(null);
 
   // Realtime: listen for jobs changes
@@ -94,22 +93,13 @@ const JobManagement = () => {
           queryClient.invalidateQueries({ queryKey: ["admin-jobs"] });
           queryClient.invalidateQueries({ queryKey: ["featured-jobs"] });
 
-          // Toast + sound on new pending_review
+          // Toast on new pending_review
           const newJob = payload.new as JobWithCompany | undefined;
           if (newJob && isPendingStatus(newJob.status)) {
             const companyName = newJob.company || "Unbekannt";
             toast.info(`🔔 Neue Freigabe erforderlich: ${companyName} hat eine Anzeige aktualisiert.`, {
               duration: 10000,
             });
-
-            // Play notification sound
-            try {
-              if (!audioRef.current) {
-                audioRef.current = new Audio("data:audio/wav;base64,UklGRl9vT19teleVFTAQAAAAAWAVERm10IBAAAAACAAEARAAEARAABAAQAZGFIYQAAAAPoAAAF9//lY/5WP+Vj/lY/5WP+Vj/lY/5WP+Vj/lY/5WP+Vj/lY/5WP+Vj/lY/5WP+Vj/lY/5WP+Vj/lY/5WP+Vj/lY/5WP+Vj/lY/5WP+Vj/lY/5WP+Vj/lY/5WP+Vj/lY/5WP+Vj/lY/5WP+Vj/lY/5WP");
-              }
-              audioRef.current.volume = 0.3;
-              audioRef.current.play().catch(() => {});
-            } catch {}
           }
         }
       )
