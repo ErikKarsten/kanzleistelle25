@@ -403,6 +403,43 @@ export function buildApplicantReminderEmail(data: ApplicantReminderData) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Template I – Korrektur-Feedback an die Kanzlei                      */
+/* ------------------------------------------------------------------ */
+
+interface JobRejectionFeedbackData {
+  jobTitle: string;
+  companyName: string;
+  feedback: string;
+}
+
+export function buildJobRejectionEmail(data: JobRejectionFeedbackData) {
+  const body = `
+    <p style="margin:0 0 8px;font-size:18px;font-weight:700;color:#003366;">Rückfrage zu Ihrer Stellenanzeige</p>
+    <p style="margin:0 0 20px;font-size:15px;color:#4A5568;line-height:1.6;">
+      Guten Tag!<br/><br/>
+      Wir haben Ihre Anzeige <strong style="color:#003366;">"${data.jobTitle}"</strong> geprüft. Damit diese perfekt online gehen kann, benötigen wir noch eine kleine Anpassung:
+    </p>
+
+    <div style="background:#F4F7F6;border-left:4px solid #00AEEF;border-radius:6px;padding:16px 20px;margin:0 0 24px;font-size:14px;color:#2D3748;line-height:1.6;white-space:pre-line;">${data.feedback}</div>
+
+    <p style="margin:0 0 24px;font-size:15px;color:#4A5568;line-height:1.6;">
+      Sie können die Anzeige direkt in Ihrem Dashboard bearbeiten und erneut zur Freigabe einreichen.
+    </p>
+
+    ${ctaButton("Anzeige bearbeiten →", `${DASHBOARD_URL}/login`)}
+
+    <p style="margin:0;font-size:13px;color:#A0AEC0;line-height:1.5;">
+      Bei Fragen erreichen Sie uns jederzeit unter
+      <a href="mailto:info@kanzleistelle24.de" style="color:#00AEEF;text-decoration:none;">info@kanzleistelle24.de</a>.
+    </p>`;
+
+  return {
+    subject: `Rückfrage zu Ihrer Stellenanzeige "${data.jobTitle}" bei Kanzleistelle24`,
+    html: wrap(body, "kanzlei"),
+  };
+}
+
+/* ------------------------------------------------------------------ */
 /* Template H – Stellenanzeige freigegeben (an die Kanzlei)            */
 /* ------------------------------------------------------------------ */
 

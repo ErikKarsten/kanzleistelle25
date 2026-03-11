@@ -40,7 +40,7 @@ import {
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
-import { buildJobApprovedEmail } from "@/lib/emailTemplates";
+import { buildJobApprovedEmail, buildJobRejectionEmail } from "@/lib/emailTemplates";
 
 interface JobPreviewModalProps {
   job: {
@@ -176,6 +176,52 @@ const JobPreviewModal = ({
     },
     onError: () => {
       toast.error("Fehler beim Freigeben");
+    },
+  });
+
+  // Reject mutation
+  const rejectMutation = useMutation({
+    mutationFn: async () => {
+      if (!job) return;
+      const { error } = await supabase
+        .from("jobs")
+        .update({
+          status: "rejected",
+          is_active: false,
+          admin_feedback: rejectionNote || null,
+        })
+        .eq("id", job.id);
+      if (error) throw error;
+
+      // Send rejection feedback email
+      const companyName = job.companies?.name || job.company;
+      const recipientEmail = companyProfile?.email || contactPerson?.email;
+
+      if (recipientEmail && rejectionNote) {
+        const emailData = buildJobRejectionEmail({
+          jobTitle: job.title,
+          companyName,
+          feedback: rejectionNote,
+        });
+
+        await supabase.functions.invoke("send-contact-email", {
+          body: {
+            to: recipientEmail,
+            subject: emailData.subject,
+            html: emailData.html,
+          },
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["featured-jobs"] });
+      toast.success("Anzeige abgelehnt und Kanzlei benachrichtigt");
+      setRejectionNote("");
+      onOpenChange(false);
+    },
+    onError: () => {
+      toast.error("Fehler beim Ablehnen");
     },
   });
 
@@ -427,28 +473,30 @@ const JobPreviewModal = ({
                 Ablehnen / Korrektur anfordern
               </Button>
             </AlertDialogTrigger>
-            <AlertDialogContent>
+            <AlertDialogContent className="sm:max-w-lg">
               <AlertDialogHeader>
-                <AlertDialogTitle>Anzeige ablehnen?</AlertDialogTitle>
+                <AlertDialogTitle>Anzeige ablehnen / Korrektur anfordern</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Die Stelle „{job.title}" wird abgelehnt und kann gelöscht oder zur Korrektur zurückgegeben werden.
+                  Die Stelle „{job.title}" wird auf den Status „Korrektur erforderlich" gesetzt. Die Kanzlei wird per E-Mail benachrichtigt.
                 </AlertDialogDescription>
               </AlertDialogHeader>
-              <div className="py-2">
+              <div className="py-2 space-y-2">
+                <label className="text-sm font-medium text-foreground">Grund für Ablehnung / Korrekturwünsche</label>
                 <Textarea
-                  placeholder="Optionaler Grund / Korrekturhinweis..."
+                  placeholder="Z.B.: Bitte die Gehaltsangabe präzisieren oder das Logo in höherer Auflösung hochladen..."
                   value={rejectionNote}
                   onChange={(e) => setRejectionNote(e.target.value)}
-                  rows={3}
+                  rows={4}
                 />
               </div>
               <AlertDialogFooter>
                 <AlertDialogCancel>Abbrechen</AlertDialogCancel>
                 <AlertDialogAction
-                  onClick={() => { onDelete(job.id); onOpenChange(false); }}
+                  onClick={() => rejectMutation.mutate()}
+                  disabled={rejectMutation.isPending}
                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                 >
-                  Endgültig löschen
+                  {rejectMutation.isPending ? "Wird abgelehnt..." : "Ablehnen & Kanzlei benachrichtigen"}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
