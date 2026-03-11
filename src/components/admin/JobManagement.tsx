@@ -262,9 +262,9 @@ const JobManagement = () => {
       return { activeJobs: 0, inactiveJobs: 0, pendingJobs: 0, jobsWithoutApps: 0, popularJob: null as string | null };
     }
 
-    const activeJobs = jobs.filter((job) => job.is_active && job.status !== "pending").length;
-    const inactiveJobs = jobs.filter((job) => !job.is_active && job.status !== "pending").length;
-    const pendingJobs = jobs.filter((job) => job.status === "pending").length;
+    const activeJobs = jobs.filter((job) => job.is_active && !isPendingStatus(job.status)).length;
+    const inactiveJobs = jobs.filter((job) => !job.is_active && !isPendingStatus(job.status)).length;
+    const pendingJobs = jobs.filter((job) => isPendingStatus(job.status)).length;
 
     const jobsWithoutApps = jobs.filter(
       (job) => job.is_active && (!applicationCounts[job.id] || applicationCounts[job.id] === 0)
