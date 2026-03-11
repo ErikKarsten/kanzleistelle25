@@ -201,6 +201,8 @@ const EmployerJobModal = ({
     mutationFn: async (data: typeof formData) => {
       if (!job) throw new Error("Keine Stelle ausgewählt");
 
+      const wasPublished = job.status === "published";
+
       const { error } = await supabase
         .from("jobs")
         .update({
@@ -216,10 +218,37 @@ const EmployerJobModal = ({
         })
         .eq("id", job.id);
       if (error) throw error;
+
+      // Send admin notification if job was published and will be reset to pending_review
+      if (wasPublished) {
+        try {
+          const { buildJobPendingReviewEmail } = await import("@/lib/emailTemplates");
+          const emailData = buildJobPendingReviewEmail({
+            jobTitle: data.title,
+            companyName,
+          });
+          await supabase.functions.invoke("send-contact-email", {
+            body: {
+              to_email: "info@kanzleistelle24.de",
+              to_name: "Kanzleistelle24 Admin",
+              subject: emailData.subject,
+              html: emailData.html,
+            },
+          });
+        } catch (emailErr) {
+          console.error("Admin notification email failed:", emailErr);
+        }
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["employer-jobs"] });
-      toast({ title: "Stelle aktualisiert!" });
+      const wasPublished = job?.status === "published";
+      toast({
+        title: wasPublished ? "Stelle zur Prüfung eingereicht" : "Stelle aktualisiert!",
+        description: wasPublished
+          ? "Die Anzeige wird nach erneuter Freigabe durch unser Team wieder veröffentlicht."
+          : undefined,
+      });
       onOpenChange(false);
     },
     onError: (error: any) => {
@@ -259,12 +288,22 @@ const EmployerJobModal = ({
           </DialogTitle>
         </DialogHeader>
 
-        {/* Info Banner */}
+        {/* Info Banner for new jobs */}
         {!job && (
           <div className="flex items-start gap-3 rounded-lg border border-yellow-300 bg-yellow-50 px-4 py-3 text-sm text-yellow-800">
             <AlertCircle className="h-4 w-4 mt-0.5 shrink-0 text-yellow-600" />
             <p>
               <strong>Hinweis zur Veröffentlichung:</strong> Deine Stelle wird aktuell geprüft und nach Freigabe durch den Admin veröffentlicht.
+            </p>
+          </div>
+        )}
+
+        {/* Warning banner when editing a published job */}
+        {job?.status === "published" && (
+          <div className="flex items-start gap-3 rounded-lg border border-amber-400 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            <AlertCircle className="h-4 w-4 mt-0.5 shrink-0 text-amber-600" />
+            <p>
+              <strong>⚠️ Achtung:</strong> Nach dem Speichern der Änderungen wird die Anzeige zur Sicherheit erneut durch unser Team geprüft und kurzzeitig offline genommen.
             </p>
           </div>
         )}
