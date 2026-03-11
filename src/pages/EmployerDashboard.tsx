@@ -742,6 +742,28 @@ const EmployerDashboard = () => {
             </div>
           </div>
 
+          {/* Ampel Warning Banner */}
+          {waitingApplications.length > 0 && (
+            <div className="flex items-center gap-3 mb-6 p-4 rounded-lg border border-amber-300 bg-amber-50">
+              <div className="flex items-center gap-1.5">
+                <span className="inline-block w-3 h-3 rounded-full bg-yellow-400" />
+                <span className="inline-block w-3 h-3 rounded-full bg-red-500" />
+              </div>
+              <p className="text-sm text-amber-900 font-medium">
+                {waitingApplications.length} Bewerber {waitingApplications.length === 1 ? "wartet" : "warten"} auf Rückmeldung
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="ml-auto border-amber-400 text-amber-900 hover:bg-amber-100"
+                onClick={() => { setActiveTab("applications"); setApplicationsTab("active"); }}
+              >
+                <ArrowRight className="h-3.5 w-3.5 mr-1" />
+                Jetzt antworten
+              </Button>
+            </div>
+          )}
+
           {/* Quick Stats */}
           <div className="grid gap-4 md:grid-cols-4 mb-8">
             <Card>

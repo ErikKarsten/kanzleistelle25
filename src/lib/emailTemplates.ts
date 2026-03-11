@@ -347,3 +347,57 @@ export function buildJobPendingReviewEmail(data: JobPendingReviewData) {
     html: wrap(body, "kanzlei"),
   };
 }
+
+/* ------------------------------------------------------------------ */
+/* Template G – Reminder: Bewerber warten auf Rückmeldung              */
+/* ------------------------------------------------------------------ */
+
+interface ApplicantReminderData {
+  companyName: string;
+  applicants: Array<{ name: string; jobTitle: string; daysWaiting: number }>;
+}
+
+export function buildApplicantReminderEmail(data: ApplicantReminderData) {
+  const rows = data.applicants
+    .map(
+      (a) =>
+        `<tr>
+          <td style="padding:8px 12px;border-bottom:1px solid #E2E8F0;font-size:14px;color:#2D3748;">${a.name}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #E2E8F0;font-size:14px;color:#4A5568;">${a.jobTitle}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #E2E8F0;font-size:14px;text-align:center;">
+            <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${a.daysWaiting > 7 ? '#E53E3E' : '#ECC94B'};margin-right:6px;vertical-align:middle;"></span>
+            ${a.daysWaiting} Tage
+          </td>
+        </tr>`
+    )
+    .join("");
+
+  const body = `
+    <p style="margin:0 0 8px;font-size:18px;font-weight:700;color:#003366;">Bewerber warten auf Ihre Rückmeldung</p>
+    <p style="margin:0 0 20px;font-size:15px;color:#4A5568;line-height:1.6;">
+      Guten Tag,<br/>
+      Sie haben Bewerber, die seit über 4 Tagen auf eine Rückmeldung warten. Ein schnelles Feedback erhöht Ihre Chancen auf eine erfolgreiche Einstellung deutlich!
+    </p>
+
+    <table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;margin-bottom:20px;">
+      <thead>
+        <tr style="background:#F4F7F6;">
+          <th style="padding:10px 12px;text-align:left;font-size:13px;color:#003366;font-weight:700;border-bottom:2px solid #003366;">Bewerber</th>
+          <th style="padding:10px 12px;text-align:left;font-size:13px;color:#003366;font-weight:700;border-bottom:2px solid #003366;">Stelle</th>
+          <th style="padding:10px 12px;text-align:center;font-size:13px;color:#003366;font-weight:700;border-bottom:2px solid #003366;">Wartezeit</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+
+    ${ctaButton("Jetzt antworten →", `${DASHBOARD_URL}/login`)}
+
+    <p style="margin:0;font-size:13px;color:#A0AEC0;line-height:1.5;">
+      Diese E-Mail wurde automatisch versendet, weil offene Bewerbungen bei ${data.companyName} auf eine Reaktion warten.
+    </p>`;
+
+  return {
+    subject: `⏰ ${data.applicants.length} Bewerber warten auf Rückmeldung – ${data.companyName}`,
+    html: wrap(body, "kanzlei"),
+  };
+}
