@@ -991,28 +991,6 @@ const EmployerDashboard = () => {
                             </div>
                           )}
                         </div>
-                          <div className="flex items-center gap-4" onClick={(e) => e.stopPropagation()}>
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm text-muted-foreground">
-                                {isPending ? "Offline" : job.is_active ? "Aktiv" : "Inaktiv"}
-                              </span>
-                              <Switch
-                                checked={isPublished ? (job.is_active || false) : false}
-                                disabled={isPending}
-                                onCheckedChange={(checked) =>
-                                  toggleJobMutation.mutate({ jobId: job.id, isActive: checked })
-                                }
-                              />
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => { setSelectedJob(job); setJobModalOpen(true); }}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
                         );
                       })}
                     </div>
