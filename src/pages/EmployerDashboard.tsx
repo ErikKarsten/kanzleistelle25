@@ -70,6 +70,22 @@ import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import UpdatedProfilesWidget from "@/components/employer/UpdatedProfilesWidget";
 import { toast as sonnerToast } from "sonner";
 
+// Helper: compute ampel color based on updated_at
+function getAmpelStatus(updatedAt: string | null): "green" | "yellow" | "red" {
+  if (!updatedAt) return "red";
+  const diffMs = Date.now() - new Date(updatedAt).getTime();
+  const diffDays = diffMs / (1000 * 60 * 60 * 24);
+  if (diffDays <= 3) return "green";
+  if (diffDays <= 7) return "yellow";
+  return "red";
+}
+
+const ampelColors = {
+  green: "bg-green-500",
+  yellow: "bg-yellow-400",
+  red: "bg-red-500",
+};
+
 // Reusable application card for active/archived views
 const ApplicationCard = ({
   app,
@@ -95,6 +111,8 @@ const ApplicationCard = ({
   const deletionDate = app.created_at
     ? new Date(new Date(app.created_at).getTime() + 6 * 30 * 24 * 60 * 60 * 1000)
     : null;
+
+  const ampel = getAmpelStatus(app.updated_at);
 
   return (
   <div
