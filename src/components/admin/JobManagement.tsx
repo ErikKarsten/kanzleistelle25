@@ -63,6 +63,7 @@ interface JobWithCompany {
   is_active: boolean | null;
   status: string | null;
   created_at: string | null;
+  updated_at: string | null;
   companies: {
     name: string;
     logo_url: string | null;
