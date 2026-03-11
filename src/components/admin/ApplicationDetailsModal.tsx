@@ -82,6 +82,8 @@ const ApplicationDetailsModal = ({
   onDelete,
   isArchived = false,
 }: ApplicationDetailsModalProps) => {
+  const [matchOpen, setMatchOpen] = useState(false);
+
   if (!application) return null;
 
   const handleDownloadResume = async () => {
