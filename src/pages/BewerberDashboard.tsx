@@ -221,6 +221,9 @@ const BewerberDashboard = () => {
           />
         )}
 
+        {/* Recommendation Section */}
+        <RecommendationSection />
+
         {/* Recent Messages Section */}
         <RecentMessagesApplicant
           userId={user?.id || ""}

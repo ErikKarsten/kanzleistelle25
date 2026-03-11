@@ -400,6 +400,9 @@ const AdminDashboardContent = () => {
           </CardContent>
         </Card>
 
+        {/* Matching & Recommendations */}
+        <RecommendationManagement />
+
         {/* Job Management */}
         <JobManagement />
 
