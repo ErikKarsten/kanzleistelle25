@@ -345,18 +345,23 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
             <h3 className="text-xl font-semibold text-foreground mb-2">
               Keine Stellenangebote gefunden
             </h3>
-            <p className="text-muted-foreground max-w-md mx-auto">
-              Versuchen Sie es mit anderen Suchbegriffen oder schauen Sie später wieder vorbei.
+            <p className="text-muted-foreground max-w-md mx-auto mb-4">
+              Versuchen Sie es mit anderen Suchbegriffen oder bewerben Sie sich initiativ – wir finden die passende Kanzlei für Sie!
             </p>
-            {(localTitleFilter || localLocationFilter) && (
-              <Button 
-                variant="outline" 
-                className="mt-4"
-                onClick={() => { setLocalTitleFilter(""); setLocalLocationFilter(""); }}
-              >
-                Filter zurücksetzen
+            <div className="flex items-center justify-center gap-3">
+              {(localTitleFilter || localLocationFilter) && (
+                <Button 
+                  variant="outline" 
+                  onClick={() => { setLocalTitleFilter(""); setLocalLocationFilter(""); }}
+                >
+                  Filter zurücksetzen
+                </Button>
+              )}
+              <Button onClick={() => setInitiativeOpen(true)} className="gap-2">
+                <Sparkles className="h-4 w-4" />
+                Initiativ bewerben
               </Button>
-            )}
+            </div>
           </div>
         )}
       </div>
