@@ -286,12 +286,20 @@ const JobManagement = () => {
     return { activeJobs, inactiveJobs, pendingJobs, jobsWithoutApps, popularJob };
   }, [jobs, applicationCounts]);
 
+  // Track pending count changes for sound
+  useEffect(() => {
+    if (prevPendingCountRef.current !== null && stats.pendingJobs > prevPendingCountRef.current) {
+      playNotificationSound();
+    }
+    prevPendingCountRef.current = stats.pendingJobs;
+  }, [stats.pendingJobs, playNotificationSound]);
+
   // Filter jobs by active tab
   const filteredJobs = useMemo(() => {
     if (!jobs) return [];
-    if (activeTab === "pending") return jobs.filter((job) => job.status === "pending");
-    if (activeTab === "active") return jobs.filter((job) => job.is_active === true && job.status !== "pending");
-    return jobs.filter((job) => (job.is_active === false || job.is_active === null) && job.status !== "pending");
+    if (activeTab === "pending") return jobs.filter((job) => isPendingStatus(job.status));
+    if (activeTab === "active") return jobs.filter((job) => job.is_active === true && !isPendingStatus(job.status));
+    return jobs.filter((job) => (job.is_active === false || job.is_active === null) && !isPendingStatus(job.status));
   }, [jobs, activeTab]);
 
   const handleJobClick = (job: JobWithCompany) => {
