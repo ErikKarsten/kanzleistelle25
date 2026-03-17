@@ -30,6 +30,7 @@ import BewerberDashboard from "./pages/BewerberDashboard";
 import PasswortVergessen from "./pages/PasswortVergessen";
 import PasswortZuruecksetzen from "./pages/PasswortZuruecksetzen";
 import NeeleContactElements from "./components/NeeleContactElements";
+import AuthHashHandler from "./components/AuthHashHandler";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <AuthHashHandler />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/jobs/:id" element={<JobDetail />} />

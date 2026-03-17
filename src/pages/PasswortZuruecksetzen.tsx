@@ -17,19 +17,28 @@ const PasswortZuruecksetzen = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isValidToken, setIsValidToken] = useState(false);
+  const [recoveryState, setRecoveryState] = useState<"idle" | "valid" | "expired" | "invalid">("idle");
 
   useEffect(() => {
-    // Check for recovery token in URL hash
-    const hash = window.location.hash;
-    if (hash.includes("type=recovery")) {
-      setIsValidToken(true);
+    const rawHash = window.location.hash;
+    const hashParams = new URLSearchParams(rawHash.startsWith("#") ? rawHash.slice(1) : rawHash);
+    const hasRecoveryToken = hashParams.has("access_token") && hashParams.get("type") === "recovery";
+    const hasExpiredRecoveryError =
+      hashParams.get("error") === "access_denied" && hashParams.get("error_code") === "otp_expired";
+
+    if (hasRecoveryToken) {
+      setRecoveryState("valid");
+    } else if (hasExpiredRecoveryError) {
+      setRecoveryState("expired");
+    } else {
+      setRecoveryState("invalid");
     }
 
-    // Listen for PASSWORD_RECOVERY event
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
-        setIsValidToken(true);
+        setRecoveryState("valid");
       }
     });
 
@@ -56,6 +65,7 @@ const PasswortZuruecksetzen = () => {
       const { error: updateError } = await supabase.auth.updateUser({ password });
       if (updateError) throw updateError;
       setIsSuccess(true);
+      window.history.replaceState(null, "", window.location.pathname);
       setTimeout(() => navigate("/login", { replace: true }), 3000);
     } catch (err: any) {
       setError(err.message || "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.");
@@ -63,6 +73,9 @@ const PasswortZuruecksetzen = () => {
       setIsLoading(false);
     }
   };
+
+  const showRecoveryForm = recoveryState === "valid";
+  const showExpiredMessage = recoveryState === "expired";
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -89,12 +102,24 @@ const PasswortZuruecksetzen = () => {
                     Ihr Passwort wurde erfolgreich geändert. Sie werden zum Login weitergeleitet…
                   </p>
                 </div>
-              ) : !isValidToken ? (
+              ) : showExpiredMessage ? (
                 <div className="text-center space-y-4">
                   <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
-                      Ungültiger oder abgelaufener Link. Bitte fordern Sie einen neuen Link an.
+                      Dieser Passwort-Reset-Link ist abgelaufen. Bitte fordern Sie eine neue Reset-Mail an.
+                    </AlertDescription>
+                  </Alert>
+                  <Button variant="outline" className="w-full" asChild>
+                    <Link to="/passwort-vergessen">Neue Reset-Mail anfordern</Link>
+                  </Button>
+                </div>
+              ) : !showRecoveryForm ? (
+                <div className="text-center space-y-4">
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      Ungültiger Link. Bitte fordern Sie einen neuen Link an.
                     </AlertDescription>
                   </Alert>
                   <Button variant="outline" className="w-full" asChild>
