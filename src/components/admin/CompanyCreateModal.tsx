@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Building2, Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import LogoUpload from "@/components/employer/LogoUpload";
 
 interface CompanyCreateModalProps {
   open: boolean;
@@ -83,6 +84,14 @@ const CompanyCreateModal = ({ open, onOpenChange }: CompanyCreateModalProps) => 
         </DialogHeader>
 
         <div className="space-y-4 py-4">
+          <LogoUpload
+            currentLogoUrl={formData.logo_url || null}
+            companyName={formData.name}
+            onUploadComplete={(url) =>
+              setFormData({ ...formData, logo_url: url })
+            }
+          />
+
           <div className="space-y-2">
             <Label htmlFor="create-name">Name *</Label>
             <Input
@@ -100,16 +109,6 @@ const CompanyCreateModal = ({ open, onOpenChange }: CompanyCreateModalProps) => 
               value={formData.location}
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
               placeholder="z.B. Berlin, Hamburg"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="create-logo">Logo URL</Label>
-            <Input
-              id="create-logo"
-              value={formData.logo_url}
-              onChange={(e) => setFormData({ ...formData, logo_url: e.target.value })}
-              placeholder="https://beispiel.de/logo.png"
             />
           </div>
 
