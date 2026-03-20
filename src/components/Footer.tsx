@@ -39,11 +39,11 @@ const Footer = () => {
                   info@kanzleistelle24.de
                 </a>
                 <a
-                  href="tel:+4940123456789"
+                  href="tel:+4905303-9578751"
                   className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   <Phone className="h-4 w-4" strokeWidth={1.5} />
-                  +49 40 123 456 789
+                  05303-9578751
                 </a>
               </div>
               <Button
