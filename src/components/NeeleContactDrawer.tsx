@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Send, CheckCircle, User, Mail, Phone, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import neeleImage from "@/assets/neele-ehlers.jpg";
+import neeleImage from "@/assets/neele-ehlers.webp";
 
 interface NeeleContactDrawerProps {
   open: boolean;
@@ -67,6 +67,8 @@ const NeeleContactDrawer = ({ open, onOpenChange }: NeeleContactDrawerProps) => 
               src={neeleImage}
               alt="Neele Ehlers"
               className="w-[150px] h-[150px] rounded-full object-cover shadow-lg ring-4 ring-primary/15"
+              loading="lazy"
+              decoding="async"
             />
             <div>
               <SheetTitle className="text-xl">Neele Ehlers</SheetTitle>

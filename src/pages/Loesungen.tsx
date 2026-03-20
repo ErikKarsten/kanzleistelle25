@@ -17,8 +17,8 @@ import {
   Clock,
   Award,
 } from "lucide-react";
-import partnershipImage from "@/assets/partnership-handshake.jpg";
-import teamCollaborationImage from "@/assets/team-collaboration.jpg";
+import partnershipImage from "@/assets/partnership-handshake.webp";
+import teamCollaborationImage from "@/assets/team-collaboration.webp";
 import { Helmet } from "react-helmet-async";
 
 const processSteps = [
@@ -202,6 +202,8 @@ const Loesungen = () => {
                   src={partnershipImage} 
                   alt="Erfolgreiche Partnerschaft" 
                   className="rounded-2xl shadow-2xl"
+                  loading="lazy"
+                  decoding="async"
                 />
                 <div className="absolute -bottom-8 -right-8 bg-primary text-primary-foreground p-8 rounded-2xl shadow-xl hidden md:block">
                   <div className="text-4xl font-black">100%</div>

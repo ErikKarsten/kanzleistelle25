@@ -94,6 +94,8 @@ const ArticleImageUpload = ({ currentImageUrl, onUploadComplete }: ArticleImageU
               src={preview}
               alt="Artikelbild Vorschau"
               className="w-full h-48 object-cover"
+              loading="lazy"
+              decoding="async"
             />
             {isUploading && (
               <div className="absolute inset-0 bg-background/70 flex items-center justify-center">

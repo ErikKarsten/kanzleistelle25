@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Calendar, Clock, BookOpen } from "lucide-react";
-import careerProfessionalImage from "@/assets/career-professional.jpg";
+import careerProfessionalImage from "@/assets/career-professional.webp";
 
 const PLACEHOLDER_IMAGE = careerProfessionalImage;
 
@@ -162,6 +162,8 @@ const ArticleDetail = () => {
                   src={article.image_url || PLACEHOLDER_IMAGE}
                   alt={article.title}
                   className="w-full h-64 md:h-80 object-cover"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
 

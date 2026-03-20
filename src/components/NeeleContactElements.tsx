@@ -3,7 +3,7 @@ import { MessageCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import NeeleContactDrawer from "./NeeleContactDrawer";
-import neeleImage from "@/assets/neele-ehlers.jpg";
+import neeleImage from "@/assets/neele-ehlers.webp";
 
 /**
  * Sticky desktop card + mobile bottom bar for Neele Ehlers.
@@ -37,6 +37,8 @@ const NeeleContactElements = () => {
                 src={neeleImage}
                 alt="Neele Ehlers – Recruiting Managerin"
                 className="w-[150px] h-[150px] rounded-full object-cover ring-4 ring-primary/15 shadow-lg"
+                loading="lazy"
+                decoding="async"
               />
               <div className="text-center">
                 <p className="font-bold text-foreground text-base leading-tight">
@@ -65,6 +67,8 @@ const NeeleContactElements = () => {
             src={neeleImage}
             alt="Neele Ehlers"
             className="w-16 h-16 rounded-full object-cover ring-2 ring-primary/20 shrink-0 shadow-md"
+            loading="lazy"
+            decoding="async"
           />
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-foreground truncate">

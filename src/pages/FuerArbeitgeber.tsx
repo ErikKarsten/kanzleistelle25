@@ -17,7 +17,7 @@ import {
   AlertTriangle,
   Zap,
 } from "lucide-react";
-import officeModernImage from "@/assets/office-modern.jpg";
+import officeModernImage from "@/assets/office-modern.webp";
 
 const painPoints = [
   {

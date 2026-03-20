@@ -168,6 +168,8 @@ const JobDetail = () => {
                       src={job.companies.logo_url}
                       alt={companyName}
                       className="w-full h-full object-contain p-2"
+                      loading="lazy"
+                      decoding="async"
                     />
                   ) : (
                     <span className="text-xl md:text-2xl font-bold" style={{ color: "#D4AF37" }}>
@@ -300,6 +302,8 @@ const JobDetail = () => {
                           src={job.companies.logo_url}
                           alt={companyName}
                           className="w-full h-full object-contain p-1.5"
+                          loading="lazy"
+                          decoding="async"
                         />
                       ) : (
                         <span className="text-sm font-bold" style={{ color: "#D4AF37" }}>

@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-import careerProfessionalImage from "@/assets/career-professional.jpg";
+import careerProfessionalImage from "@/assets/career-professional.webp";
 import { Helmet } from "react-helmet-async";
 
 interface Article {
@@ -141,6 +141,8 @@ const Karrieretipps = () => {
                     src={featuredArticle.image_url || getPlaceholderImage(featuredArticle.category)} 
                     alt={featuredArticle.title}
                     className="absolute inset-0 w-full h-full object-cover"
+                    loading="lazy"
+                    decoding="async"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent md:hidden" />
                 </div>
@@ -197,6 +199,8 @@ const Karrieretipps = () => {
                       src={article.image_url || getPlaceholderImage(article.category)}
                       alt={article.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                      decoding="async"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                   </div>

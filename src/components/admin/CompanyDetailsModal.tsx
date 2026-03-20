@@ -451,7 +451,13 @@ const CompanyDetailsModal = ({
             {/* Header with logo and status */}
             <div className="flex items-start gap-4">
               {company.logo_url ? (
-                <img src={company.logo_url} alt={company.name} className="h-16 w-16 rounded-lg object-contain border bg-background" />
+                <img
+                  src={company.logo_url}
+                  alt={company.name}
+                  className="h-16 w-16 rounded-lg object-contain border bg-background"
+                  loading="lazy"
+                  decoding="async"
+                />
               ) : (
                 <div className="h-16 w-16 rounded-lg border bg-muted flex items-center justify-center">
                   <Building2 className="h-8 w-8 text-muted-foreground" />

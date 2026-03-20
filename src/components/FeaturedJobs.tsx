@@ -147,6 +147,8 @@ const FeaturedJobs = () => {
                           src={job.companies.logo_url}
                           alt={job.companies.name || job.company}
                           className="w-full h-full object-contain p-2"
+                          loading="lazy"
+                          decoding="async"
                         />
                       ) : (
                         <span className="text-2xl md:text-3xl font-bold" style={{ color: "#D4AF37" }}>

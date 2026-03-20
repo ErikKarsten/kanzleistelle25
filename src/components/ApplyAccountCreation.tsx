@@ -199,6 +199,8 @@ const ApplyAccountCreation = ({
             src={genossenschaftLogo}
             alt="Deutsche Steuerberatergenossenschaft – Mitglied"
             className="h-8 opacity-50 object-contain"
+            loading="lazy"
+            decoding="async"
           />
         </div>
       </div>

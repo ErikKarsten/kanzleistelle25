@@ -14,8 +14,8 @@ import {
   Briefcase,
   Quote,
 } from "lucide-react";
-import teamCollaborationImage from "@/assets/team-collaboration.jpg";
-import officeModernImage from "@/assets/office-modern.jpg";
+import teamCollaborationImage from "@/assets/team-collaboration.webp";
+import officeModernImage from "@/assets/office-modern.webp";
 
 const values = [
   {
@@ -142,6 +142,8 @@ const UeberUns = () => {
                 src={teamCollaborationImage} 
                 alt="Team bei der Arbeit" 
                 className="rounded-2xl shadow-2xl"
+                loading="lazy"
+                decoding="async"
               />
               <div className="absolute -bottom-6 -left-6 bg-primary text-primary-foreground p-6 rounded-xl shadow-lg max-w-xs hidden md:block">
                 <Quote className="h-8 w-8 mb-3 opacity-50" />

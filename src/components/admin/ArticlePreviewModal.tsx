@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock } from "lucide-react";
-import careerProfessionalImage from "@/assets/career-professional.jpg";
+import careerProfessionalImage from "@/assets/career-professional.webp";
 
 interface Article {
   id: string;
@@ -101,6 +101,8 @@ const ArticlePreviewModal = ({ article, onClose }: ArticlePreviewModalProps) => 
               src={article.image_url || careerProfessionalImage}
               alt={article.title}
               className="w-full h-48 md:h-64 object-cover"
+              loading="lazy"
+              decoding="async"
             />
           </div>
 

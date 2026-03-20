@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import { Mail, Phone, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import NeeleContactDrawer from "./NeeleContactDrawer";
-import neeleImage from "@/assets/neele-ehlers.jpg";
-import fullLogo from "@/assets/kanzleistelle24-logo-full.png";
+import neeleImage from "@/assets/neele-ehlers.webp";
+import fullLogo from "@/assets/kanzleistelle24-logo-full.webp";
 
 const Footer = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -19,6 +19,8 @@ const Footer = () => {
               src={neeleImage}
               alt="Neele Ehlers – Recruiting Managerin"
               className="w-32 h-32 rounded-full object-cover shadow-xl ring-4 ring-background shrink-0"
+              loading="lazy"
+              decoding="async"
             />
             <div className="text-center md:text-left">
               <h3 className="text-2xl font-bold text-foreground mb-2">
@@ -63,7 +65,13 @@ const Footer = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="block mb-4">
-              <img src={fullLogo} alt="Kanzleistelle24 – Hier startet deine Steuerkarriere" className="h-20 w-auto" />
+              <img
+                src={fullLogo}
+                alt="Kanzleistelle24 – Hier startet deine Steuerkarriere"
+                className="h-20 w-auto"
+                loading="lazy"
+                decoding="async"
+              />
             </Link>
             <p className="text-sm text-muted-foreground">
               Die führende Jobbörse für Steuerkanzleien in Deutschland.

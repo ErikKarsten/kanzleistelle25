@@ -2,9 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
-import candidateLaptopImage from "@/assets/candidate-laptop.jpg";
-import teamMeetingImage from "@/assets/team-meeting.jpg";
-import quickApplyImage from "@/assets/quick-apply.jpg";
+import candidateLaptopImage from "@/assets/candidate-laptop.webp";
+import teamMeetingImage from "@/assets/team-meeting.webp";
+import quickApplyImage from "@/assets/quick-apply.webp";
 
 const features = [
   {
