@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import partnershipImage from "@/assets/partnership-handshake.jpg";
 import teamCollaborationImage from "@/assets/team-collaboration.jpg";
+import { Helmet } from "react-helmet-async";
 
 const processSteps = [
   {
@@ -79,6 +80,17 @@ const Loesungen = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Helmet>
+        <title>Recruiting-Lösungen für Steuerkanzleien | Kanzleistelle24</title>
+        <meta
+          name="description"
+          content="Recruiting- und Personalvermittlungslösungen für Steuerkanzleien: Reverse Recruiting, Active Sourcing und Executive Search für Fach- und Führungskräfte."
+        />
+        <meta
+          name="keywords"
+          content="Personalvermittlung Kanzlei, Reverse Recruiting Steuer, Recruiting Lösungen Steuerkanzlei"
+        />
+      </Helmet>
       <Header />
 
       <main className="flex-1">

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Helmet } from "react-helmet-async";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
@@ -62,6 +63,17 @@ const FuerArbeitgeber = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Helmet>
+        <title>Recruiting für Steuerkanzleien | Kanzleistelle24</title>
+        <meta
+          name="description"
+          content="Kanzleistelle24 unterstützt Steuerkanzleien beim Recruiting: qualifizierte Fachkräfte finden, Bewerbungsprozesse verkürzen und passende Talente für Ihre Kanzlei gewinnen."
+        />
+        <meta
+          name="keywords"
+          content="Recruiting Steuerkanzlei, Fachkräfte finden, Steuerfachangestellte Recruiting, Personalvermittlung Steuerberatung"
+        />
+      </Helmet>
       <Header />
 
       <main className="flex-1">

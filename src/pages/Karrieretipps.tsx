@@ -9,6 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import careerProfessionalImage from "@/assets/career-professional.jpg";
+import { Helmet } from "react-helmet-async";
 
 interface Article {
   id: string;
@@ -71,6 +72,17 @@ const Karrieretipps = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Helmet>
+        <title>Karrieretipps für Steuerberater | Kanzleistelle24</title>
+        <meta
+          name="description"
+          content="Karrieretipps, Ratgeber und Stellenangebote für Steuerberater und Steuerfachangestellte. Entdecken Sie Ihren nächsten Karriereschritt in der Steuerbranche."
+        />
+        <meta
+          name="keywords"
+          content="Jobs Steuerberater, Stellenangebote Steuerfachangestellte, Karriere Steuerberatung, Steuerberater Jobbörse"
+        />
+      </Helmet>
       <Header />
 
       <main className="flex-1">
