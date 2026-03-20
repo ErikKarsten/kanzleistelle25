@@ -115,11 +115,6 @@ const Footer = () => {
                   Datenschutz
                 </Link>
               </li>
-              <li>
-                <Link to="/agb" className="text-muted-foreground hover:text-primary">
-                  AGB
-                </Link>
-              </li>
                <li>
                  <Link to="/admin/login" className="text-muted-foreground/50 hover:text-muted-foreground text-xs">
                    Admin
