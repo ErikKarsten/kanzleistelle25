@@ -143,5 +143,21 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
     </section>
   );
 };
-
+<section className="bg-muted/30 py-12">
+  <div className="container max-w-4xl mx-auto text-center">
+    <h2 className="text-2xl font-bold mb-4">
+      Die Matching-Plattform für Steuerkanzleien & Steuerfachkräfte
+    </h2>
+    <p className="text-muted-foreground leading-relaxed">
+      Kanzleistelle24 verbindet qualifizierte Steuerfachangestellte, 
+      Bilanzbuchhalter und Steuerberater mit geprüften Partnerkanzleien 
+      in ganz Deutschland. Unsere spezialisierte Plattform macht das 
+      Recruiting im Steuerbereich schnell, diskret und erfolgreich — 
+      kostenlos für Bewerber. Ob du als Steuerfachkraft deinen nächsten 
+      Karriereschritt planst oder als Kanzlei qualifizierte Mitarbeiter 
+      suchst: Kanzleistelle24 ist dein Partner für nachhaltiges Matching 
+      in der Steuerbranche.
+    </p>
+  </div>
+</section>
 export default HeroSection;
