@@ -4,7 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -16,7 +19,7 @@ import {
 import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Building2, MapPin, Plus, Trash2, Pencil, Archive, ArchiveRestore, Bell, AlertTriangle, Siren } from "lucide-react";
+import { Building2, MapPin, Plus, Trash2, Pencil, Archive, ArchiveRestore, Bell, AlertTriangle, Siren, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import CompanyDetailsModal, { getHighestSlaLevel } from "./CompanyDetailsModal";
 import CompanyCreateModal from "./CompanyCreateModal";
@@ -50,6 +53,10 @@ const CompanyManagement = ({ navigateToCompanyId, onNavigated }: CompanyManageme
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [pageSize, setPageSize] = useState(10);
+  const [activePage, setActivePage] = useState(1);
+  const [archivedPage, setArchivedPage] = useState(1);
   const queryClient = useQueryClient();
 
   const { data: companies, isLoading } = useQuery({
@@ -64,7 +71,6 @@ const CompanyManagement = ({ navigateToCompanyId, onNavigated }: CompanyManageme
     },
   });
 
-  // Fetch all pending applications to compute SLA alarm per company
   const { data: pendingApplications } = useQuery({
     queryKey: ["admin-sla-applications"],
     queryFn: async () => {
@@ -78,7 +84,6 @@ const CompanyManagement = ({ navigateToCompanyId, onNavigated }: CompanyManageme
     },
   });
 
-  // Compute highest SLA level per company
   const companySlaMap = useMemo(() => {
     if (!pendingApplications) return new Map<string, "ok" | "warning" | "urgent" | "critical">();
     const grouped: Record<string, { status: string | null; created_at: string | null }[]> = {};
@@ -94,7 +99,6 @@ const CompanyManagement = ({ navigateToCompanyId, onNavigated }: CompanyManageme
     return map;
   }, [pendingApplications]);
 
-  // Navigate to a specific company when requested from reactivation popup
   useEffect(() => {
     if (navigateToCompanyId && companies) {
       const company = companies.find((c) => c.id === navigateToCompanyId);
@@ -105,6 +109,12 @@ const CompanyManagement = ({ navigateToCompanyId, onNavigated }: CompanyManageme
       }
     }
   }, [navigateToCompanyId, companies, onNavigated]);
+
+  // Reset pages when search changes
+  useEffect(() => {
+    setActivePage(1);
+    setArchivedPage(1);
+  }, [searchQuery, pageSize]);
 
   const deleteMutation = useMutation({
     mutationFn: async (companyId: string) => {
@@ -147,8 +157,28 @@ const CompanyManagement = ({ navigateToCompanyId, onNavigated }: CompanyManageme
     setDetailsOpen(true);
   };
 
-  const activeCompanies = companies?.filter((c) => c.is_active) || [];
-  const archivedCompanies = companies?.filter((c) => !c.is_active) || [];
+  const filteredCompanies = useMemo(() => {
+    if (!companies) return [];
+    if (!searchQuery.trim()) return companies;
+    return companies.filter((c) =>
+      c.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [companies, searchQuery]);
+
+  const activeCompanies = filteredCompanies.filter((c) => c.is_active);
+  const archivedCompanies = filteredCompanies.filter((c) => !c.is_active);
+
+  const activeTotalPages = Math.max(1, Math.ceil(activeCompanies.length / pageSize));
+  const archivedTotalPages = Math.max(1, Math.ceil(archivedCompanies.length / pageSize));
+
+  const activePagedCompanies = activeCompanies.slice(
+    (activePage - 1) * pageSize,
+    activePage * pageSize
+  );
+  const archivedPagedCompanies = archivedCompanies.slice(
+    (archivedPage - 1) * pageSize,
+    archivedPage * pageSize
+  );
 
   if (isLoading) {
     return (
@@ -169,6 +199,40 @@ const CompanyManagement = ({ navigateToCompanyId, onNavigated }: CompanyManageme
       </Card>
     );
   }
+
+  const renderPagination = (
+    currentPage: number,
+    totalPages: number,
+    totalItems: number,
+    onPageChange: (page: number) => void
+  ) => (
+    <div className="flex items-center justify-between pt-4 border-t">
+      <p className="text-sm text-muted-foreground">
+        {totalItems} Einträge gesamt
+      </p>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        <span className="text-sm text-muted-foreground">
+          Seite {currentPage} von {totalPages}
+        </span>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
 
   const renderTable = (list: Company[]) => (
     <TooltipProvider>
@@ -304,21 +368,58 @@ const CompanyManagement = ({ navigateToCompanyId, onNavigated }: CompanyManageme
             Neue Kanzlei
           </Button>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4">
+
+          {/* Suche + Einträge pro Seite */}
+          <div className="flex items-center gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Kanzlei suchen..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground whitespace-nowrap">Einträge pro Seite:</span>
+              <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
+                <SelectTrigger className="w-20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           {activeCompanies.length === 0 && archivedCompanies.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">Noch keine Kanzleien vorhanden.</p>
+              <p className="text-muted-foreground">
+                {searchQuery ? "Keine Kanzleien gefunden." : "Noch keine Kanzleien vorhanden."}
+              </p>
             </div>
           ) : (
             <>
-              {activeCompanies.length > 0 && renderTable(activeCompanies)}
+              {activeCompanies.length > 0 && (
+                <div className="space-y-2">
+                  {renderTable(activePagedCompanies)}
+                  {renderPagination(activePage, activeTotalPages, activeCompanies.length, setActivePage)}
+                </div>
+              )}
               {archivedCompanies.length > 0 && (
                 <div className="space-y-2">
                   <h3 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                     <Archive className="h-4 w-4" />
                     Archiviert ({archivedCompanies.length})
                   </h3>
-                  <div className="opacity-60">{renderTable(archivedCompanies)}</div>
+                  <div className="opacity-60">
+                    {renderTable(archivedPagedCompanies)}
+                  </div>
+                  {renderPagination(archivedPage, archivedTotalPages, archivedCompanies.length, setArchivedPage)}
                 </div>
               )}
             </>

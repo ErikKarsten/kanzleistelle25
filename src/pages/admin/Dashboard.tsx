@@ -19,7 +19,8 @@ import TalentPool from "@/components/admin/TalentPool";
 import NewLeadsModal, { useNewLeadsCount } from "@/components/admin/NewLeadsModal";
 import CriticalApplicationsMonitor from "@/components/admin/CriticalApplicationsMonitor";
 import { toast } from "sonner";
-
+import { getLeadtableKunden, getLeadtableKampagnen } from "@/lib/leadtable";
+import LeadtableWidget from "@/components/admin/LeadtableWidget";
 interface ApplicationWithJob {
   id: string;
   first_name: string | null;
@@ -443,6 +444,10 @@ const AdminDashboardContent = () => {
             leadsSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
           }}
         />
+       {/* Leadtable Übersicht */}
+       <div className="mt-8">
+          <LeadtableWidget />
+        </div> 
       </div>
     </div>
   );
