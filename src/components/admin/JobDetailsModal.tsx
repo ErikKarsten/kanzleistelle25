@@ -39,6 +39,8 @@ import {
   Pencil,
   EuroIcon,
   Monitor,
+  Plus,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -137,6 +139,8 @@ const JobDetailsModal = ({
     salary_min: "",
     salary_max: "",
   });
+  const [benefits, setBenefits] = useState<string[]>([]);
+  const [newBenefit, setNewBenefit] = useState("");
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -152,11 +156,12 @@ const JobDetailsModal = ({
         salary_min: job.salary_min?.toString() || "",
         salary_max: job.salary_max?.toString() || "",
       });
+      setBenefits(Array.isArray(job.benefits) ? job.benefits : []);
+      setNewBenefit("");
       setActiveTab("preview");
     }
   }, [job]);
 
-  // Fetch applicants for this job
   const { data: applicants } = useQuery({
     queryKey: ["job-applicants", job?.id],
     queryFn: async () => {
@@ -167,7 +172,6 @@ const JobDetailsModal = ({
         .eq("job_id", job.id)
         .eq("is_archived", false)
         .order("created_at", { ascending: false });
-
       if (error) throw error;
       return data as Applicant[];
     },
@@ -189,9 +193,9 @@ const JobDetailsModal = ({
           salary_range: data.salary_range || null,
           salary_min: data.salary_min ? parseInt(data.salary_min) : null,
           salary_max: data.salary_max ? parseInt(data.salary_max) : null,
+          benefits: benefits.length > 0 ? benefits : null,
         })
         .eq("id", job.id);
-
       if (error) throw error;
     },
     onSuccess: () => {
@@ -226,6 +230,18 @@ const JobDetailsModal = ({
     updateMutation.mutate(formData);
   };
 
+  const handleAddBenefit = () => {
+    const trimmed = newBenefit.trim();
+    if (trimmed && !benefits.includes(trimmed)) {
+      setBenefits([...benefits, trimmed]);
+      setNewBenefit("");
+    }
+  };
+
+  const handleRemoveBenefit = (benefit: string) => {
+    setBenefits(benefits.filter((b) => b !== benefit));
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
@@ -235,13 +251,7 @@ const JobDetailsModal = ({
               <Briefcase className="h-5 w-5 text-primary" />
               {job.title}
             </DialogTitle>
-            <Badge
-              className={
-                job.is_active
-                  ? "bg-green-100 text-green-800"
-                  : "bg-gray-100 text-gray-600"
-              }
-            >
+            <Badge className={job.is_active ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}>
               {job.is_active ? "🟢 Live" : "⭕ Inaktiv"}
             </Badge>
           </div>
@@ -266,7 +276,6 @@ const JobDetailsModal = ({
           {/* PREVIEW TAB */}
           <TabsContent value="preview" className="space-y-4 pt-2">
             <div className="rounded-lg border border-border bg-card p-5 space-y-4">
-              {/* Meta info */}
               <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
                 {job.location && (
                   <span className="flex items-center gap-1.5">
@@ -293,40 +302,30 @@ const JobDetailsModal = ({
                 )}
               </div>
 
-              {/* Description */}
               {job.description && (
                 <p className="text-sm text-muted-foreground whitespace-pre-line">{job.description}</p>
               )}
 
-              {/* Requirements & Benefits */}
               {(requirementsList.length > 0 || benefitsList.length > 0) && (
                 <>
                   <Separator />
                   <div className="grid sm:grid-cols-2 gap-6">
                     {requirementsList.length > 0 && (
                       <div>
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                          Anforderungen
-                        </p>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Anforderungen</p>
                         <div className="flex flex-wrap gap-2">
                           {requirementsList.map((r) => (
-                            <span key={r} className="px-3 py-1 rounded-full text-xs bg-secondary text-secondary-foreground border border-border">
-                              {r}
-                            </span>
+                            <span key={r} className="px-3 py-1 rounded-full text-xs bg-secondary text-secondary-foreground border border-border">{r}</span>
                           ))}
                         </div>
                       </div>
                     )}
                     {benefitsList.length > 0 && (
                       <div>
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                          Benefits
-                        </p>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Benefits</p>
                         <div className="flex flex-wrap gap-2">
                           {benefitsList.map((b) => (
-                            <span key={b} className="px-3 py-1 rounded-full text-xs bg-primary/10 text-primary border border-primary/20">
-                              {b}
-                            </span>
+                            <span key={b} className="px-3 py-1 rounded-full text-xs bg-primary/10 text-primary border border-primary/20">{b}</span>
                           ))}
                         </div>
                       </div>
@@ -351,16 +350,11 @@ const JobDetailsModal = ({
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>Stelle löschen?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Diese Aktion kann nicht rückgängig gemacht werden.
-                    </AlertDialogDescription>
+                    <AlertDialogDescription>Diese Aktion kann nicht rückgängig gemacht werden.</AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => onDelete(job.id)}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    >
+                    <AlertDialogAction onClick={() => onDelete(job.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
                       Endgültig löschen
                     </AlertDialogAction>
                   </AlertDialogFooter>
@@ -394,10 +388,7 @@ const JobDetailsModal = ({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="job-type">Anstellungsart</Label>
-                <Select
-                  value={formData.employment_type}
-                  onValueChange={(v) => setFormData({ ...formData, employment_type: v })}
-                >
+                <Select value={formData.employment_type} onValueChange={(v) => setFormData({ ...formData, employment_type: v })}>
                   <SelectTrigger id="job-type"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {employmentTypes.map((t) => (
@@ -408,10 +399,7 @@ const JobDetailsModal = ({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="working-model">Arbeitsmodell</Label>
-                <Select
-                  value={formData.working_model}
-                  onValueChange={(v) => setFormData({ ...formData, working_model: v })}
-                >
+                <Select value={formData.working_model} onValueChange={(v) => setFormData({ ...formData, working_model: v })}>
                   <SelectTrigger id="working-model"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {workingModels.map((m) => (
@@ -448,6 +436,36 @@ const JobDetailsModal = ({
                   placeholder="DATEV-Kenntnisse&#10;Teamfähigkeit&#10;..."
                 />
               </div>
+
+              {/* BENEFITS */}
+              <div className="space-y-2 col-span-2">
+                <Label>Benefits</Label>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {benefits.map((b) => (
+                    <span key={b} className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs bg-primary/10 text-primary border border-primary/20">
+                      {b}
+                      <button onClick={() => handleRemoveBenefit(b)} className="hover:text-destructive ml-1">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  ))}
+                  {benefits.length === 0 && (
+                    <p className="text-xs text-muted-foreground italic">Noch keine Benefits hinzugefügt.</p>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Benefit eingeben, z.B. Homeoffice"
+                    value={newBenefit}
+                    onChange={(e) => setNewBenefit(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleAddBenefit(); } }}
+                  />
+                  <Button type="button" variant="outline" onClick={handleAddBenefit} disabled={!newBenefit.trim()}>
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">Enter drücken oder + klicken um ein Benefit hinzuzufügen</p>
+              </div>
             </div>
 
             <div className="flex items-center justify-between pt-2">
@@ -461,16 +479,11 @@ const JobDetailsModal = ({
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>Stelle löschen?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Diese Aktion kann nicht rückgängig gemacht werden.
-                    </AlertDialogDescription>
+                    <AlertDialogDescription>Diese Aktion kann nicht rückgängig gemacht werden.</AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => onDelete(job.id)}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    >
+                    <AlertDialogAction onClick={() => onDelete(job.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
                       Endgültig löschen
                     </AlertDialogAction>
                   </AlertDialogFooter>
@@ -492,18 +505,11 @@ const JobDetailsModal = ({
                 </p>
               ) : (
                 applicants.map((applicant) => {
-                  const status =
-                    statusConfig[applicant.status || "pending"] ||
-                    statusConfig.pending;
+                  const status = statusConfig[applicant.status || "pending"] || statusConfig.pending;
                   return (
-                    <div
-                      key={applicant.id}
-                      className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
-                    >
+                    <div key={applicant.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                       <div className="space-y-1">
-                        <p className="font-medium">
-                          {applicant.first_name} {applicant.last_name}
-                        </p>
+                        <p className="font-medium">{applicant.first_name} {applicant.last_name}</p>
                         <div className="flex items-center gap-4 text-xs text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <Mail className="h-3 w-3" />
@@ -517,9 +523,7 @@ const JobDetailsModal = ({
                           )}
                           <div className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
-                            {applicant.created_at
-                              ? format(new Date(applicant.created_at), "dd.MM.yyyy", { locale: de })
-                              : "—"}
+                            {applicant.created_at ? format(new Date(applicant.created_at), "dd.MM.yyyy", { locale: de }) : "—"}
                           </div>
                         </div>
                       </div>
@@ -537,4 +541,3 @@ const JobDetailsModal = ({
 };
 
 export default JobDetailsModal;
-
