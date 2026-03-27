@@ -63,7 +63,8 @@ const workingModels = [
 
 const initialFormData = {
   title: "",
-  location: "",
+  postal_code: "",
+  city: "",
   employment_type: "vollzeit",
   working_model: "vor_ort",
   description: "",
@@ -156,11 +157,17 @@ const JobCreateModal = ({
       const { employerJobSchema } = await import("@/lib/validations");
       employerJobSchema.parse(formData);
 
+      const locationString = formData.postal_code && formData.city 
+        ? `${formData.postal_code} ${formData.city}`.trim()
+        : formData.postal_code || formData.city || null;
+
       const { error } = await supabase.from("jobs").insert({
         title: formData.title.trim(),
         company: selectedCompany.name,
         company_id: selectedCompanyId,
-        location: formData.location.trim() || null,
+        location: locationString,
+        postal_code: formData.postal_code.trim() || null,
+        city: formData.city.trim() || null,
         employment_type: formData.employment_type || null,
         working_model: formData.working_model || null,
         description: formData.description.trim() || null,
@@ -244,17 +251,32 @@ const JobCreateModal = ({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="job-location">Standort</Label>
+              <Label htmlFor="job-postal-code">PLZ</Label>
               <Input
-                id="job-location"
-                value={formData.location}
+                id="job-postal-code"
+                value={formData.postal_code}
                 onChange={(event) =>
-                  setFormData((prev) => ({ ...prev, location: event.target.value }))
+                  setFormData((prev) => ({ ...prev, postal_code: event.target.value }))
                 }
-                placeholder="z.B. München"
+                placeholder="z.B. 97483"
+                maxLength={5}
               />
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="job-city">Ort</Label>
+              <Input
+                id="job-city"
+                value={formData.city}
+                onChange={(event) =>
+                  setFormData((prev) => ({ ...prev, city: event.target.value }))
+                }
+                placeholder="z.B. Eltmann"
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="job-type">Anstellungsart</Label>
               <Select
@@ -275,9 +297,7 @@ const JobCreateModal = ({
                 </SelectContent>
               </Select>
             </div>
-          </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="working-model">Arbeitsmodell</Label>
               <Select
@@ -298,18 +318,18 @@ const JobCreateModal = ({
                 </SelectContent>
               </Select>
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="salary-range">Gehaltsrahmen (optional)</Label>
-              <Input
-                id="salary-range"
-                value={formData.salary_range}
-                onChange={(event) =>
-                  setFormData((prev) => ({ ...prev, salary_range: event.target.value }))
-                }
-                placeholder="z.B. 45.000 - 55.000 €"
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="salary-range">Gehaltsrahmen (optional)</Label>
+            <Input
+              id="salary-range"
+              value={formData.salary_range}
+              onChange={(event) =>
+                setFormData((prev) => ({ ...prev, salary_range: event.target.value }))
+              }
+              placeholder="z.B. 45.000 - 55.000 €"
+            />
           </div>
 
           <div className="space-y-2">
