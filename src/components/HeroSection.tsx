@@ -8,25 +8,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, MapPin, Briefcase, Zap } from "lucide-react";
+import { Search, MapPin, Briefcase, Zap, Navigation } from "lucide-react";
 import heroBackground from "@/assets/hero-background.webp";
 import genossenschaftLogo from "@/assets/genossenschaft-logo.webp";
 
 interface HeroSectionProps {
-  onSearch: (filters: { title: string; location: string; employmentType?: string }) => void;
+  onSearch: (filters: { title: string; location: string; employmentType?: string; radius?: number }) => void;
 }
 
 const HeroSection = ({ onSearch }: HeroSectionProps) => {
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
   const [employmentType, setEmploymentType] = useState<string>("vollzeit");
+  const [radius, setRadius] = useState<string>("25");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSearch({ 
       title, 
       location, 
-      employmentType: employmentType === "all" ? undefined : employmentType || undefined 
+      employmentType: employmentType === "all" ? undefined : employmentType || undefined,
+      radius: location ? parseInt(radius) : undefined
     });
   };
 
@@ -81,11 +83,25 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
                 <Input
                   type="text"
-                  placeholder="Wo?"
+                  placeholder="PLZ oder Ort"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   className="pl-10 h-12"
                 />
+              </div>
+              <div className="relative w-full md:w-32">
+                <Navigation className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" strokeWidth={1.5} />
+                <Select value={radius} onValueChange={setRadius}>
+                  <SelectTrigger className="pl-10 h-12 bg-background">
+                    <SelectValue placeholder="Umkreis" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border shadow-md z-50">
+                    <SelectItem value="10">10 km</SelectItem>
+                    <SelectItem value="25">25 km</SelectItem>
+                    <SelectItem value="50">50 km</SelectItem>
+                    <SelectItem value="100">100 km</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="relative flex-1">
                 <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" strokeWidth={1.5} />
@@ -143,21 +159,5 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
     </section>
   );
 };
-<section className="bg-muted/30 py-12">
-  <div className="container max-w-4xl mx-auto text-center">
-    <h2 className="text-2xl font-bold mb-4">
-      Die Matching-Plattform für Steuerkanzleien & Steuerfachkräfte
-    </h2>
-    <p className="text-muted-foreground leading-relaxed">
-      Kanzleistelle24 verbindet qualifizierte Steuerfachangestellte, 
-      Bilanzbuchhalter und Steuerberater mit geprüften Partnerkanzleien 
-      in ganz Deutschland. Unsere spezialisierte Plattform macht das 
-      Recruiting im Steuerbereich schnell, diskret und erfolgreich — 
-      kostenlos für Bewerber. Ob du als Steuerfachkraft deinen nächsten 
-      Karriereschritt planst oder als Kanzlei qualifizierte Mitarbeiter 
-      suchst: Kanzleistelle24 ist dein Partner für nachhaltiges Matching 
-      in der Steuerbranche.
-    </p>
-  </div>
-</section>
+
 export default HeroSection;

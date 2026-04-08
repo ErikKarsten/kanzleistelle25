@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, Clock, Building2, Send, Zap, Search, Briefcase, Sparkles } from "lucide-react";
+import { MapPin, Clock, Building2, Send, Zap, Search, Briefcase, Sparkles, Navigation } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
 import ApplyModal from "./ApplyModal";
@@ -20,12 +20,15 @@ interface JobWithCompany {
   company: string;
   company_id: string | null;
   location: string | null;
+  postal_code: string | null;
+  city: string | null;
   employment_type: string | null;
   description: string | null;
   salary_min: number | null;
   salary_max: number | null;
   created_at: string | null;
   is_active: boolean | null;
+  distance_km?: number;
   companies: {
     name: string;
     logo_url: string | null;
@@ -37,6 +40,7 @@ interface JobResultsProps {
     title?: string;
     location?: string;
     employmentType?: string;
+    radius?: number;
   };
 }
 
@@ -63,9 +67,79 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
   const [localLocationFilter, setLocalLocationFilter] = useState("");
   const [initiativeOpen, setInitiativeOpen] = useState(false);
 
+  // Check if location is a PLZ (5 digits)
+  const isPLZ = (value: string) => /^\d{5}$/.test(value.trim());
+
   const { data: jobs, isLoading, error } = useQuery({
     queryKey: ["jobs", searchFilters],
     queryFn: async () => {
+      // If searching by PLZ with radius, use the radius search function
+      if (searchFilters.location && isPLZ(searchFilters.location) && searchFilters.radius) {
+        const { data: radiusJobs, error: radiusError } = await supabase
+          .rpc('search_jobs_by_radius', {
+            search_postal_code: searchFilters.location.trim(),
+            radius_km: searchFilters.radius
+          });
+
+        if (radiusError) throw radiusError;
+
+        // Get full job details for the found jobs
+        if (radiusJobs && radiusJobs.length > 0) {
+          const jobIds = radiusJobs.map((j: any) => j.id);
+          
+          let query = supabase
+            .from("jobs")
+            .select(`
+              id,
+              title,
+              company,
+              company_id,
+              location,
+              postal_code,
+              city,
+              employment_type,
+              description,
+              salary_min,
+              salary_max,
+              created_at,
+              is_active,
+              companies!inner (
+                name,
+                logo_url,
+                is_active
+              )
+            `)
+            .in("id", jobIds)
+            .eq("companies.is_active", true);
+
+          if (searchFilters.title) {
+            query = query.or(`title.ilike.%${searchFilters.title}%,description.ilike.%${searchFilters.title}%`);
+          }
+
+          if (searchFilters.employmentType) {
+            query = query.eq("employment_type", searchFilters.employmentType);
+          }
+
+          const { data, error } = await query;
+          if (error) throw error;
+
+          // Add distance info to jobs
+          const jobsWithDistance = (data || []).map(job => {
+            const radiusJob = radiusJobs.find((rj: any) => rj.id === job.id);
+            return {
+              ...job,
+              distance_km: radiusJob?.distance_km
+            };
+          });
+
+          // Sort by distance
+          return jobsWithDistance.sort((a, b) => (a.distance_km || 0) - (b.distance_km || 0)) as JobWithCompany[];
+        }
+        
+        return [];
+      }
+
+      // Standard search without radius
       let query = supabase
         .from("jobs")
         .select(`
@@ -74,6 +148,8 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
           company,
           company_id,
           location,
+          postal_code,
+          city,
           employment_type,
           description,
           salary_min,
@@ -96,7 +172,7 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
       }
 
       if (searchFilters.location) {
-        query = query.ilike("location", `%${searchFilters.location}%`);
+        query = query.or(`location.ilike.%${searchFilters.location}%,city.ilike.%${searchFilters.location}%,postal_code.ilike.%${searchFilters.location}%`);
       }
 
       if (searchFilters.employmentType) {
@@ -120,7 +196,9 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
         job.description?.toLowerCase().includes(localTitleFilter.toLowerCase());
       
       const matchesLocation = !localLocationFilter ||
-        job.location?.toLowerCase().includes(localLocationFilter.toLowerCase());
+        job.location?.toLowerCase().includes(localLocationFilter.toLowerCase()) ||
+        job.city?.toLowerCase().includes(localLocationFilter.toLowerCase()) ||
+        job.postal_code?.includes(localLocationFilter);
       
       return matchesTitle && matchesLocation;
     });
@@ -138,18 +216,24 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
     );
   }
 
+  const isRadiusSearch = searchFilters.location && isPLZ(searchFilters.location) && searchFilters.radius;
+
   return (
     <section id="job-results" className="py-16 bg-gradient-to-b from-background to-secondary/30">
       <div className="container">
         {/* Header */}
         <div className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
-            {searchFilters.title || searchFilters.location
+            {isRadiusSearch
+              ? `Jobs im Umkreis von ${searchFilters.radius} km`
+              : searchFilters.title || searchFilters.location
               ? "Suchergebnisse"
               : "Aktuelle Stellenangebote"}
           </h2>
           <p className="text-muted-foreground text-lg">
-            Finden Sie Ihre nächste Karrierechance in der Steuerberatung
+            {isRadiusSearch
+              ? `Stellenangebote im Umkreis von ${searchFilters.location}`
+              : "Finden Sie Ihre nächste Karrierechance in der Steuerberatung"}
           </p>
         </div>
 
@@ -188,6 +272,12 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
               ) : (
                 <>
                   <span className="font-semibold text-foreground">{filteredJobs.length}</span> Stellenangebote gefunden
+                  {isRadiusSearch && (
+                    <span className="ml-2 inline-flex items-center gap-1 text-primary">
+                      <Navigation className="h-3 w-3" />
+                      Umkreissuche aktiv
+                    </span>
+                  )}
                   {(localTitleFilter || localLocationFilter) && (
                     <button 
                       onClick={() => { setLocalTitleFilter(""); setLocalLocationFilter(""); }}
@@ -293,8 +383,14 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
                     <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-3">
                       <div className="flex items-center gap-1.5">
                         <MapPin className="h-4 w-4 text-primary/70" />
-                        <span>{job.location || "Remote"}</span>
+                        <span>{job.postal_code && job.city ? `${job.postal_code} ${job.city}` : job.location || "Remote"}</span>
                       </div>
+                      {job.distance_km !== undefined && (
+                        <div className="flex items-center gap-1.5 text-primary">
+                          <Navigation className="h-4 w-4" />
+                          <span>{job.distance_km.toFixed(1)} km entfernt</span>
+                        </div>
+                      )}
                       <div className="flex items-center gap-1.5">
                         <Clock className="h-4 w-4 text-primary/70" />
                         <span>
@@ -347,7 +443,9 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
               Keine Stellenangebote gefunden
             </h3>
             <p className="text-muted-foreground max-w-md mx-auto mb-4">
-              Versuchen Sie es mit anderen Suchbegriffen oder bewerben Sie sich initiativ – wir finden die passende Kanzlei für Sie!
+              {isRadiusSearch 
+                ? `Keine Jobs im Umkreis von ${searchFilters.radius} km gefunden. Versuchen Sie einen größeren Radius.`
+                : "Versuchen Sie es mit anderen Suchbegriffen oder bewerben Sie sich initiativ – wir finden die passende Kanzlei für Sie!"}
             </p>
             <div className="flex items-center justify-center gap-3">
               {(localTitleFilter || localLocationFilter) && (

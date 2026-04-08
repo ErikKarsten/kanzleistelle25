@@ -32,7 +32,7 @@ const NeeleContactDrawer = ({ open, onOpenChange }: NeeleContactDrawerProps) => 
     const leadData = {
       full_name: form.name.trim(),
       email: form.email.trim(),
-      phone: form.phone.trim() || null,
+      phone: form.phone.trim(),
       message: form.message.trim(),
       source_url: window.location.pathname,
     };
@@ -45,7 +45,6 @@ const NeeleContactDrawer = ({ open, onOpenChange }: NeeleContactDrawerProps) => 
       return;
     }
 
-    // Fire-and-forget email notification
     supabase.functions.invoke("notify-new-lead", { body: leadData }).catch(console.error);
 
     setSending(false);
@@ -83,7 +82,6 @@ const NeeleContactDrawer = ({ open, onOpenChange }: NeeleContactDrawerProps) => 
           </p>
         </SheetHeader>
 
-        {/* Success state */}
         {sent ? (
           <div className="flex flex-col items-center gap-4 py-10 text-center">
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
@@ -100,7 +98,6 @@ const NeeleContactDrawer = ({ open, onOpenChange }: NeeleContactDrawerProps) => 
             </Button>
           </div>
         ) : (
-          /* Contact form */
           <form onSubmit={handleSubmit} className="space-y-4 pt-2">
             <div>
               <Label htmlFor="contact-name" className="flex items-center gap-1.5 mb-1.5">
@@ -134,7 +131,7 @@ const NeeleContactDrawer = ({ open, onOpenChange }: NeeleContactDrawerProps) => 
             <div>
               <Label htmlFor="contact-phone" className="flex items-center gap-1.5 mb-1.5">
                 <Phone className="h-4 w-4 text-muted-foreground" strokeWidth={1.5} />
-                Telefon (optional)
+                Telefon *
               </Label>
               <Input
                 id="contact-phone"
@@ -142,6 +139,7 @@ const NeeleContactDrawer = ({ open, onOpenChange }: NeeleContactDrawerProps) => 
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 placeholder="+49 ..."
+                required
                 maxLength={30}
               />
             </div>
