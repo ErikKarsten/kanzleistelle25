@@ -102,6 +102,7 @@ const ChatWindow = ({
 
   const sendMutation = useMutation({
     mutationFn: async (content: string) => {
+      // 1. Nachricht in Supabase speichern (wie bisher)
       const { error } = await supabase.from("messages").insert({
         application_id: applicationId,
         sender_id: user?.id,
@@ -109,6 +110,26 @@ const ChatWindow = ({
         content: content.trim(),
       } as any);
       if (error) throw error;
+
+      // 2. NEU: Benachrichtigungs-Mail an euch (nur wenn Bewerber schreibt)
+      if (senderType === "applicant") {
+        await supabase.functions.invoke("send-contact-email", {
+          body: {
+            to_email: "info@kanzleistelle24.de",
+            to_name: "Kanzleistelle24 Team",
+            subject: `📬 Neue Nachricht von ${applicantName} – ${jobTitle}`,
+            html: `
+              <h2>Neue Nachricht eingegangen</h2>
+              <p><strong>Von:</strong> ${applicantName}</p>
+              <p><strong>Stelle:</strong> ${jobTitle}</p>
+              <p><strong>Nachricht:</strong></p>
+              <p style="background:#f4f4f4;padding:12px;border-radius:8px;">${content.trim()}</p>
+              <br/>
+              <a href="https://kanzleistelle24.de/dashboard" style="background:#000;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;">Zum Dashboard</a>
+            `,
+          },
+        });
+      }
     },
     onSuccess: () => {
       setMessage("");
