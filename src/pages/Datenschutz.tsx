@@ -119,17 +119,25 @@ const Datenschutz = () => {
                 </h3>
                 <p className="mb-3">Wir hosten die Inhalte unserer Website bei folgenden Anbietern:</p>
 
+                <h4 className="font-semibold text-foreground mt-4 mb-1">Cloudflare (CDN &amp; Infrastruktur)</h4>
+                <p className="mb-3">
+                  Anbieter ist die Cloudflare Inc., 101 Townsend St, San Francisco, CA 94107, USA. Wir nutzen Cloudflare als Content Delivery Network (CDN) für die weltweite Auslieferung unserer Website, DDoS-Schutz und Security-Features. Die Datenverarbeitung erfolgt auf Grundlage von Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;f DSGVO (berechtigtes Interesse an Website-Sicherheit und Performance). Die Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission gestützt. Details finden Sie unter:{" "}
+                  <a href="https://www.cloudflare.com/de-de/privacypolicy/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                    https://www.cloudflare.com/de-de/privacypolicy/
+                  </a>.
+                </p>
+
+                <h4 className="font-semibold text-foreground mt-4 mb-1">Supabase (Datenbank &amp; Backend)</h4>
+                <p className="mb-3">
+                  Anbieter ist die Supabase Inc., 970 Summer St, Stamford, CT 06905, USA. Wir nutzen Supabase zur Speicherung Ihrer Eingaben im Kontaktformular (Leads) und als Backend für unsere Kandidaten- und Kanzlei-Profile. Die Datenverarbeitung erfolgt auf Grundlage von Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;f DSGVO. Unser berechtigtes Interesse ist die sichere Speicherung und effiziente Verwaltung von Kundenanfragen und Kandidatendaten. Die Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission gestützt.
+                </p>
+
                 <h4 className="font-semibold text-foreground mt-4 mb-1">Vercel (Frontend-Hosting)</h4>
                 <p className="mb-3">
                   Anbieter ist die Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA. Vercel dient der Bereitstellung der Website-Oberfläche. Details entnehmen Sie der Datenschutzerklärung von Vercel:{" "}
                   <a href="https://vercel.com/legal/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
                     https://vercel.com/legal/privacy
                   </a>.
-                </p>
-
-                <h4 className="font-semibold text-foreground mt-4 mb-1">Supabase (Datenbank &amp; Backend)</h4>
-                <p>
-                  Anbieter ist die Supabase Inc., 970 Summer St, Stamford, CT 06905, USA. Wir nutzen Supabase zur Speicherung Ihrer Eingaben im Kontaktformular (Leads). Die Datenverarbeitung erfolgt auf Grundlage von Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;f DSGVO. Unser berechtigtes Interesse ist die sichere Speicherung und effiziente Verwaltung von Kundenanfragen. Die Datenübertragung in die USA wird auf die Standardvertragsklauseln der EU-Kommission gestützt.
                 </p>
               </section>
 
@@ -154,9 +162,14 @@ const Datenschutz = () => {
                   </p>
                 </div>
 
+                <h4 className="font-semibold text-foreground mt-4 mb-1">Recht auf Löschung (Art. 17 DSGVO)</h4>
+                <p className="mb-3">
+                  Sie haben das Recht, die Löschung Ihrer personenbezogenen Daten zu verlangen. Kontaktieren Sie uns unter der oben angegebenen E-Mail-Adresse mit dem Betreff „Datenlöschung" und Ihrer Benutzer-ID. Wir werden Ihre Anfrage innerhalb von 30 Tagen bearbeiten.
+                </p>
+
                 <h4 className="font-semibold text-foreground mt-4 mb-1">Speicherdauer</h4>
                 <p>
-                  Soweit keine speziellere Speicherdauer genannt wurde, verbleiben Ihre Daten bei uns, bis der Zweck für die Datenverarbeitung entfällt (z.&nbsp;B. nach abgeschlossener Bearbeitung Ihrer Recruiting-Anfrage).
+                  Soweit keine speziellere Speicherdauer genannt wurde, verbleiben Ihre Daten bei uns, bis der Zweck für die Datenverarbeitung entfällt (z.&nbsp;B. nach abgeschlossener Bearbeitung Ihrer Recruiting-Anfrage). Ihre Daten werden dann gelöscht, sofern keine Aufbewahrungsfristen nach deutschem oder europäischem Recht gelten.
                 </p>
               </section>
 
