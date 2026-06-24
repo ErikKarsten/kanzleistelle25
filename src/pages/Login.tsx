@@ -11,6 +11,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { LogIn, ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { candidateLoginSchema } from "@/lib/schemas";
+import { checkRateLimit } from "@/lib/ratelimit";
+import { z } from "zod";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -18,7 +21,6 @@ const Login = () => {
   const { isAuthenticated, role, isLoading: authLoading, refreshAuth } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [debugInfo, setDebugInfo] = useState<string | null>(null);
-  const [failCount, setFailCount] = useState(0);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -43,9 +45,27 @@ const Login = () => {
     setDebugInfo(null);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      // ✅ RATE LIMITING CHECK
+      const rateLimit = await checkRateLimit(formData.email, 5, 3600000);
+      if (!rateLimit.success) {
+        toast({
+          title: "Zu viele Login-Versuche",
+          description: "Versuche es in 1 Stunde erneut.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // ✅ INPUT VALIDATION MIT ZOD
+      const validated = candidateLoginSchema.parse({
         email: formData.email,
         password: formData.password,
+      });
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: validated.email,
+        password: validated.password,
       });
 
       if (error) throw error;
@@ -106,22 +126,31 @@ const Login = () => {
       }
     } catch (error: any) {
       console.error("Login error:", error);
-      const newCount = failCount + 1;
-      setFailCount(newCount);
-      
+
+      // ✅ VALIDIERUNGSFEHLER ABFANGEN
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Validierungsfehler",
+          description: error.issues[0].message,
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
       const isRateLimited = error.message?.toLowerCase().includes("rate") || error.status === 429;
-      
+
       toast({
         title: "Anmeldung fehlgeschlagen",
         description: isRateLimited
-          ? "Zu viele Versuche. Supabase hat den Zugang vorübergehend gesperrt. Bitte warten Sie einige Minuten."
+          ? "Zu viele Versuche. Bitte warten Sie einige Minuten."
           : "E-Mail oder Passwort falsch. Bitte prüfen Sie Ihre Eingaben.",
         variant: "destructive",
       });
 
-      if (newCount >= 5 && !isRateLimited) {
+      if (!isRateLimited) {
         setDebugInfo(
-          "Sie haben mehrfach ein falsches Passwort eingegeben. Nach weiteren Fehlversuchen wird Ihr Zugang vorübergehend durch ein automatisches Ratelimit gesperrt."
+          "Mehrfach falsches Passwort eingegeben. Nach weiteren Fehlversuchen wird Ihr Zugang vorübergehend gesperrt."
         );
       }
     } finally {

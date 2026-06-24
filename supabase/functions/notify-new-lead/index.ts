@@ -14,7 +14,6 @@ serve(async (req) => {
   try {
     const { full_name, email, phone, message, source_url } = await req.json();
 
-    // Build a simple HTML email
     const html = `
       <h2>Neue Kontaktanfrage über Kanzleistelle24</h2>
       <table style="border-collapse:collapse;">
@@ -27,36 +26,32 @@ serve(async (req) => {
       <p style="white-space:pre-wrap;">${message}</p>
     `;
 
-    // Use Supabase's built-in SMTP / inbucket or a simple fetch to an SMTP relay
-    // We'll use the Resend-style approach via LOVABLE_API_KEY if available,
-    // otherwise fall back to logging
-    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+    const BREVO_API_KEY = Deno.env.get("BREVO_API_KEY");
 
-    if (RESEND_API_KEY) {
-      const res = await fetch("https://api.resend.com/emails", {
+    if (BREVO_API_KEY) {
+      const res = await fetch("https://api.brevo.com/v3/smtp/email", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${RESEND_API_KEY}`,
+          "api-key": BREVO_API_KEY,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "Kanzleistelle24 <noreply@kanzleistelle24.de>",
-          to: ["info@kanzleistelle24.de"],
-          subject: `Neue Kontaktanfrage von ${full_name}`,
-          html,
-          reply_to: email,
+          sender: { name: "Kanzleistelle24", email: "info@kanzleistelle24.de" },
+          to: [{ email: "info@kanzleistelle24.de", name: "Kanzleistelle24 Team" }],
+          subject: `📬 Neue Kontaktanfrage von ${full_name}`,
+          htmlContent: html,
+          replyTo: { email: email, name: full_name },
         }),
       });
 
       if (!res.ok) {
         const errBody = await res.text();
-        console.error("Resend error:", res.status, errBody);
-        // Don't fail the request – lead is already saved in DB
+        console.error("Brevo error:", res.status, errBody);
       } else {
         console.log("Email sent successfully to info@kanzleistelle24.de");
       }
     } else {
-      console.warn("RESEND_API_KEY not set – skipping email notification. Lead is saved in DB.");
+      console.warn("BREVO_API_KEY not set – skipping email notification. Lead is saved in DB.");
     }
 
     return new Response(JSON.stringify({ success: true }), {
