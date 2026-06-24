@@ -27,7 +27,6 @@ import ArticleDetail from "./pages/ArticleDetail";
 import Impressum from "./pages/Impressum";
 import AGB from "./pages/AGB";
 import Datenschutz from "./pages/Datenschutz";
-import { CookieBanner } from "@/components/CookieBanner";
 import BewerberDashboard from "./pages/BewerberDashboard";
 import PasswortVergessen from "./pages/PasswortVergessen";
 import PasswortZuruecksetzen from "./pages/PasswortZuruecksetzen";
@@ -77,7 +76,6 @@ const App = () => (
             </Routes>
           </BrowserRouter>
           <NeeleContactElements />
-          <CookieBanner />
         </TooltipProvider>
       </AuthProvider>
     </QueryClientProvider>
