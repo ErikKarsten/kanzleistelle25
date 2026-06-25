@@ -7,7 +7,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ChatWindow from "@/components/ChatWindow";
 import WithdrawDialog from "@/components/applicant/WithdrawDialog";
-import DeleteAccountDialog from "@/components/applicant/DeleteAccountDialog";
+import { DeleteAccountButton } from "@/components/DeleteAccountButton";
 import ApplicationDetailModal from "@/components/applicant/ApplicationDetailModal";
 import RecentMessagesApplicant from "@/components/applicant/RecentMessagesApplicant";
 import ApplicantProfileEditor from "@/components/applicant/ApplicantProfileEditor";
@@ -60,7 +60,6 @@ const BewerberDashboard = () => {
   const [selectedApp, setSelectedApp] = useState<any>(null);
   const [detailApp, setDetailApp] = useState<any>(null);
   const [withdrawApp, setWithdrawApp] = useState<any>(null);
-  const [showDeleteAccount, setShowDeleteAccount] = useState(false);
   const [profileApp, setProfileApp] = useState<any>(null);
   const [mainTab, setMainTab] = useState("applications");
   const [onboardingOpen, setOnboardingOpen] = useState(false);
@@ -426,15 +425,7 @@ const BewerberDashboard = () => {
                   <p className="text-sm text-muted-foreground mt-1">
                     Alle deine Bewerbungen, Nachrichten und persönlichen Daten werden unwiderruflich entfernt.
                   </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="mt-3 border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
-                    onClick={() => setShowDeleteAccount(true)}
-                  >
-                    <Trash2 className="h-4 w-4 mr-1.5" />
-                    Mein Konto löschen
-                  </Button>
+                  <DeleteAccountButton />
                 </div>
               </div>
             </CardContent>
@@ -475,10 +466,6 @@ const BewerberDashboard = () => {
         />
       )}
 
-      <DeleteAccountDialog
-        open={showDeleteAccount}
-        onOpenChange={setShowDeleteAccount}
-      />
 
       {applications && applications.length > 0 && (
         <ProfileOnboardingPopup
