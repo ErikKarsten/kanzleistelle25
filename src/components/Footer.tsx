@@ -4,7 +4,7 @@ import { Mail, Phone, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import NeeleContactDrawer from "./NeeleContactDrawer";
 import neeleImage from "@/assets/neele-ehlers.webp";
-import fullLogo from "@/assets/kanzleistelle24-logo-full.webp";
+import logoHell from "@/assets/logo-hell.png";
 
 const Footer = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -66,9 +66,9 @@ const Footer = () => {
           <div className="col-span-2 md:col-span-1">
             <Link to="/" className="block mb-4">
               <img
-                src={fullLogo}
-                alt="Kanzleistelle24 – Hier startet deine Steuerkarriere"
-                className="h-20 w-auto"
+                src={logoHell}
+                alt="Kanzleistelle24"
+                className="h-8 w-auto"
                 loading="lazy"
                 decoding="async"
               />

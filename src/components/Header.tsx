@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Menu, X, User, LayoutDashboard, LogOut, Building2, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import shieldLogo from "@/assets/kanzleistelle24-shield.webp";
+import logoHell from "@/assets/logo-hell.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,8 +43,7 @@ const Header = () => {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <img src={shieldLogo} alt="Kanzleistelle24 Logo" className="h-9 w-9" decoding="async" />
-          <span className="text-xl font-bold text-primary tracking-tight">KANZLEISTELLE24.DE</span>
+          <img src={logoHell} alt="Kanzleistelle24" className="h-8 w-auto" decoding="async" />
         </Link>
 
         {/* Desktop Navigation */}
