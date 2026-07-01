@@ -16,7 +16,7 @@ const Impressum = () => {
             <p className="text-muted-foreground mt-1">Inhaber: Erik Karsten</p>
             <div className="flex items-start gap-2 mt-4 text-muted-foreground">
               <MapPin className="h-5 w-5 text-primary shrink-0 mt-0.5" strokeWidth={1.5} />
-              <span>Christian-Pommer-Straße 58<br />38112 Braunschweig</span>
+              <span>Frankfurter Str. 284<br />38122 Braunschweig</span>
             </div>
           </section>
 

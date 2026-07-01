@@ -152,8 +152,8 @@ const Datenschutz = () => {
                 <div className="rounded-lg border bg-secondary/40 p-5 mb-4 text-sm space-y-1">
                   <p className="font-semibold text-foreground">Kanzleistelle24</p>
                   <p>Inhaber: Erik Karsten</p>
-                  <p>Christian-Pommer-Straße 58</p>
-                  <p>38112 Braunschweig</p>
+                  <p>Frankfurter Str. 284</p>
+                  <p>38122 Braunschweig</p>
                   <p className="mt-2">
                     E-Mail:{" "}
                     <a href="mailto:info@kanzleistelle24.de" className="text-primary hover:underline">
