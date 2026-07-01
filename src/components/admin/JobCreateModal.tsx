@@ -18,7 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Briefcase, Plus, Loader2, X } from "lucide-react";
+import { Briefcase, Plus, Loader2, X, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 interface Company {
@@ -78,6 +78,7 @@ const JobCreateModal = ({
 }: JobCreateModalProps) => {
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
   const [formData, setFormData] = useState(initialFormData);
+  const [aiLoading, setAiLoading] = useState(false);
   const [requirements, setRequirements] = useState<string[]>([]);
   const [benefits, setBenefits] = useState<string[]>([]);
   const [requirementInput, setRequirementInput] = useState("");
@@ -197,6 +198,35 @@ const JobCreateModal = ({
       toast.error("Fehler beim Erstellen", { description: message });
     },
   });
+
+  const handleAiImprove = async () => {
+    if (!formData.description) return;
+    setAiLoading(true);
+    try {
+      const res = await fetch(
+        "https://myvjwpbhdnnrkwazudnh.supabase.co/functions/v1/ai-rewrite",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            title: formData.title || "Stelle",
+            company: selectedCompany?.name || "",
+            description: formData.description,
+          }),
+        }
+      );
+      const data = await res.json();
+      if (data.text) {
+        setFormData((prev) => ({ ...prev, description: data.text }));
+      }
+    } catch (e) {
+      alert("Fehler beim Verbessern");
+    }
+    setAiLoading(false);
+  };
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -343,6 +373,16 @@ const JobCreateModal = ({
               placeholder="Beschreiben Sie die Position..."
               rows={4}
             />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleAiImprove}
+              disabled={aiLoading || !formData.description}
+            >
+              <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+              {aiLoading ? "Wird verbessert..." : "Mit KI verbessern"}
+            </Button>
           </div>
 
           <div className="space-y-3">
