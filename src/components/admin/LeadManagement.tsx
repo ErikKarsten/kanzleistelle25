@@ -51,6 +51,8 @@ const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
 const LeadManagement = () => {
   const queryClient = useQueryClient();
   const [selectedLead, setSelectedLead] = useState<ContactLead | null>(null);
+  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const { data: leads, isLoading } = useQuery({
     queryKey: ["admin-contact-leads"],
@@ -96,17 +98,33 @@ const LeadManagement = () => {
   });
 
   const newCount = leads?.filter((l) => l.status === "neu").length ?? 0;
+  const totalPages = Math.ceil((leads?.length ?? 0) / pageSize);
+  const paginatedLeads = (leads ?? []).slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <Card className="border-none shadow-md">
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg font-semibold flex items-center gap-2">
-          <Inbox className="h-5 w-5 text-primary" strokeWidth={1.5} />
-          Posteingang
-          {newCount > 0 && (
-            <Badge className="bg-yellow-100 text-yellow-800">{newCount} neu</Badge>
-          )}
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg font-semibold flex items-center gap-2">
+            <Inbox className="h-5 w-5 text-primary" strokeWidth={1.5} />
+            Posteingang
+            {newCount > 0 && (
+              <Badge className="bg-yellow-100 text-yellow-800">{newCount} neu</Badge>
+            )}
+          </CardTitle>
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-muted-foreground">Einträge pro Seite:</span>
+            <select
+              value={pageSize}
+              onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
+              className="border rounded px-2 py-1 text-sm bg-background"
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -129,7 +147,7 @@ const LeadManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {leads.map((lead) => {
+                {paginatedLeads.map((lead) => {
                   const isNew = lead.status === "neu";
                   return (
                     <TableRow
@@ -175,6 +193,30 @@ const LeadManagement = () => {
                 })}
               </TableBody>
             </Table>
+          </div>
+        )}
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              Zurück
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              Seite {currentPage} von {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Weiter
+            </Button>
           </div>
         )}
 

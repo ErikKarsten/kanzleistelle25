@@ -62,7 +62,7 @@ const JobManagement = () => {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("pending");
+  const [activeTab, setActiveTab] = useState("active");
   const [searchQuery, setSearchQuery] = useState("");
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
@@ -306,11 +306,11 @@ const JobManagement = () => {
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full max-w-[420px] grid-cols-3">
+              <TabsTrigger value="active">Aktiv ({stats.activeJobs})</TabsTrigger>
               <TabsTrigger value="pending" className="relative">
                 Freigabe ({stats.pendingJobs})
                 {stats.pendingJobs > 0 && <span className="ml-1 inline-flex h-2 w-2 rounded-full bg-yellow-500" />}
               </TabsTrigger>
-              <TabsTrigger value="active">Aktiv ({stats.activeJobs})</TabsTrigger>
               <TabsTrigger value="inactive">Inaktiv ({stats.inactiveJobs})</TabsTrigger>
             </TabsList>
 

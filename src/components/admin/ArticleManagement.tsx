@@ -93,6 +93,8 @@ const ArticleManagement = () => {
   const [previewArticle, setPreviewArticle] = useState<Article | null>(null);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
   const [form, setForm] = useState<ArticleForm>(emptyForm);
+  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
   const queryClient = useQueryClient();
 
   const { data: articles, isLoading } = useQuery({
@@ -230,6 +232,9 @@ const ArticleManagement = () => {
     saveMutation.mutate({ ...form, id: editingArticle?.id });
   };
 
+  const totalPages = Math.ceil((articles?.length ?? 0) / pageSize);
+  const paginatedArticles = (articles ?? []).slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "–";
     return new Date(dateStr).toLocaleDateString("de-DE", {
@@ -260,10 +265,24 @@ const ArticleManagement = () => {
     <Card className="border-none shadow-md">
       <CardHeader className="pb-4 flex flex-row items-center justify-between">
         <CardTitle className="text-lg font-semibold">Blog-Verwaltung</CardTitle>
-        <Button size="sm" onClick={openCreate}>
-          <Plus className="h-4 w-4 mr-2" />
-          Neuer Artikel
-        </Button>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-muted-foreground">Einträge pro Seite:</span>
+            <select
+              value={pageSize}
+              onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
+              className="border rounded px-2 py-1 text-sm bg-background"
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
+          </div>
+          <Button size="sm" onClick={openCreate}>
+            <Plus className="h-4 w-4 mr-2" />
+            Neuer Artikel
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         {isLoading ? (
@@ -290,7 +309,7 @@ const ArticleManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {articles.map((article) => {
+                {paginatedArticles.map((article) => {
                   const isArchived = article.status === "archived";
                   return (
                     <TableRow
@@ -403,6 +422,30 @@ const ArticleManagement = () => {
                 })}
               </TableBody>
             </Table>
+          </div>
+        )}
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              Zurück
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              Seite {currentPage} von {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Weiter
+            </Button>
           </div>
         )}
       </CardContent>

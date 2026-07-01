@@ -242,16 +242,16 @@ const ApplicationDetailsModal = ({
           {/* Action Buttons */}
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex gap-2">
-              {(application.user_id || application.applicant_id) && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setMatchOpen(true)}
-                >
-                  <UserPlus className="h-4 w-4 mr-1" />
-                  Kanzlei vorschlagen
-                </Button>
-              )}
+              <Button
+                variant="outline"
+                size="sm"
+                disabled
+                title="Funktion bald verfügbar"
+                className="opacity-50 cursor-not-allowed"
+              >
+                <UserPlus className="h-4 w-4 mr-1" />
+                Kanzlei vorschlagen
+              </Button>
               {onArchive && (
                 <Button
                   variant="secondary"

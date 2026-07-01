@@ -128,6 +128,7 @@ const JobDetailsModal = ({
   onDelete,
 }: JobDetailsModalProps) => {
   const [activeTab, setActiveTab] = useState("preview");
+  const [aiLoading, setAiLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     location: "",
@@ -221,6 +222,37 @@ const JobDetailsModal = ({
     (job.salary_min && job.salary_max
       ? `${job.salary_min.toLocaleString("de-DE")} – ${job.salary_max.toLocaleString("de-DE")} €`
       : null);
+
+  const handleAiRewrite = async () => {
+    if (!formData.description) return;
+    setAiLoading(true);
+    try {
+      const res = await fetch(
+        "https://myvjwpbhdnnrkwazudnh.supabase.co/functions/v1/ai-rewrite",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            title: formData.title,
+            company: job.company,
+            description: formData.description,
+          }),
+        }
+      );
+      const data = await res.json();
+      const newText = data.text;
+      if (newText) {
+        setFormData({ ...formData, description: newText });
+      }
+    } catch (e) {
+      console.error("KI-Fehler:", e);
+      alert("Fehler beim Umschreiben");
+    }
+    setAiLoading(false);
+  };
 
   const handleSave = () => {
     if (!formData.title.trim()) {
@@ -425,6 +457,15 @@ const JobDetailsModal = ({
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   rows={3}
                 />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAiRewrite}
+                  disabled={aiLoading || !formData.description}
+                >
+                  {aiLoading ? "Wird umgeschrieben..." : "✨ KI: Beschreibung umschreiben"}
+                </Button>
               </div>
               <div className="space-y-2 col-span-2">
                 <Label htmlFor="job-requirements">Anforderungen (eine pro Zeile)</Label>

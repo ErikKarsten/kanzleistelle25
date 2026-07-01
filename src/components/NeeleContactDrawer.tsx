@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Send, CheckCircle, User, Mail, Phone, MessageSquare } from "lucide-react";
+import { Send, CheckCircle, User, Mail, Phone, MessageSquare, Linkedin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import neeleImage from "@/assets/neele-ehlers.webp";
@@ -74,6 +74,16 @@ const NeeleContactDrawer = ({ open, onOpenChange }: NeeleContactDrawerProps) => 
               <SheetDescription className="text-sm mt-0.5">
                 Recruiting Managerin
               </SheetDescription>
+              <a
+                href="https://www.linkedin.com/in/neele-ehlers-1b80a4289/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 text-sm mt-1.5 justify-center"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Linkedin className="h-4 w-4" />
+                LinkedIn
+              </a>
             </div>
           </div>
           <p className="text-sm text-muted-foreground leading-relaxed pt-2">

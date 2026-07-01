@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MessageCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { MessageCircle, ChevronDown, ChevronUp, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import NeeleContactDrawer from "./NeeleContactDrawer";
@@ -47,6 +47,16 @@ const NeeleContactElements = () => {
                 <p className="text-sm text-muted-foreground mt-0.5">
                   Recruiting Managerin
                 </p>
+                <a
+                  href="https://www.linkedin.com/in/neele-ehlers-1b80a4289/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 text-sm mt-1.5 justify-center"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Linkedin className="h-4 w-4" />
+                  LinkedIn
+                </a>
               </div>
               <Button className="w-full gap-2" size="default">
                 <MessageCircle className="h-4 w-4" />

@@ -50,6 +50,8 @@ const TalentPool = () => {
   const [selectedCompanyId, setSelectedCompanyId] = useState("");
   const [selectedJobId, setSelectedJobId] = useState("none");
   const [adminNote, setAdminNote] = useState("");
+  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Fetch initiative applications (no job_id, source: initiative)
   const { data: talents, isLoading } = useQuery({
@@ -175,6 +177,8 @@ const TalentPool = () => {
   };
 
   const talentCount = talents?.length ?? 0;
+  const totalPages = Math.ceil(talentCount / pageSize);
+  const paginatedTalents = (talents ?? []).slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <Card className="border-none shadow-md">
@@ -188,6 +192,18 @@ const TalentPool = () => {
                 {talentCount} neue Talente
               </Badge>
             )}
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-muted-foreground">Einträge pro Seite:</span>
+            <select
+              value={pageSize}
+              onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
+              className="border rounded px-2 py-1 text-sm bg-background"
+            >
+              <option value={10}>10</option>
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+            </select>
           </div>
         </div>
         <p className="text-sm text-muted-foreground mt-1">
@@ -213,7 +229,7 @@ const TalentPool = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {talents.map((talent) => (
+                {paginatedTalents.map((talent) => (
                   <TableRow key={talent.id}>
                     <TableCell className="font-medium">
                       {talent.first_name} {talent.last_name}
@@ -241,10 +257,9 @@ const TalentPool = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => {
-                          setSelectedTalent(talent);
-                          setAssignOpen(true);
-                        }}
+                        disabled
+                        title="Funktion bald verfügbar"
+                        className="opacity-50 cursor-not-allowed"
                       >
                         <Building2 className="h-3.5 w-3.5 mr-1" />
                         Kanzlei zuweisen
@@ -259,6 +274,30 @@ const TalentPool = () => {
           <p className="text-sm text-muted-foreground text-center py-8">
             Aktuell keine Initiativbewerbungen im Talent-Pool.
           </p>
+        )}
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              Zurück
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              Seite {currentPage} von {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Weiter
+            </Button>
+          </div>
         )}
 
         {/* Assignment Dialog */}

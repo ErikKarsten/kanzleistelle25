@@ -45,6 +45,8 @@ interface ApplicationsTableProps {
 
 const ApplicationsTable = ({ applications, onViewDetails }: ApplicationsTableProps) => {
   const [matchApp, setMatchApp] = useState<ApplicationWithJob | null>(null);
+  const [pageSize, setPageSize] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const handleOpenResume = async (app: ApplicationWithJob) => {
     if (!app.resume_url) return;
@@ -70,8 +72,26 @@ const ApplicationsTable = ({ applications, onViewDetails }: ApplicationsTablePro
     );
   }
 
+  const totalPages = Math.ceil(applications.length / pageSize);
+  const paginatedApplications = applications.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   return (
     <>
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-sm text-muted-foreground">{applications.length} Bewerbungen</p>
+        <div className="flex items-center gap-2 text-sm">
+          <span className="text-muted-foreground">Einträge pro Seite:</span>
+          <select
+            value={pageSize}
+            onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
+            className="border rounded px-2 py-1 text-sm bg-background"
+          >
+            <option value={10}>10</option>
+            <option value={25}>25</option>
+            <option value={50}>50</option>
+          </select>
+        </div>
+      </div>
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
@@ -88,7 +108,7 @@ const ApplicationsTable = ({ applications, onViewDetails }: ApplicationsTablePro
             </TableRow>
           </TableHeader>
           <TableBody>
-            {applications.map((app) => (
+            {paginatedApplications.map((app) => (
               <TableRow key={app.id} className="hover:bg-muted/30">
                 <TableCell>
                   <button
@@ -137,9 +157,9 @@ const ApplicationsTable = ({ applications, onViewDetails }: ApplicationsTablePro
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={(e) => { e.stopPropagation(); setMatchApp(app); }}
-                      title="Anderer Kanzlei vorschlagen"
-                      disabled={!app.user_id && !app.applicant_id}
+                      disabled
+                      title="Funktion bald verfügbar"
+                      className="opacity-50 cursor-not-allowed"
                     >
                       <UserPlus className="h-4 w-4" />
                     </Button>
@@ -160,6 +180,30 @@ const ApplicationsTable = ({ applications, onViewDetails }: ApplicationsTablePro
           </TableBody>
         </Table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+          >
+            Zurück
+          </Button>
+          <span className="text-sm text-muted-foreground">
+            Seite {currentPage} von {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+          >
+            Weiter
+          </Button>
+        </div>
+      )}
 
       {matchApp && (
         <MatchApplicantDialog

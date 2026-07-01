@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, MapPin, Briefcase, Zap, Navigation } from "lucide-react";
+import { Search, MapPin, Zap, Navigation } from "lucide-react";
 import heroBackground from "@/assets/hero-background.webp";
 import genossenschaftLogo from "@/assets/genossenschaft-logo.webp";
 
@@ -19,15 +19,13 @@ interface HeroSectionProps {
 const HeroSection = ({ onSearch }: HeroSectionProps) => {
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
-  const [employmentType, setEmploymentType] = useState<string>("vollzeit");
   const [radius, setRadius] = useState<string>("25");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSearch({ 
-      title, 
-      location, 
-      employmentType: employmentType === "all" ? undefined : employmentType || undefined,
+    onSearch({
+      title,
+      location,
       radius: location ? parseInt(radius) : undefined
     });
   };
@@ -100,19 +98,6 @@ const HeroSection = ({ onSearch }: HeroSectionProps) => {
                     <SelectItem value="25">25 km</SelectItem>
                     <SelectItem value="50">50 km</SelectItem>
                     <SelectItem value="100">100 km</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="relative flex-1">
-                <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" strokeWidth={1.5} />
-                <Select value={employmentType} onValueChange={setEmploymentType}>
-                  <SelectTrigger className="pl-10 h-12 bg-background">
-                    <SelectValue placeholder="Anstellungsart" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover border shadow-md z-50">
-                    <SelectItem value="vollzeit">Vollzeit</SelectItem>
-                    <SelectItem value="teilzeit">Teilzeit</SelectItem>
-                    <SelectItem value="minijob">Minijob</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -66,6 +66,8 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
   const [localTitleFilter, setLocalTitleFilter] = useState("");
   const [localLocationFilter, setLocalLocationFilter] = useState("");
   const [initiativeOpen, setInitiativeOpen] = useState(false);
+  const [pageSize, setPageSize] = useState(5);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Check if location is a PLZ (5 digits)
   const isPLZ = (value: string) => /^\d{5}$/.test(value.trim());
@@ -204,6 +206,9 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
     });
   }, [jobs, localTitleFilter, localLocationFilter]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredJobs.length / pageSize));
+  const paginatedJobs = filteredJobs.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
   if (error) {
     return (
       <section id="job-results" className="py-16 bg-secondary/20">
@@ -245,7 +250,7 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
               <Input
                 placeholder="Jobtitel, z.B. Steuerfachangestellte..."
                 value={localTitleFilter}
-                onChange={(e) => setLocalTitleFilter(e.target.value)}
+                onChange={(e) => { setLocalTitleFilter(e.target.value); setCurrentPage(1); }}
                 className="pl-10 h-12 text-base border-border focus:border-primary"
               />
             </div>
@@ -254,7 +259,7 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
               <Input
                 placeholder="Stadt oder Region..."
                 value={localLocationFilter}
-                onChange={(e) => setLocalLocationFilter(e.target.value)}
+                onChange={(e) => { setLocalLocationFilter(e.target.value); setCurrentPage(1); }}
                 className="pl-10 h-12 text-base border-border focus:border-primary"
               />
             </div>
@@ -264,8 +269,8 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
             </Button>
           </div>
           
-          {/* Results count */}
-          <div className="mt-4 pt-4 border-t border-border">
+          {/* Results count + page size */}
+          <div className="mt-4 pt-4 border-t border-border flex items-center justify-between gap-4">
             <p className="text-sm text-muted-foreground">
               {isLoading ? (
                 "Lade Stellenangebote..."
@@ -279,8 +284,8 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
                     </span>
                   )}
                   {(localTitleFilter || localLocationFilter) && (
-                    <button 
-                      onClick={() => { setLocalTitleFilter(""); setLocalLocationFilter(""); }}
+                    <button
+                      onClick={() => { setLocalTitleFilter(""); setLocalLocationFilter(""); setCurrentPage(1); }}
                       className="ml-2 text-primary hover:underline"
                     >
                       Filter zurücksetzen
@@ -289,6 +294,16 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
                 </>
               )}
             </p>
+            <select
+              value={pageSize}
+              onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
+              className="border border-border rounded px-2 py-1 text-sm bg-background text-foreground"
+            >
+              <option value={5}>5 pro Seite</option>
+              <option value={10}>10 pro Seite</option>
+              <option value={25}>25 pro Seite</option>
+              <option value={50}>50 pro Seite</option>
+            </select>
           </div>
         </div>
 
@@ -310,8 +325,9 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
             ))}
           </div>
         ) : filteredJobs.length > 0 ? (
+          <>
           <div className="space-y-4">
-            {filteredJobs.map((job) => (
+            {paginatedJobs.map((job) => (
               <Card
                 key={job.id}
                 className="group overflow-hidden hover:shadow-lg hover:border-primary/30 transition-all duration-300 cursor-pointer"
@@ -434,6 +450,30 @@ const JobResults = ({ searchFilters }: JobResultsProps) => {
               </Card>
             ))}
           </div>
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-3 mt-8">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                Zurück
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                Seite {currentPage} von {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Weiter
+              </Button>
+            </div>
+          )}
+          </>
         ) : (
           <div className="text-center py-16 bg-card rounded-xl border border-border">
             <div className="w-16 h-16 bg-secondary rounded-full flex items-center justify-center mx-auto mb-4">

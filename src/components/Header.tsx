@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Menu, X, User, LayoutDashboard, LogOut, Building2, Settings } from "lucide-react";
+import { Menu, X, User, LayoutDashboard, LogOut, Building2, Settings, Instagram } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import logo from "@/assets/logo.svg";
 import {
@@ -63,6 +63,15 @@ const Header = () => {
         </nav>
 
         <div className="hidden md:flex items-center gap-3">
+          <a
+            href="https://www.instagram.com/kanzleistelle24/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Instagram"
+          >
+            <Instagram className="h-5 w-5" />
+          </a>
           {isLoading ? (
             <div className="h-9 w-24 bg-muted animate-pulse rounded-md" />
           ) : isAuthenticated ? (

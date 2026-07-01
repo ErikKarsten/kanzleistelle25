@@ -29,15 +29,13 @@ const Index = () => {
   const [searchFilters, setSearchFilters] = useState<{
     title?: string;
     location?: string;
-    employmentType?: string;
     radius?: number;
-  }>({ employmentType: "vollzeit" });
+  }>({});
 
-  const handleSearch = (filters: { title: string; location: string; employmentType?: string; radius?: number }) => {
-    setSearchFilters({ 
+  const handleSearch = (filters: { title: string; location: string; radius?: number }) => {
+    setSearchFilters({
       title: filters.title || undefined,
       location: filters.location || undefined,
-      employmentType: filters.employmentType,
       radius: filters.radius
     });
     // Scroll to results

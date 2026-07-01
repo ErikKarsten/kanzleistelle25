@@ -11,6 +11,16 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // AUTO-ARCHIVE DEAKTIVIERT
+  // Die automatische 90-Tage-Archivierung ist auskommentiert.
+  // Um sie wieder zu aktivieren, den Block unterhalb einkommentieren
+  // und die Funktion erneut deployen: npx supabase functions deploy auto-archive-companies
+  return new Response(
+    JSON.stringify({ message: "Auto-archive is disabled", archived: 0 }),
+    { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+  );
+
+  /*
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -68,4 +78,5 @@ Deno.serve(async (req) => {
       }
     );
   }
+  */
 });

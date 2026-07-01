@@ -83,12 +83,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           if (!isEmployer && !isAdmin) {
             setRole("employer");
           }
-          // Update last_sign_in_at for auto-archive tracking
-          supabase
-            .from("companies")
-            .update({ last_sign_in_at: new Date().toISOString() } as any)
-            .eq("id", company.id)
-            .then();
+          // AUTO-ARCHIVE DEAKTIVIERT: last_sign_in_at wird nicht mehr aktualisiert.
+          // Dieser Wert ist der Taktgeber für die 90-Tage-Archivierung in der
+          // Edge Function auto-archive-companies. Zum Reaktivieren einkommentieren:
+          // supabase
+          //   .from("companies")
+          //   .update({ last_sign_in_at: new Date().toISOString() } as any)
+          //   .eq("id", company.id)
+          //   .then();
         } else {
           setCompanyId(null);
           setCompanyName(null);

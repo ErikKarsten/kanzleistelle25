@@ -76,13 +76,13 @@ const MatchApplicantDialog = ({
 
   const mutation = useMutation({
     mutationFn: async () => {
-      if (!user || !applicantUserId) throw new Error("Missing data");
+      if (!user) throw new Error("Not authenticated");
       const company = companies?.find((c) => c.id === selectedCompanyId);
       const job = companyJobs?.find((j) => j.id === selectedJobId);
 
       const { error } = await supabase.from("recommendations").insert({
         admin_id: user.id,
-        applicant_user_id: applicantUserId,
+        applicant_user_id: applicantUserId ?? null,
         company_id: selectedCompanyId,
         job_id: selectedJobId !== "none" ? selectedJobId : null,
         admin_note: adminNote || null,
@@ -92,8 +92,8 @@ const MatchApplicantDialog = ({
       });
       if (error) throw error;
 
-      // Send email notification to applicant
-      const emailAddr = applicantEmail || await getApplicantEmail(applicantUserId);
+      // Send email notification if address available
+      const emailAddr = applicantEmail || (applicantUserId ? await getApplicantEmail(applicantUserId) : null);
       if (emailAddr) {
         const emailData = buildRecommendationNotifyEmail({
           applicantName: applicantName.split(" ")[0] || applicantName,
@@ -173,16 +173,10 @@ const MatchApplicantDialog = ({
             />
           </div>
 
-          {!applicantUserId && (
-            <p className="text-xs text-destructive">
-              ⚠️ Dieser Bewerber hat noch kein Konto. Der Vorschlag wird sichtbar, sobald er sich registriert.
-            </p>
-          )}
-
           <Button
             className="w-full"
             onClick={() => mutation.mutate()}
-            disabled={!selectedCompanyId || mutation.isPending || !applicantUserId}
+            disabled={!selectedCompanyId || mutation.isPending}
           >
             {mutation.isPending ? "Wird erstellt..." : "Kanzlei vorschlagen"}
             <ArrowRight className="h-4 w-4 ml-1" />

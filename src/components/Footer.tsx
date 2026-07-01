@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Mail, Phone, ArrowRight } from "lucide-react";
+import { Mail, Phone, ArrowRight, Instagram, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import NeeleContactDrawer from "./NeeleContactDrawer";
 import neeleImage from "@/assets/neele-ehlers.webp";
@@ -44,6 +44,15 @@ const Footer = () => {
                 >
                   <Phone className="h-4 w-4" strokeWidth={1.5} />
                   05303-9578751
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/neele-ehlers-1b80a4289/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 text-sm"
+                >
+                  <Linkedin className="h-4 w-4" />
+                  LinkedIn
                 </a>
               </div>
               <Button
@@ -127,8 +136,17 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t mt-8 pt-8 text-center text-sm text-muted-foreground">
+        <div className="border-t mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
           <p>© {new Date().getFullYear()} Kanzleistelle24. Alle Rechte vorbehalten.</p>
+          <a
+            href="https://www.instagram.com/kanzleistelle24/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Instagram"
+          >
+            <Instagram className="h-5 w-5" />
+          </a>
         </div>
       </div>
     </footer>

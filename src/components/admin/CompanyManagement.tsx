@@ -248,8 +248,9 @@ const CompanyManagement = ({ navigateToCompanyId, onNavigated }: CompanyManageme
           </TableHeader>
           <TableBody>
             {list.map((company) => {
-              const daysInactive = getDaysInactive(company.last_sign_in_at);
-              const nearExpiry = company.is_active && daysInactive >= 80;
+              // AUTO-ARCHIVE DEAKTIVIERT: nearExpiry-Berechnung auskommentiert.
+              // const daysInactive = getDaysInactive(company.last_sign_in_at);
+              // const nearExpiry = company.is_active && daysInactive >= 80;
 
               return (
                 <TableRow key={company.id} className="hover:bg-muted/30">
@@ -266,6 +267,7 @@ const CompanyManagement = ({ navigateToCompanyId, onNavigated }: CompanyManageme
                           <Bell className="h-4 w-4 text-orange-500" />
                         </span>
                       )}
+                      {/* AUTO-ARCHIVE DEAKTIVIERT: 90-Tage-Warn-Tooltip auskommentiert.
                       {nearExpiry && (
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -278,6 +280,7 @@ const CompanyManagement = ({ navigateToCompanyId, onNavigated }: CompanyManageme
                           </TooltipContent>
                         </Tooltip>
                       )}
+                      */}
                       {(() => {
                         const sla = companySlaMap.get(company.id);
                         if (!sla || sla === "ok") return null;
