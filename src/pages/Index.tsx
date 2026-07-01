@@ -62,17 +62,6 @@ const Index = () => {
         <FeaturedJobs />
         <FeatureCards />
 
-        <section className="py-16 px-4 md:px-6 bg-gradient-to-b from-background to-secondary/30">
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">Kandidaten in deiner Nähe</h2>
-              <p className="text-muted-foreground text-lg">
-                Finde verfügbare Steuerberater und Steuerfachangestellte in ganz Deutschland
-              </p>
-            </div>
-            
-          </div>
-        </section>
 
         <div id="job-results">
           <JobResults searchFilters={searchFilters} />
