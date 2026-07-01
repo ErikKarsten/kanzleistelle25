@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/table";
 import {
   Briefcase, MapPin, Building2, Pencil, Trash2, TrendingUp,
-  FileX, Star, Plus, CheckCircle, Clock, Search, ChevronLeft, ChevronRight,
+  FileX, Star, Plus, CheckCircle, Clock, Search, ChevronLeft, ChevronRight, Sparkles,
 } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -46,6 +46,7 @@ interface JobWithCompany {
   salary_range: string | null;
   is_active: boolean | null;
   status: string | null;
+  ai_optimized: boolean | null;
   created_at: string | null;
   updated_at: string | null;
   companies: {
@@ -66,6 +67,8 @@ const JobManagement = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
+  const [bulkLoading, setBulkLoading] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState("");
   const queryClient = useQueryClient();
   const prevPendingCountRef = useRef<number | null>(null);
 
@@ -113,7 +116,7 @@ const JobManagement = () => {
         .from("jobs")
         .select(`id, title, company, company_id, location, employment_type, working_model,
           description, requirements, benefits, salary_min, salary_max, salary_range,
-          is_active, status, created_at, updated_at, companies (name, logo_url, is_active)`)
+          is_active, status, ai_optimized, created_at, updated_at, companies (name, logo_url, is_active)`)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as JobWithCompany[];
@@ -128,6 +131,19 @@ const JobManagement = () => {
       const counts: Record<string, number> = {};
       data.forEach((app) => { if (app.job_id) counts[app.job_id] = (counts[app.job_id] || 0) + 1; });
       return counts;
+    },
+  });
+
+  const { data: pendingAiCount } = useQuery({
+    queryKey: ["jobs-pending-ai"],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from("jobs")
+        .select("*", { count: "exact", head: true })
+        .eq("is_active", true)
+        .eq("status", "published")
+        .or("ai_optimized.is.null,ai_optimized.eq.false");
+      return count ?? 0;
     },
   });
 
@@ -214,6 +230,63 @@ const JobManagement = () => {
   const totalPages = Math.max(1, Math.ceil(filteredJobs.length / pageSize));
   const pagedJobs = filteredJobs.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
+  const handleBulkRewrite = async () => {
+    if (!confirm("Alle aktiven Job-Beschreibungen durch KI umschreiben? Das kann nicht rückgängig gemacht werden.")) return;
+
+    setBulkLoading(true);
+
+    const { data: jobsToRewrite } = await supabase
+      .from("jobs")
+      .select("id, title, company, description")
+      .eq("is_active", true)
+      .eq("status", "published")
+      .or("ai_optimized.is.null,ai_optimized.eq.false")
+      .not("description", "is", null);
+
+    if (!jobsToRewrite || jobsToRewrite.length === 0) {
+      setBulkLoading(false);
+      toast.info("Keine aktiven Jobs mit Beschreibung gefunden.");
+      return;
+    }
+
+    for (let i = 0; i < jobsToRewrite.length; i++) {
+      const job = jobsToRewrite[i];
+      setBulkProgress(`Job ${i + 1} von ${jobsToRewrite.length}: ${job.title}...`);
+
+      try {
+        const res = await fetch(
+          "https://myvjwpbhdnnrkwazudnh.supabase.co/functions/v1/ai-rewrite",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            },
+            body: JSON.stringify({
+              title: job.title,
+              company: job.company,
+              description: job.description,
+            }),
+          }
+        );
+        const data = await res.json();
+        if (data.text) {
+          await supabase.from("jobs").update({ description: data.text, ai_optimized: true } as any).eq("id", job.id);
+        }
+      } catch (e) {
+        console.error(`Fehler bei Job ${job.title}:`, e);
+      }
+
+      await new Promise((r) => setTimeout(r, 500));
+    }
+
+    setBulkProgress("");
+    setBulkLoading(false);
+    queryClient.invalidateQueries({ queryKey: ["admin-jobs"] });
+    queryClient.invalidateQueries({ queryKey: ["jobs-pending-ai"] });
+    toast.success(`${jobsToRewrite.length} Jobs wurden umgeschrieben!`);
+  };
+
   const handleJobClick = (job: JobWithCompany) => {
     setSelectedJob(job);
     if (isPendingStatus(job.status)) setPreviewOpen(true);
@@ -246,10 +319,22 @@ const JobManagement = () => {
             <Briefcase className="h-5 w-5 text-primary" />
             Stellenanzeigen-Verwaltung
           </CardTitle>
-          <Button onClick={() => setCreateOpen(true)} size="sm">
-            <Plus className="h-4 w-4 mr-1" />
-            Neue Stelle
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleBulkRewrite}
+              disabled={bulkLoading}
+              className="max-w-[260px] truncate"
+              title={bulkLoading ? bulkProgress : "Alle aktiven Job-Beschreibungen durch KI umschreiben"}
+            >
+              {bulkLoading ? bulkProgress : `✨ ${pendingAiCount ?? "…"} Jobs KI-umschreiben`}
+            </Button>
+            <Button onClick={() => setCreateOpen(true)} size="sm">
+              <Plus className="h-4 w-4 mr-1" />
+              Neue Stelle
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Stats Cards */}
@@ -470,6 +555,15 @@ const JobsTable = ({ jobs, applicationCounts, onJobClick, onToggle, onDelete }: 
                   {job.status === "published" && (
                     <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full border" style={{ color: "#D4AF37", borderColor: "#D4AF37" }}>
                       ✨ Freigegeben
+                    </span>
+                  )}
+                  {job.ai_optimized && (
+                    <span
+                      title="KI-optimiert"
+                      className="inline-flex items-center gap-1 text-xs bg-purple-50 text-purple-600 border border-purple-200 rounded-full px-2 py-0.5"
+                    >
+                      <Sparkles className="h-3 w-3" />
+                      KI
                     </span>
                   )}
                   {!job.is_active && job.companies && !job.companies.is_active && (

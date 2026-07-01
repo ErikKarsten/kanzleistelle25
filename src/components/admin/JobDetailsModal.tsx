@@ -246,6 +246,8 @@ const JobDetailsModal = ({
       const newText = data.text;
       if (newText) {
         setFormData({ ...formData, description: newText });
+        await supabase.from("jobs").update({ ai_optimized: true } as any).eq("id", job.id);
+        queryClient.invalidateQueries({ queryKey: ["admin-jobs"] });
       }
     } catch (e) {
       console.error("KI-Fehler:", e);
