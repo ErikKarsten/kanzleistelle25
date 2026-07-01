@@ -15,7 +15,6 @@ import AdminDashboardLegacy from "./pages/AdminDashboard";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminLogin from "./pages/admin/Login";
 import Karrieretipps from "./pages/Karrieretipps";
-import Loesungen from "./pages/Loesungen";
 import FuerArbeitgeber from "./pages/FuerArbeitgeber";
 import UeberUns from "./pages/UeberUns";
 import RegisterEmployer from "./pages/RegisterEmployer";
@@ -52,7 +51,6 @@ const App = () => (
               <Route path="/karrieretipps" element={<Karrieretipps />} />
               <Route path="/karriere-tipps" element={<Karrieretipps />} />
               <Route path="/ratgeber/:id" element={<ArticleDetail />} />
-              <Route path="/loesungen" element={<Loesungen />} />
               <Route path="/fuer-arbeitgeber" element={<FuerArbeitgeber />} />
               <Route path="/arbeitgeber" element={<FuerArbeitgeber />} />
               <Route path="/ueber-uns" element={<UeberUns />} />

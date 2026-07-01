@@ -102,11 +102,6 @@ const Footer = () => {
                   Talente finden
                 </Link>
               </li>
-              <li>
-                <Link to="/loesungen" className="text-muted-foreground hover:text-primary">
-                  Lösungen
-                </Link>
-              </li>
             </ul>
           </div>
 

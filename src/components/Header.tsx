@@ -52,9 +52,6 @@ const Header = () => {
           <Link to="/" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
             Stellenangebote
           </Link>
-          <Link to="/loesungen" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-            Lösungen
-          </Link>
           <Link to="/fuer-arbeitgeber" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
             Für Arbeitgeber
           </Link>
@@ -147,13 +144,6 @@ const Header = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               Stellenangebote
-            </Link>
-            <Link 
-              to="/loesungen" 
-              className="text-sm font-medium text-foreground hover:text-primary"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Lösungen
             </Link>
             <Link 
               to="/fuer-arbeitgeber" 
