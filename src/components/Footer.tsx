@@ -4,7 +4,7 @@ import { Mail, Phone, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import NeeleContactDrawer from "./NeeleContactDrawer";
 import neeleImage from "@/assets/neele-ehlers.webp";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo.svg";
 
 const Footer = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -68,7 +68,7 @@ const Footer = () => {
               <img
                 src={logo}
                 alt="Kanzleistelle24"
-                className="h-12 w-auto"
+                className="h-8 w-auto"
                 loading="lazy"
                 decoding="async"
               />
