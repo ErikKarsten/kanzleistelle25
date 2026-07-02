@@ -1,143 +1,77 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Search, MapPin, Zap, Navigation } from "lucide-react";
-import heroBackground from "@/assets/hero-background.webp";
-import genossenschaftLogo from "@/assets/genossenschaft-logo.webp";
+import { Briefcase, Building2, UserPlus } from "lucide-react";
+import officeModernImage from "@/assets/office-modern.webp";
 
 interface HeroSectionProps {
-  onSearch: (filters: { title: string; location: string; employmentType?: string; radius?: number }) => void;
+  onContactClick: () => void;
+  onApplyClick: () => void;
 }
 
-const HeroSection = ({ onSearch }: HeroSectionProps) => {
-  const [title, setTitle] = useState("");
-  const [location, setLocation] = useState("");
-  const [radius, setRadius] = useState<string>("25");
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSearch({
-      title,
-      location,
-      radius: location ? parseInt(radius) : undefined
-    });
-  };
+const HeroSection = ({ onContactClick, onApplyClick }: HeroSectionProps) => {
 
   return (
     <section className="relative py-20 md:py-32 overflow-hidden">
-      {/* Background Image with Overlay */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${heroBackground})` }}
+      <div
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ backgroundImage: `url(${officeModernImage})` }}
       />
-      <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-background/90 to-background/80" />
-      
+      <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/90 to-primary/70" />
+
       <div className="container relative z-10">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-4">
-              Dein Karrierestützpunkt{" "}
-              <span className="text-primary">in der Steuerwelt</span>
-            </h1>
-           </div>
-          <div className="flex justify-center mt-6 mb-8">
-            <img
-              src={genossenschaftLogo}
-              alt="Deutsche Steuerberatergenossenschaft – Mitglied"
-              className="h-auto w-[35%] min-w-[160px] max-w-[280px] object-contain"
-            />
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 bg-background/10 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold text-primary-foreground mb-6">
+            <Briefcase className="h-4 w-4" />
+            Die Plattform für die Steuerbranche
           </div>
-          <div className="text-center">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <div className="inline-flex items-center gap-2 bg-featured/20 text-featured px-4 py-2 rounded-full text-sm font-semibold border border-featured/30">
-              <Zap className="h-4 w-4" strokeWidth={1.5} />
-              In nur 30 Sekunden bewerben – ohne Lebenslauf, ohne Anschreiben
-            </div>
-          </div>
-          <p className="text-lg md:text-xl text-muted-foreground mb-10">
-            Finde exklusive Positionen in Top-Steuerkanzleien – diskret, schnell und ohne Anschreiben.
+
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground mb-4">
+            Der Treffpunkt für<br />
+            Steuerexperten &amp; Kanzleien
+          </h1>
+
+          <p className="text-lg md:text-xl text-primary-foreground/80 max-w-2xl mx-auto">
+            Ob Sie qualifizierte Fachkräfte suchen oder Ihre nächste
+            Karrierechance — bei Kanzleistelle24 finden Sie zusammen.
           </p>
 
-          <form onSubmit={handleSubmit} className="bg-card rounded-xl shadow-lg p-4 md:p-6">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
-                <Input
-                  type="text"
-                  placeholder="Was suchst du? (z.B. Lohnbuchhalter)"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="pl-10 h-12"
-                />
-              </div>
-              <div className="relative flex-1">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" strokeWidth={1.5} />
-                <Input
-                  type="text"
-                  placeholder="PLZ oder Ort"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  className="pl-10 h-12"
-                />
-              </div>
-              <div className="relative w-full md:w-32">
-                <Navigation className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" strokeWidth={1.5} />
-                <Select value={radius} onValueChange={setRadius}>
-                  <SelectTrigger className="pl-10 h-12 bg-background">
-                    <SelectValue placeholder="Umkreis" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover border shadow-md z-50">
-                    <SelectItem value="10">10 km</SelectItem>
-                    <SelectItem value="25">25 km</SelectItem>
-                    <SelectItem value="50">50 km</SelectItem>
-                    <SelectItem value="100">100 km</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <Button type="submit" size="lg" className="h-12 px-8">
-                <Search className="h-5 w-5 mr-2" strokeWidth={1.5} />
-                Suchen
-              </Button>
-            </div>
-          </form>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
+            <Button
+              size="lg"
+              className="bg-background text-primary font-bold rounded-md shadow-sm hover:bg-background/90 h-12 px-8"
+              onClick={onContactClick}
+            >
+              <Building2 className="h-5 w-5 mr-2" />
+              Als Kanzlei Talente finden
+            </Button>
 
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <span className="text-sm text-muted-foreground">Beliebte Suchen:</span>
-            <button 
-              onClick={() => onSearch({ title: "Steuerfachangestellte", location: "" })}
-              className="text-sm text-primary hover:underline"
+            <Button
+              size="lg"
+              variant="outline"
+              className="border-2 border-white text-white bg-white/10 hover:bg-white hover:text-primary font-bold h-12 px-8"
+              onClick={onApplyClick}
             >
-              Steuerfachangestellte
-            </button>
-            <span className="text-muted-foreground">•</span>
-            <button 
-              onClick={() => onSearch({ title: "Lohnbuchhalter", location: "" })}
-              className="text-sm text-primary hover:underline"
-            >
-              Lohnbuchhalter
-            </button>
-            <span className="text-muted-foreground">•</span>
-            <button 
-              onClick={() => onSearch({ title: "Bilanzbuchhalter", location: "" })}
-              className="text-sm text-primary hover:underline"
-            >
-              Bilanzbuchhalter
-            </button>
-            <span className="text-muted-foreground">•</span>
-            <button 
-              onClick={() => onSearch({ title: "DATEV", location: "" })}
-              className="text-sm text-primary hover:underline"
-            >
-              DATEV
-            </button>
+              <UserPlus className="h-5 w-5 mr-2" />
+              Jetzt initiativ bewerben
+            </Button>
           </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-2xl mx-auto mt-10">
+            <div className="bg-background/20 backdrop-blur-sm p-4 rounded-lg border border-background/30">
+              <div className="text-2xl font-bold text-primary-foreground">30 Sek.</div>
+              <div className="text-xs text-primary-foreground/80">Express-Bewerbung</div>
+            </div>
+            <div className="bg-background/20 backdrop-blur-sm p-4 rounded-lg border border-background/30">
+              <div className="text-2xl font-bold text-primary-foreground">24h</div>
+              <div className="text-xs text-primary-foreground/80">Erste Rückmeldung</div>
+            </div>
+            <div className="bg-background/20 backdrop-blur-sm p-4 rounded-lg border border-background/30">
+              <div className="text-2xl font-bold text-primary-foreground">100%</div>
+              <div className="text-xs text-primary-foreground/80">Branchenfokus</div>
+            </div>
+            <div className="bg-background/20 backdrop-blur-sm p-4 rounded-lg border border-background/30">
+              <div className="text-2xl font-bold text-primary-foreground">✓</div>
+              <div className="text-xs text-primary-foreground/80">Geprüft</div>
+            </div>
           </div>
         </div>
       </div>
