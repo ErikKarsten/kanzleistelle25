@@ -108,8 +108,6 @@ const Index = () => {
           </div>
         </section>
 
-        <JobResults searchFilters={{}} />
-
         {/* Zweispaltige Übersichts-Section */}
         <section className="py-16 bg-white">
           <div className="container">
@@ -271,6 +269,8 @@ const Index = () => {
             </div>
           </div>
         </section>
+
+        <JobResults searchFilters={{}} />
       </main>
 
       <Footer />
