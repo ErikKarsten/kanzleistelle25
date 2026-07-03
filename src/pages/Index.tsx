@@ -8,7 +8,7 @@ import NeeleContactDrawer from "@/components/NeeleContactDrawer";
 import InitiativeApplyModal from "@/components/InitiativeApplyModal";
 import GehaltsCheckModal from "@/components/GehaltsCheckModal";
 import { Button } from "@/components/ui/button";
-import { Briefcase, Building2, UserPlus, UserCheck, ArrowRight } from "lucide-react";
+import { Briefcase, Building2, UserPlus, UserCheck, ArrowRight, Search, MapPin } from "lucide-react";
 import { useJobsRealtime } from "@/hooks/useJobsRealtime";
 import { useToast } from "@/hooks/use-toast";
 import officeModernImage from "@/assets/office-modern.webp";
@@ -19,6 +19,9 @@ const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const [stickyQuery, setStickyQuery] = useState('');
+  const [stickyLocation, setStickyLocation] = useState('');
+  const [stickyRadius, setStickyRadius] = useState('');
   const [audienceTab, setAudienceTab] = useState<'bewerber' | 'kanzlei'>('bewerber');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [applyOpen, setApplyOpen] = useState(false);
@@ -105,6 +108,55 @@ const Index = () => {
               </div>
             </div>
 
+          </div>
+        </section>
+
+        {/* Suchleiste */}
+        <section className="py-6 bg-white border-b">
+          <div className="container">
+            <div className="flex flex-col sm:flex-row gap-3 max-w-3xl mx-auto">
+              <div className="flex-1 relative">
+                <Briefcase className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Jobtitel, z.B. Steuerfachangestellte..."
+                  value={stickyQuery}
+                  onChange={(e) => setStickyQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+              <div className="flex-1 relative">
+                <MapPin className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <input
+                  type="text"
+                  placeholder="Stadt oder Region..."
+                  value={stickyLocation}
+                  onChange={(e) => setStickyLocation(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+              <select
+                value={stickyRadius}
+                onChange={(e) => setStickyRadius(e.target.value)}
+                className="px-4 py-2.5 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white text-muted-foreground"
+              >
+                <option value="">Umkreis</option>
+                <option value="10">10 km</option>
+                <option value="25">25 km</option>
+                <option value="50">50 km</option>
+                <option value="100">100 km</option>
+              </select>
+              <Button
+                onClick={() => {
+                  document.getElementById('stellenangebote')
+                    ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }}
+                className="bg-primary text-white px-6"
+              >
+                <Search className="h-4 w-4 mr-2" />
+                Suchen
+              </Button>
+            </div>
           </div>
         </section>
 
@@ -270,7 +322,9 @@ const Index = () => {
           </div>
         </section>
 
-        <JobResults searchFilters={{}} />
+        <div id="stellenangebote">
+          <JobResults searchFilters={{}} />
+        </div>
       </main>
 
       <Footer />
