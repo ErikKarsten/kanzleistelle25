@@ -2,16 +2,13 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import VisualFeatureCards from "@/components/VisualFeatureCards";
-import FeaturedJobs from "@/components/FeaturedJobs";
-import FeatureCards from "@/components/FeatureCards";
 import JobResults from "@/components/JobResults";
-import WhyKanzleistelle from "@/components/WhyKanzleistelle";
 import Footer from "@/components/Footer";
 import NeeleContactDrawer from "@/components/NeeleContactDrawer";
 import InitiativeApplyModal from "@/components/InitiativeApplyModal";
 import GehaltsCheckModal from "@/components/GehaltsCheckModal";
 import { Button } from "@/components/ui/button";
-import { Briefcase, Building2, UserPlus, UserCheck, ArrowRight, Search, MapPin } from "lucide-react";
+import { Briefcase, Building2, UserPlus, UserCheck, ArrowRight } from "lucide-react";
 import { useJobsRealtime } from "@/hooks/useJobsRealtime";
 import { useToast } from "@/hooks/use-toast";
 import officeModernImage from "@/assets/office-modern.webp";
@@ -22,6 +19,7 @@ const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  const [audienceTab, setAudienceTab] = useState<'bewerber' | 'kanzlei'>('bewerber');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [applyOpen, setApplyOpen] = useState(false);
   const [gehaltsCheckOpen, setGehaltsCheckOpen] = useState(false);
@@ -32,12 +30,6 @@ const Index = () => {
       toast({ title: "Erfolgreich abgemeldet", description: "Bis bald! 👋" });
     }
   }, []);
-
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchLocation, setSearchLocation] = useState('');
-  const [searchRadius, setSearchRadius] = useState('');
-
-  const [appliedSearch, setAppliedSearch] = useState({ query: '', location: '', radius: '' });
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -116,64 +108,7 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Suchleiste */}
-        <section className="py-8 bg-white shadow-sm">
-          <div className="container">
-            <div className="flex flex-col md:flex-row gap-3 max-w-4xl mx-auto">
-
-              {/* Was */}
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Was suchst du? z.B. Steuerfachangestellte"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-
-              {/* Ort */}
-              <div className="flex-1 relative">
-                <MapPin className="absolute left-3 top-3.5 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="PLZ oder Ort"
-                  value={searchLocation}
-                  onChange={(e) => setSearchLocation(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
-
-              {/* Umkreis */}
-              <select
-                value={searchRadius}
-                onChange={(e) => setSearchRadius(e.target.value)}
-                className="px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-white"
-              >
-                <option value="">Umkreis</option>
-                <option value="10">10 km</option>
-                <option value="25">25 km</option>
-                <option value="50">50 km</option>
-                <option value="100">100 km</option>
-              </select>
-
-              {/* Suchen Button */}
-              <Button
-                size="lg"
-                className="bg-primary text-white font-bold px-8"
-                onClick={() => {
-                  document.getElementById('job-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  setAppliedSearch({ query: searchQuery, location: searchLocation, radius: searchRadius });
-                }}
-              >
-                <Search className="h-4 w-4 mr-2" />
-                Suchen
-              </Button>
-
-            </div>
-          </div>
-        </section>
+        <JobResults searchFilters={{}} />
 
         {/* Zweispaltige Übersichts-Section */}
         <section className="py-16 bg-white">
@@ -233,32 +168,109 @@ const Index = () => {
           </div>
         </section>
 
-        <VisualFeatureCards onScrollToJobs={() => {
-          const resultsSection = document.getElementById("job-results");
-          if (resultsSection) {
-            resultsSection.scrollIntoView({ behavior: "smooth" });
-          }
-        }} />
-        <FeaturedJobs
-          searchQuery={appliedSearch.query}
-          searchLocation={appliedSearch.location}
-          searchRadius={appliedSearch.radius}
-        />
-        <FeatureCards />
+        <VisualFeatureCards onScrollToJobs={() => {}} />
 
-        <div id="job-results">
-          <JobResults
-            searchFilters={{
-              title: appliedSearch.query || undefined,
-              location: appliedSearch.location || undefined,
-              radius: appliedSearch.radius ? Number(appliedSearch.radius) : undefined,
-            }}
-            initialTitle={appliedSearch.query}
-            initialLocation={appliedSearch.location}
-          />
-        </div>
+        {/* Warum Kanzleistelle24 — Tab Switch */}
+        <section className="py-16 bg-secondary/10">
+          <div className="container">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
+                {audienceTab === 'bewerber'
+                  ? 'Warum als Bewerber zu Kanzleistelle24?'
+                  : 'Warum als Kanzlei mit uns arbeiten?'}
+              </h2>
+              <div className="flex justify-center">
+                <div className="inline-flex bg-secondary/30 rounded-full p-1">
+                  <button
+                    onClick={() => setAudienceTab('bewerber')}
+                    className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+                      audienceTab === 'bewerber'
+                        ? 'bg-primary text-white shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    👤 Für Bewerber
+                  </button>
+                  <button
+                    onClick={() => setAudienceTab('kanzlei')}
+                    className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+                      audienceTab === 'kanzlei'
+                        ? 'bg-primary text-white shadow-sm'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    🏢 Für Kanzleien
+                  </button>
+                </div>
+              </div>
+            </div>
 
-        <WhyKanzleistelle />
+            <div className="relative">
+              {/* Tab: Für Bewerber */}
+              <div className={`transition-opacity duration-200 ${
+                audienceTab === 'bewerber' ? 'opacity-100 relative' : 'opacity-0 absolute inset-0 pointer-events-none'
+              }`}>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                  {[
+                    { emoji: '⚡', title: 'Express-Bewerbung', desc: 'Bewerben Sie sich in nur 30 Sekunden – ohne Lebenslauf, ohne Anschreiben.', highlight: true },
+                    { emoji: '🧮', title: 'DATEV-Expertise', desc: 'Finden Sie Positionen, die Ihre DATEV-Kenntnisse wertschätzen und fördern.' },
+                    { emoji: '🏆', title: 'Top Steuerkanzleien', desc: 'Zugang zu exklusiven Stellenangeboten führender Kanzleien mit moderner Kanzleikultur.' },
+                    { emoji: '🤝', title: 'Mandantenbetreuung', desc: 'Entdecken Sie Positionen mit direktem Mandantenkontakt und Entwicklungsperspektiven.' },
+                  ].map((card) => (
+                    <div
+                      key={card.title}
+                      className={`rounded-xl border-2 p-6 text-center transition-shadow hover:shadow-md ${
+                        card.highlight ? 'border-primary bg-primary/5' : 'border-border bg-white'
+                      }`}
+                    >
+                      <div className={`mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-4 text-2xl ${
+                        card.highlight ? 'bg-primary' : 'bg-primary/10'
+                      }`}>
+                        {card.emoji}
+                      </div>
+                      <h3 className="font-semibold text-foreground mb-2">{card.title}</h3>
+                      <p className="text-sm text-muted-foreground">{card.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tab: Für Kanzleien */}
+              <div className={`transition-opacity duration-200 ${
+                audienceTab === 'kanzlei' ? 'opacity-100 relative' : 'opacity-0 absolute inset-0 pointer-events-none'
+              }`}>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                  {[
+                    { emoji: '🎯', title: 'Geprüfte Kandidaten', desc: 'Nur vorqualifizierte Fachkräfte die wirklich passen.' },
+                    { emoji: '⚡', title: 'Schnelle Besetzung', desc: 'Erste Kandidatenvorschläge innerhalb von 24 Stunden.' },
+                    { emoji: '💼', title: 'Branchenfokus', desc: 'Wir kennen die Steuerbranche und ihre Anforderungen genau.' },
+                    { emoji: '🔒', title: 'Diskrete Suche', desc: 'Ihre Suche bleibt vertraulich — auch vor dem eigenen Team.' },
+                  ].map((card) => (
+                    <div
+                      key={card.title}
+                      className="rounded-xl border-2 border-border bg-white p-6 text-center transition-shadow hover:shadow-md"
+                    >
+                      <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-2xl">
+                        {card.emoji}
+                      </div>
+                      <h3 className="font-semibold text-foreground mb-2">{card.title}</h3>
+                      <p className="text-sm text-muted-foreground">{card.desc}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="text-center mt-10">
+                  <Button
+                    size="lg"
+                    onClick={() => navigate('/fuer-arbeitgeber')}
+                    className="px-8"
+                  >
+                    Jetzt als Kanzlei anfragen <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
 
       <Footer />
