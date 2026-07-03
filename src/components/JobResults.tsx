@@ -12,7 +12,7 @@ import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
 import ApplyModal from "./ApplyModal";
 import InitiativeApplyModal from "./InitiativeApplyModal";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 
 interface JobWithCompany {
   id: string;
@@ -42,6 +42,8 @@ interface JobResultsProps {
     employmentType?: string;
     radius?: number;
   };
+  initialTitle?: string;
+  initialLocation?: string;
 }
 
 const employmentTypeLabels: Record<string, string> = {
@@ -60,14 +62,24 @@ const employmentTypeBadgeStyles: Record<string, string> = {
   praktikum: "bg-secondary text-secondary-foreground border-secondary",
 };
 
-const JobResults = ({ searchFilters }: JobResultsProps) => {
+const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: JobResultsProps) => {
   const navigate = useNavigate();
   const [selectedJob, setSelectedJob] = useState<JobWithCompany | null>(null);
-  const [localTitleFilter, setLocalTitleFilter] = useState("");
-  const [localLocationFilter, setLocalLocationFilter] = useState("");
+  const [localTitleFilter, setLocalTitleFilter] = useState(initialTitle);
+  const [localLocationFilter, setLocalLocationFilter] = useState(initialLocation);
   const [initiativeOpen, setInitiativeOpen] = useState(false);
   const [pageSize, setPageSize] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    setLocalTitleFilter(initialTitle);
+    setCurrentPage(1);
+  }, [initialTitle]);
+
+  useEffect(() => {
+    setLocalLocationFilter(initialLocation);
+    setCurrentPage(1);
+  }, [initialLocation]);
 
   // Check if location is a PLZ (5 digits)
   const isPLZ = (value: string) => /^\d{5}$/.test(value.trim());

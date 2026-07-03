@@ -36,7 +36,13 @@ const employmentTypeLabels: Record<string, string> = {
   praktikum: "Praktikum",
 };
 
-const FeaturedJobs = () => {
+interface FeaturedJobsProps {
+  searchQuery?: string;
+  searchLocation?: string;
+  searchRadius?: string;
+}
+
+const FeaturedJobs = ({ searchQuery = '', searchLocation = '', searchRadius = '' }: FeaturedJobsProps) => {
   const navigate = useNavigate();
   const [selectedJob, setSelectedJob] = useState<JobWithCompany | null>(null);
 
@@ -72,6 +78,15 @@ const FeaturedJobs = () => {
       if (error) throw error;
       return data as JobWithCompany[];
     },
+  });
+
+  const filtered = (jobs ?? []).filter(job => {
+    const matchesQuery = !searchQuery ||
+      job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      job.company.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesLocation = !searchLocation ||
+      (job.location ?? '').toLowerCase().includes(searchLocation.toLowerCase());
+    return matchesQuery && matchesLocation;
   });
 
   if (error) {
@@ -121,9 +136,9 @@ const FeaturedJobs = () => {
               </Card>
             ))}
           </div>
-        ) : jobs && jobs.length > 0 ? (
+        ) : filtered.length > 0 ? (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {jobs.map((job) => {
+            {filtered.map((job) => {
               const companyInitials = (job.companies?.name || job.company).substring(0, 2).toUpperCase();
               return (
               <Card
