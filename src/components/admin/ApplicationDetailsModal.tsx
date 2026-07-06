@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
   DialogContent,
@@ -8,17 +9,18 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { 
-  User, 
-  Mail, 
-  Phone, 
-  Briefcase, 
-  Calendar, 
+import {
+  User,
+  Mail,
+  Phone,
+  Briefcase,
+  Calendar,
   FileText,
   Download,
   Archive,
   Trash2,
-  UserPlus
+  UserPlus,
+  CheckCircle2
 } from "lucide-react";
 import {
   AlertDialog,
@@ -86,6 +88,79 @@ const ApplicationDetailsModal = ({
   isArchived = false,
 }: ApplicationDetailsModalProps) => {
   const [matchOpen, setMatchOpen] = useState(false);
+  const [cvLoading, setCvLoading] = useState(false);
+  const [showCvConfirm, setShowCvConfirm] = useState(false);
+  const [generatedCvHtml, setGeneratedCvHtml] = useState<string | null>(null);
+  const [generatedCvUrl, setGeneratedCvUrl] = useState<string | null>(
+    application?.resume_url || null
+  );
+
+  useEffect(() => {
+    if (application?.resume_url) {
+      setGeneratedCvUrl(application.resume_url);
+    } else {
+      setGeneratedCvUrl(null);
+    }
+  }, [application]);
+
+  function openCvWindow(html: string) {
+    const win = window.open('', '_blank');
+    if (win) {
+      win.document.write(`
+        <!DOCTYPE html><html><head>
+        <title>Lebenslauf - ${application?.first_name} ${application?.last_name}</title>
+        <style>@media print { .no-print { display: none; } }</style>
+        </head><body>
+        <div class="no-print" style="padding:16px;background:#f0f0f0;display:flex;gap:12px;margin-bottom:24px;">
+          <button onclick="window.print()"
+            style="background:#1a2744;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;">
+            📄 Als PDF speichern
+          </button>
+          <button onclick="window.close()"
+            style="background:white;color:#333;border:1px solid #ccc;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;">
+            ✕ Schließen
+          </button>
+        </div>
+        ${html}
+        </body></html>
+      `);
+      win.document.close();
+    }
+  }
+
+  async function handleGenerateCV() {
+    setCvLoading(true);
+    try {
+      const res = await fetch(
+        "https://myvjwpbhdnnrkwazudnh.supabase.co/functions/v1/generate-cv",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({ candidate: application })
+        }
+      );
+      const data = await res.json();
+      if (data.html) {
+        // Platzhalter lokal ersetzen (keine API-Übertragung!)
+        const filledHtml = data.html
+          .replace(/\[Name des Kandidaten\]/g,
+            `${application.first_name} ${application.last_name}`)
+          .replace(/\[E-Mail-Adresse\]/g, application.email || '')
+          .replace(/\[Telefonnummer\]/g, application.phone || '');
+
+        setGeneratedCvHtml(filledHtml);
+        setGeneratedCvUrl('generated');
+        openCvWindow(filledHtml);
+      }
+    } catch (e) {
+      alert("Fehler beim Generieren");
+      console.error(e);
+    }
+    setCvLoading(false);
+  }
 
   if (!application) return null;
 
@@ -239,9 +314,54 @@ const ApplicationDetailsModal = ({
 
           <Separator />
 
+          {generatedCvUrl && (
+            <div className="mt-3 flex items-center justify-between bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+              <div className="flex items-center gap-2 text-sm text-green-600">
+                <CheckCircle2 className="h-4 w-4" />
+                <span>Lebenslauf wurde generiert</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    if (generatedCvHtml) {
+                      openCvWindow(generatedCvHtml);
+                    } else {
+                      handleGenerateCV();
+                    }
+                  }}
+                  className="text-xs text-primary hover:underline"
+                >
+                  📄 Öffnen
+                </button>
+                <span className="text-gray-300">|</span>
+                <button
+                  onClick={async () => {
+                    if (!confirm("Lebenslauf wirklich löschen?")) return;
+                    await supabase
+                      .from("applications")
+                      .update({ resume_url: null })
+                      .eq("id", application.id);
+                    setGeneratedCvUrl(null);
+                  }}
+                  className="text-xs text-red-500 hover:text-red-700 hover:underline"
+                >
+                  🗑 Löschen
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Action Buttons */}
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowCvConfirm(true)}
+                disabled={cvLoading}
+                size="sm"
+              >
+                {cvLoading ? "Wird generiert..." : "📄 Lebenslauf generieren"}
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
@@ -293,6 +413,7 @@ const ApplicationDetailsModal = ({
               </AlertDialog>
             )}
           </div>
+
         </div>
       </DialogContent>
     </Dialog>
@@ -304,6 +425,40 @@ const ApplicationDetailsModal = ({
       applicantName={[application.first_name, application.last_name].filter(Boolean).join(" ") || "Unbekannt"}
       applicantEmail={application.email || null}
     />
+
+    <AlertDialog open={showCvConfirm} onOpenChange={setShowCvConfirm}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>⚠️ Datenschutz-Hinweis</AlertDialogTitle>
+          <AlertDialogDescription asChild>
+            <div>
+              Zum Generieren des Lebenslaufs werden folgende Daten an die
+              Anthropic KI-API übermittelt:
+              <ul style={{ marginTop: "8px", paddingLeft: "16px" }}>
+                <li>Name des Kandidaten</li>
+                <li>E-Mail-Adresse</li>
+                <li>Telefonnummer</li>
+                <li>Position und Erfahrung</li>
+                <li>Standort</li>
+              </ul>
+              <br />
+              Anthropic verarbeitet diese Daten gemäß ihrer
+              Datenschutzrichtlinie. Bitte stellen Sie sicher, dass
+              der Kandidat dieser Verarbeitung zugestimmt hat.
+            </div>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+          <AlertDialogAction onClick={() => {
+            setShowCvConfirm(false);
+            handleGenerateCV();
+          }}>
+            Verstanden, Lebenslauf generieren
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
     </>
   );
 };

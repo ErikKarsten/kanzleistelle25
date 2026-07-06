@@ -10,6 +10,7 @@ const sections = [
   { id: "s3", label: "3. Pflichtinfos" },
   { id: "s4", label: "4. Datenerfassung" },
   { id: "s5", label: "5. Analyse-Tools" },
+  { id: "s6", label: "6. KI-Dienste" },
 ];
 
 const Datenschutz = () => {
@@ -202,6 +203,21 @@ const Datenschutz = () => {
                 <h4 className="font-semibold text-foreground mt-4 mb-1">Google Tag Manager &amp; Google Analytics</h4>
                 <p>
                   Anbieter ist die Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland. Wir nutzen diese Tools, um das Nutzerverhalten auf unserer Seite zu verstehen und zu optimieren. Der Einsatz erfolgt nur bei Ihrer ausdrücklichen Einwilligung (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;a DSGVO).
+                </p>
+              </section>
+
+              <section id="s6" ref={(el) => { sectionRefs.current["s6"] = el; }} className="scroll-mt-24">
+                <h3 className="text-lg font-semibold text-foreground mb-3">
+                  <span className="text-primary">6.</span> Einsatz von KI-Diensten
+                </h3>
+                <p>
+                  Zur internen Bearbeitung von Bewerbungen nutzen wir KI-gestützte Dienste des Anbieters Anthropic, PBC (San Francisco, USA). Dabei können personenbezogene Daten von Bewerbern (Name, Kontaktdaten, Berufserfahrung) zur Erstellung von Dokumenten an die Anthropic API übermittelt werden.
+                </p>
+                <p className="mt-3">
+                  Die Verarbeitung erfolgt ausschließlich intern durch autorisiertes Personal. Anthropic verarbeitet die Daten gemäß ihrer Datenschutzrichtlinie (https://www.anthropic.com/privacy). Die Datenübermittlung in die USA erfolgt auf Basis von Standardvertragsklauseln gemäß Art.&nbsp;46 DSGVO.
+                </p>
+                <p className="mt-3">
+                  Wir empfehlen Ihnen, mit Anthropic einen Auftragsverarbeitungsvertrag (AVV) abzuschließen, sofern noch nicht geschehen.
                 </p>
               </section>
 
