@@ -162,6 +162,56 @@ const ApplicationDetailsModal = ({
     setCvLoading(false);
   }
 
+  async function openAnonymizedCv() {
+    let html = generatedCvHtml;
+
+    if (!html) {
+      setCvLoading(true);
+      const win = window.open('', '_blank');
+      if (win) {
+        win.document.write('<html><body style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;color:#666"><div style="text-align:center"><div style="font-size:48px">⏳</div><p>Wird generiert...</p></div></body></html>');
+      }
+      try {
+        const res = await fetch(
+          "https://myvjwpbhdnnrkwazudnh.supabase.co/functions/v1/generate-cv",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            },
+            body: JSON.stringify({ candidate: application })
+          }
+        );
+        const data = await res.json();
+        if (data.html) {
+          html = data.html
+            .replace(/\[Name des Kandidaten\]/g, `${application?.first_name} ${application?.last_name}`)
+            .replace(/\[E-Mail-Adresse\]/g, application?.email || '')
+            .replace(/\[Telefonnummer\]/g, application?.phone || '');
+          setGeneratedCvHtml(html);
+          setGeneratedCvUrl('generated');
+        }
+        if (win) win.close();
+      } catch (e) {
+        if (win) win.close();
+        alert("Fehler beim Generieren");
+        setCvLoading(false);
+        return;
+      }
+      setCvLoading(false);
+    }
+
+    if (!html) return;
+
+    const anonymized = html
+      .replace(new RegExp(`${application?.first_name}\\s*${application?.last_name}`, 'gi'), 'Kandidat/in')
+      .replace(new RegExp(application?.email?.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') || 'NOEMAIL', 'g'), '●●●●@●●●●.de')
+      .replace(new RegExp(application?.phone?.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') || 'NOPHONE', 'g'), '+49 ●●●● ●●●●●●');
+
+    openCvWindow(anonymized);
+  }
+
   if (!application) return null;
 
   const handleDownloadResume = async () => {
@@ -183,7 +233,7 @@ const ApplicationDetailsModal = ({
   return (
     <>
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl">
@@ -300,18 +350,6 @@ const ApplicationDetailsModal = ({
             </span>
           </div>
 
-          {/* Resume Button */}
-          {application.resume_url && (
-            <Button
-              onClick={handleDownloadResume}
-              className="w-full"
-              variant="outline"
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Lebenslauf herunterladen
-            </Button>
-          )}
-
           <Separator />
 
           {generatedCvUrl && (
@@ -351,40 +389,50 @@ const ApplicationDetailsModal = ({
             </div>
           )}
 
-          {/* Action Buttons */}
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="flex gap-2">
+          {/* Action Buttons — Zeile 1 */}
+          <div className="flex flex-wrap gap-2 mt-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowCvConfirm(true)}
+              disabled={cvLoading}
+              size="sm"
+            >
+              {cvLoading ? "Wird generiert..." : "📄 Lebenslauf generieren"}
+            </Button>
+            {generatedCvHtml && (
               <Button
                 variant="outline"
-                onClick={() => setShowCvConfirm(true)}
-                disabled={cvLoading}
                 size="sm"
+                onClick={openAnonymizedCv}
               >
-                {cvLoading ? "Wird generiert..." : "📄 Lebenslauf generieren"}
+                👁 Anonymisiert für Kanzlei
               </Button>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              disabled
+              title="Funktion bald verfügbar"
+              className="opacity-50 cursor-not-allowed"
+            >
+              <UserPlus className="h-4 w-4 mr-1" />
+              Kanzlei vorschlagen
+            </Button>
+            {onArchive && (
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
-                disabled
-                title="Funktion bald verfügbar"
-                className="opacity-50 cursor-not-allowed"
+                onClick={() => onArchive(application.id)}
               >
-                <UserPlus className="h-4 w-4 mr-1" />
-                Kanzlei vorschlagen
+                <Archive className="h-4 w-4 mr-1" />
+                {isArchived ? "Wiederherstellen" : "Archivieren"}
               </Button>
-              {onArchive && (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => onArchive(application.id)}
-                >
-                  <Archive className="h-4 w-4 mr-1" />
-                  {isArchived ? "Wiederherstellen" : "Archivieren"}
-                </Button>
-              )}
-            </div>
+            )}
+          </div>
 
-            {onDelete && (
+          {/* Action Buttons — Zeile 2 */}
+          {onDelete && (
+            <div className="mt-2">
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="destructive" size="sm">
@@ -411,8 +459,8 @@ const ApplicationDetailsModal = ({
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-            )}
-          </div>
+            </div>
+          )}
 
         </div>
       </DialogContent>

@@ -40,7 +40,12 @@ Verwende als Platzhalter:
 - Telefon: [Telefonnummer]
 
 Erstelle: 1. Header 2. Profil 3. Berufserfahrung 4. Ausbildung 5. Skills.
-Nur HTML mit Inline-Styles, A4-Format.`
+Nur HTML mit Inline-Styles, A4-Format.
+
+WICHTIG: Schreibe ALLES in der dritten Person
+(z.B. "Der Kandidat verfügt über..." / "Sie bringt Erfahrung in..." / "Er zeichnet sich durch...").
+NIEMALS Ich-Perspektive verwenden ("Ich bin...", "Ich verfüge...").
+Das Profil soll klingen als würde ein Recruiter den Kandidaten vorstellen.`
         }]
       })
     });
