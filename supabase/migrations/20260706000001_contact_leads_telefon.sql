@@ -1,0 +1,2 @@
+ALTER TABLE contact_leads
+  ADD COLUMN IF NOT EXISTS telefon TEXT;

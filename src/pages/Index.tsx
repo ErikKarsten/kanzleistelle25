@@ -40,7 +40,7 @@ const Index = () => {
 
       <main className="flex-1">
 
-        {/* Kombinierter Hero + Gehaltscheck */}
+        {/* Hero + Gehaltscheck */}
         <section className="relative py-20 md:py-28 overflow-hidden">
           <div
             className="absolute inset-0 bg-cover bg-center"
@@ -105,6 +105,43 @@ const Index = () => {
                   <div className="text-2xl font-bold text-primary-foreground">✓</div>
                   <div className="text-xs text-primary-foreground/80">Geprüft</div>
                 </div>
+              </div>
+            </div>
+
+            {/* UNTERER TEIL — Gehaltscheck */}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+              <div className="text-white text-center md:text-left">
+                <h2 className="text-3xl md:text-4xl font-bold mb-3">
+                  💰 Was verdienen Sie wirklich?
+                </h2>
+                <p className="text-white/80 text-lg max-w-lg mb-4">
+                  Unser Gehaltscheck zeigt Ihnen in 60 Sekunden, was
+                  Steuerfachkräfte in Ihrem Bundesland tatsächlich verdienen.
+                </p>
+                <div className="flex flex-wrap gap-4 text-sm text-white/70">
+                  <span>✓ 16 Bundesländer</span>
+                  <span>✓ 3 Erfahrungsstufen</span>
+                  <span>✓ Echte Gehaltsdaten</span>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-2xl p-6 text-center min-w-[280px] shadow-2xl shrink-0">
+                <p className="text-primary font-bold text-lg mb-1">
+                  Ihr Gehalts-Ergebnis
+                </p>
+                <p className="text-muted-foreground text-sm mb-4">
+                  Steuerfachangestellte · Bilanzbuchhalter · Steuerberater
+                </p>
+                <Button
+                  size="lg"
+                  className="w-full bg-primary text-white font-bold h-12"
+                  onClick={() => setGehaltsCheckOpen(true)}
+                >
+                  Jetzt Gehalt checken →
+                </Button>
+                <p className="text-muted-foreground text-xs mt-3">
+                  Kostenlos · Anonym · In 60 Sekunden
+                </p>
               </div>
             </div>
 

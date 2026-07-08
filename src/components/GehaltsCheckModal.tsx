@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -77,10 +77,21 @@ const GehaltsCheckModal = ({ open, onOpenChange }: GehaltsCheckModalProps) => {
   const [currentSalary, setCurrentSalary] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [telefon, setTelefon] = useState("");
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [result, setResult] = useState<SalaryResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [applyOpen, setApplyOpen] = useState(false);
+  const [jobCount, setJobCount] = useState(0);
+
+  useEffect(() => {
+    supabase
+      .from('jobs')
+      .select('id', { count: 'exact' })
+      .eq('is_active', true)
+      .eq('status', 'published')
+      .then(({ count }) => setJobCount(count || 0));
+  }, []);
 
   const reset = () => {
     setStep(1);
@@ -90,6 +101,7 @@ const GehaltsCheckModal = ({ open, onOpenChange }: GehaltsCheckModalProps) => {
     setCurrentSalary("");
     setName("");
     setEmail("");
+    setTelefon("");
     setPrivacyAccepted(false);
     setResult(null);
     setLoading(false);
@@ -100,8 +112,11 @@ const GehaltsCheckModal = ({ open, onOpenChange }: GehaltsCheckModalProps) => {
     onOpenChange(val);
   };
 
+  const phoneRegex = /^[\d\s+()/-]{6,20}$/;
+  const isTelefonValid = phoneRegex.test(telefon.trim());
+
   const handleSubmit = async () => {
-    if (!name.trim() || !email.trim() || !privacyAccepted) return;
+    if (!name.trim() || !email.trim() || !isTelefonValid || !privacyAccepted) return;
     setLoading(true);
 
     const levelLabel = LEVELS.find((l) => l.value === selectedLevel)?.label ?? selectedLevel;
@@ -109,9 +124,22 @@ const GehaltsCheckModal = ({ open, onOpenChange }: GehaltsCheckModalProps) => {
     await supabase.from("contact_leads").insert({
       full_name: name.trim(),
       email: email.trim(),
+      telefon: telefon.trim(),
       message: `Gehaltscheck: ${selectedJob} / ${levelLabel} / ${selectedState} / Aktuelles Gehalt: ${currentSalary || "nicht angegeben"}`,
       source_url: "/gehaltscheck",
     });
+
+    supabase.functions.invoke("send-salary-tips", {
+      body: {
+        name: name.trim(),
+        email: email.trim(),
+        telefon: telefon.trim(),
+        beruf: selectedJob,
+        erfahrung: selectedLevel,
+        bundesland: selectedState,
+        currentSalary: currentSalary || null,
+      },
+    }).catch(() => {});
 
     // salary_data is not in generated types yet — cast to any
     const { data } = await (supabase as any)
@@ -305,6 +333,20 @@ const GehaltsCheckModal = ({ open, onOpenChange }: GehaltsCheckModalProps) => {
                     className="mt-1 h-12"
                   />
                 </div>
+                <div>
+                  <Label htmlFor="gc-telefon">Telefonnummer</Label>
+                  <Input
+                    id="gc-telefon"
+                    type="tel"
+                    placeholder="+49 89 123456"
+                    value={telefon}
+                    onChange={(e) => setTelefon(e.target.value)}
+                    className={`mt-1 h-12 ${telefon && !isTelefonValid ? "border-red-400 focus-visible:ring-red-400" : ""}`}
+                  />
+                  {telefon && !isTelefonValid && (
+                    <p className="text-xs text-red-500 mt-1">Bitte geben Sie eine gültige Telefonnummer ein.</p>
+                  )}
+                </div>
                 <div className="flex items-start gap-3 mt-4">
                   <input
                     type="checkbox"
@@ -314,7 +356,7 @@ const GehaltsCheckModal = ({ open, onOpenChange }: GehaltsCheckModalProps) => {
                     className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                   />
                   <label htmlFor="privacy" className="text-xs text-muted-foreground">
-                    Ich stimme der Verarbeitung meiner Daten gemäß der{" "}
+                    Ich stimme der Verarbeitung meiner Daten (Name, E-Mail, Telefonnummer) gemäß der{" "}
                     <a href="/datenschutz" target="_blank" className="text-primary underline hover:no-underline">
                       Datenschutzerklärung
                     </a>{" "}
@@ -323,7 +365,7 @@ const GehaltsCheckModal = ({ open, onOpenChange }: GehaltsCheckModalProps) => {
                 </div>
                 <Button
                   className="w-full h-12"
-                  disabled={!name.trim() || !email.trim() || !privacyAccepted || loading}
+                  disabled={!name.trim() || !email.trim() || !isTelefonValid || !privacyAccepted || loading}
                   onClick={handleSubmit}
                 >
                   {loading ? "Wird geladen …" : "Mein Gehalt anzeigen →"}
@@ -384,52 +426,102 @@ const GehaltsCheckModal = ({ open, onOpenChange }: GehaltsCheckModalProps) => {
                     </div>
                   </div>
 
-                  {/* Persönlicher Gehaltsvergleich */}
-                  <div className="mt-4">
-                    {!currentSalary ? (
-                      <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 text-center">
-                        <p className="font-bold text-primary text-lg">
-                          🎯 Wie schlägt sich Ihr Gehalt im Vergleich?
-                        </p>
-                        <p className="text-sm text-muted-foreground mt-2">
-                          Viele Steuerfachkräfte verdienen mehr als sie denken —
-                          oder weniger als möglich. Schauen Sie sich unsere aktuellen Angebote an!
+                  {/* Eyecatcher */}
+                  {(() => {
+                    const currentSal = Number(currentSalary) || 0;
+                    const diff = result.salary_max - currentSal;
+
+                    let emoji: string;
+                    let titel: string;
+                    let text: string;
+                    let badges: { icon: string; label: string }[] | null = null;
+
+                    if (!currentSalary) {
+                      emoji = "🎯";
+                      titel = "Mehr verdienen ist möglich!";
+                      text = `Top-Kanzleien zahlen bis zu ${result.salary_max.toLocaleString('de-DE')} € für Ihr Profil`;
+                    } else if (currentSal < result.salary_median * 0.9) {
+                      emoji = "📈";
+                      titel = `Sie könnten bis zu ${diff.toLocaleString('de-DE')} € mehr verdienen!`;
+                      text = "Ihr aktuelles Gehalt liegt unter dem Marktdurchschnitt. Ein Wechsel könnte sich deutlich lohnen.";
+                    } else if (currentSal <= result.salary_max) {
+                      emoji = "⚖️";
+                      titel = diff > 0
+                        ? `${diff.toLocaleString('de-DE')} € Luft nach oben — aber Gehalt ist nicht alles!`
+                        : "Sie liegen gut im Markt — aber Gehalt ist nicht alles!";
+                      text = "Neben dem Gehalt zählen auch Entwicklungsperspektiven, Flexibilität, Homeoffice und Teamkultur. Viele Top-Kanzleien bieten genau das — schauen Sie mal rein!";
+                      badges = [
+                        { icon: "🏠", label: "Homeoffice" },
+                        { icon: "📚", label: "Weiterbildung" },
+                        { icon: "⏰", label: "Flexible Zeiten" },
+                        { icon: "💰", label: "Mehr Gehalt" },
+                      ];
+                    } else {
+                      emoji = "🏆";
+                      titel = "Sie gehören zu den Top-Verdienern!";
+                      text = "Ihr Gehalt ist überdurchschnittlich — aber stimmen auch Entwicklungsmöglichkeiten, Flexibilität und Teamkultur bei Ihrem Arbeitgeber? Die besten Kanzleien bieten mehr als nur gutes Gehalt.";
+                      badges = [
+                        { icon: "🚀", label: "Karriere" },
+                        { icon: "🏠", label: "Homeoffice" },
+                        { icon: "⭐", label: "Teamkultur" },
+                        { icon: "📚", label: "Weiterbildung" },
+                      ];
+                    }
+
+                    return (
+                      <div className="mt-6 space-y-4">
+                        <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-primary to-primary/80 p-5 text-white">
+                          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-8 translate-x-8" />
+                          <div className="absolute bottom-0 left-0 w-20 h-20 bg-white/10 rounded-full translate-y-6 -translate-x-6" />
+                          <div className="relative z-10">
+                            <div className="text-center mb-4">
+                              <div className="text-4xl mb-2">{emoji}</div>
+                              <p className="text-xl font-bold mb-1">{titel}</p>
+                              <p className="text-white/80 text-sm">{text}</p>
+                              {badges && (
+                                <div className="flex flex-wrap gap-2 justify-center mt-2">
+                                  {badges.map((b) => (
+                                    <span key={b.label} className="bg-white/20 text-white text-xs px-2 py-1 rounded-full">
+                                      {b.icon} {b.label}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                            <div className="bg-white/20 rounded-lg px-4 py-2 text-center text-sm font-medium">
+                              🔥 Aktuell haben wir <span className="font-bold text-yellow-300">{jobCount} offene Stellen</span> die zu Ihrem Profil passen!
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <Button
+                            className="bg-primary text-white font-bold h-11"
+                            onClick={() => {
+                              onOpenChange(false);
+                              setTimeout(() => {
+                                document.getElementById('stellenangebote')
+                                  ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                              }, 300);
+                            }}
+                          >
+                            🔍 Passende Stellen ansehen
+                          </Button>
+                          <Button
+                            variant="outline"
+                            className="h-11 font-medium border-2"
+                            onClick={() => { handleOpenChange(false); setApplyOpen(true); }}
+                          >
+                            ⚡ Jetzt initiativ bewerben
+                          </Button>
+                        </div>
+
+                        <p className="text-center text-xs text-muted-foreground">
+                          Kostenlos · Kein Lebenslauf nötig · In 30 Sekunden bewerben
                         </p>
                       </div>
-                    ) : Number(currentSalary) < result.salary_median ? (
-                      <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 text-center">
-                        <p className="font-bold text-orange-700 text-lg">
-                          📈 Sie verdienen{" "}
-                          {(result.salary_median - Number(currentSalary)).toLocaleString("de-DE")} €{" "}
-                          unter dem Marktdurchschnitt
-                        </p>
-                        <p className="text-sm text-orange-600 mt-2">
-                          In unseren aktuellen Stellenangeboten finden sich Positionen,
-                          die deutlich besser vergütet werden. Ein Wechsel könnte sich für Sie lohnen!
-                        </p>
-                      </div>
-                    ) : Number(currentSalary) < result.salary_max ? (
-                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-                        <p className="font-bold text-blue-700 text-lg">
-                          💼 Sie liegen gut im Markt — aber da geht noch mehr!
-                        </p>
-                        <p className="text-sm text-blue-600 mt-2">
-                          Top-Kanzleien zahlen bis zu {result.salary_max.toLocaleString("de-DE")} €
-                          für Ihr Profil. Mit dem richtigen Arbeitgeber ist mehr drin!
-                        </p>
-                      </div>
-                    ) : (
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-                        <p className="font-bold text-green-700 text-lg">
-                          🏆 Sie gehören zu den Top-Verdienern Ihrer Branche!
-                        </p>
-                        <p className="text-sm text-green-600 mt-2">
-                          Ihr Gehalt ist überdurchschnittlich — aber sind auch Entwicklungsmöglichkeiten,
-                          Flexibilität und Teamkultur bei Ihrem Arbeitgeber top? Schauen Sie mal rein!
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                    );
+                  })()}
                 </div>
               ) : (
                 <div className="mt-6 p-6 rounded-xl bg-secondary/50 text-center text-sm text-muted-foreground">
@@ -438,22 +530,6 @@ const GehaltsCheckModal = ({ open, onOpenChange }: GehaltsCheckModalProps) => {
                   Unsere Berater helfen Ihnen gerne persönlich weiter.
                 </div>
               )}
-
-              <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                <Button
-                  className="flex-1"
-                  onClick={() => { handleOpenChange(false); navigate("/stellenangebote"); }}
-                >
-                  Passende Stellen ansehen →
-                </Button>
-                <Button
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => { handleOpenChange(false); setApplyOpen(true); }}
-                >
-                  Initiativ bewerben →
-                </Button>
-              </div>
             </div>
           )}
         </DialogContent>
