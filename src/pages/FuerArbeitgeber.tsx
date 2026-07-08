@@ -186,15 +186,20 @@ function getDisplayLocation(
 
 interface Candidate {
   id: string;
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string;
+  experience: string | null;
+  experience_years: number;
+  position: string;
   location: string;
   postal_code: string;
-  position: string;
-  experience_years: number;
-  is_archived: boolean;
+  gehaltsvorstellung: string | null;
+  salary_expectation: string | null;
+  notice_period: string | null;
+  special_skills: string | null;
+  earliest_start_date: string | null;
+  eintrittsdatum: string | null;
+  status: string | null;
+  applicant_role: string | null;
+  created_at: string;
 }
 
 const FuerArbeitgeber = () => {
@@ -222,9 +227,10 @@ const FuerArbeitgeber = () => {
         console.log("🔄 Starte Kandidaten-Abfrage...");
 
         const { data, error: fetchError } = await supabase
-          .from("applications")
-          .select("id, first_name, last_name, email, phone, location, postal_code, position, experience_years, is_archived")
-          .eq("is_archived", false)
+          .from("applications_public")
+          .select(
+            "id, experience, experience_years, position, location, postal_code, gehaltsvorstellung, salary_expectation, notice_period, special_skills, earliest_start_date, eintrittsdatum, status, applicant_role, created_at"
+          )
           .order("created_at", { ascending: false })
           .limit(100);
 

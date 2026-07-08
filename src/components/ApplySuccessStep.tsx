@@ -95,11 +95,12 @@ const ApplySuccessStep = ({
         .upload(filePath, file);
       if (uploadError) throw uploadError;
 
-      const { error: updateError } = await supabase
-        .from("applications")
-        .update({ resume_url: filePath })
-        .eq("id", applicationId);
-      if (updateError) throw updateError;
+      const { data: attachData, error: attachError } = await supabase.functions.invoke(
+        "attach-resume",
+        { body: { applicationId, filePath } }
+      );
+      if (attachError) throw attachError;
+      if (attachData?.error) throw new Error(attachData.error);
 
       clearInterval(progressInterval);
       setUploadProgress(100);
