@@ -235,7 +235,11 @@ const ApplySuccessStep = ({
       {/* DSGVO note */}
       {!showAccountCreation && (
         <p className="text-[11px] text-center text-muted-foreground/60 leading-relaxed">
-          🔒 Deine Daten wurden sicher übermittelt und werden gemäß DSGVO nach 6 Monaten automatisch gelöscht.
+          🔒 Deine Daten wurden sicher übermittelt. Du kannst die Löschung deiner Daten jederzeit formlos
+          bei uns anfragen, z.B. per E-Mail an{" "}
+          <a href="mailto:info@kanzleistelle24.de" className="underline hover:no-underline">
+            info@kanzleistelle24.de
+          </a>.
         </p>
       )}
 

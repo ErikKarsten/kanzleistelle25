@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { buildNewApplicationEmail } from "@/lib/emailTemplates";
@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { applicationSchema } from "@/lib/validations";
+import { isPlz, resolveOrtFromPlz } from "@/lib/geo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ApplySuccessStep from "./ApplySuccessStep";
 
@@ -97,7 +98,27 @@ const ApplyModal = ({
     lastName: "",
     email: "",
     phone: "",
+    postalCode: "",
+    deutschlandweit: false,
   });
+  const [resolvedOrt, setResolvedOrt] = useState<string | null>(null);
+  const [resolvingOrt, setResolvingOrt] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
+
+  // PLZ -> Ortsname auflösen (debounced), sobald eine gültige PLZ eingegeben wurde
+  useEffect(() => {
+    if (formData.deutschlandweit || !isPlz(formData.postalCode)) {
+      setResolvedOrt(null);
+      return;
+    }
+    setResolvingOrt(true);
+    const timer = setTimeout(async () => {
+      const ort = await resolveOrtFromPlz(formData.postalCode);
+      setResolvedOrt(ort);
+      setResolvingOrt(false);
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [formData.postalCode, formData.deutschlandweit]);
 
   // Fetch company logo
   const { data: companyData } = useQuery({
@@ -124,7 +145,12 @@ const ApplyModal = ({
       lastName: "",
       email: "",
       phone: "",
+      postalCode: "",
+      deutschlandweit: false,
     });
+    setResolvedOrt(null);
+    setResolvingOrt(false);
+    setPrivacyAccepted(false);
   };
 
   const handleOpenChange = (open: boolean) => {
@@ -157,6 +183,15 @@ const ApplyModal = ({
       };
       if (companyId) {
         insertData.company_id = companyId;
+      }
+
+      // Aktueller Wohnort / gewünschte Arbeitsregion (optional, teilen sich location/postal_code)
+      if (formData.deutschlandweit) {
+        insertData.location = "Deutschlandweit verfügbar";
+        insertData.postal_code = "00000";
+      } else if (isPlz(formData.postalCode)) {
+        insertData.postal_code = formData.postalCode;
+        insertData.location = resolvedOrt ? `${formData.postalCode} ${resolvedOrt}` : formData.postalCode;
       }
 
       console.log('[ApplyModal] Sende Insert:', JSON.stringify(insertData, null, 2));
@@ -227,6 +262,14 @@ const ApplyModal = ({
       });
       return;
     }
+    if (!privacyAccepted) {
+      toast({
+        title: "Datenschutz-Einwilligung fehlt",
+        description: "Bitte stimmen Sie der Datenverarbeitung zu, um fortzufahren.",
+        variant: "destructive",
+      });
+      return;
+    }
     mutation.mutate();
   };
 
@@ -237,10 +280,10 @@ const ApplyModal = ({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-lg p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-lg p-0 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header with progress - hide on success step */}
         {currentStep !== 4 && (
-          <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-6 pb-8">
+          <div className="shrink-0 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-6 pb-8">
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold text-center text-primary-foreground">
                 In 30 Sekunden bewerben
@@ -284,7 +327,7 @@ const ApplyModal = ({
           </div>
         )}
 
-        <div className="p-6 -mt-4 bg-background rounded-t-2xl relative">
+        <div className="flex-1 overflow-y-auto p-6 -mt-4 bg-background rounded-t-2xl relative">
           {/* Step 1: Role Selection */}
           {currentStep === 1 && (
             <div className="space-y-4">
@@ -327,15 +370,6 @@ const ApplyModal = ({
                   );
                 })}
               </div>
-              <Button 
-                onClick={() => setCurrentStep(2)} 
-                disabled={!canProceedToStep2}
-                className="w-full mt-4"
-                size="lg"
-              >
-                Weiter
-                <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
             </div>
           )}
 
@@ -379,32 +413,12 @@ const ApplyModal = ({
                   );
                 })}
               </div>
-              <div className="flex gap-3 mt-4">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setCurrentStep(1)}
-                  className="flex-1"
-                  size="lg"
-                >
-                  <ChevronLeft className="h-4 w-4 mr-1" />
-                  Zurück
-                </Button>
-                <Button 
-                  onClick={() => setCurrentStep(3)} 
-                  disabled={!canProceedToStep3}
-                  className="flex-1"
-                  size="lg"
-                >
-                  Weiter
-                  <ChevronRight className="h-4 w-4 ml-1" />
-                </Button>
-              </div>
             </div>
           )}
 
           {/* Step 3: Contact Info */}
           {currentStep === 3 && (
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form id="applyForm" onSubmit={handleSubmit} className="space-y-2">
               <div className="text-center mb-2">
                 <p className="text-xs text-muted-foreground uppercase tracking-wide">Schritt 3 von 3</p>
                 <h3 className="text-lg font-semibold text-foreground">
@@ -412,7 +426,7 @@ const ApplyModal = ({
                 </h3>
                 <p className="text-sm text-muted-foreground">Gleich hast du es geschafft!</p>
               </div>
-              
+
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">Vorname *</Label>
@@ -471,41 +485,66 @@ const ApplyModal = ({
                 )}
               </div>
 
-              <div className="bg-muted/50 rounded-lg p-3 text-sm text-muted-foreground">
-                <p className="font-medium text-foreground mb-1">Deine Auswahl:</p>
-                <p>Rolle: {roles.find(r => r.id === formData.role)?.label}</p>
-                <p>Erfahrung: {experienceLevels.find(e => e.id === formData.experience)?.label}</p>
+              <div className="space-y-1 pt-1 border-t">
+                <Label htmlFor="postalCode">Aktueller Wohnort (optional)</Label>
+                <Input
+                  id="postalCode"
+                  placeholder="PLZ, z.B. 97421"
+                  inputMode="numeric"
+                  value={formData.postalCode}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, postalCode: e.target.value.replace(/\D/g, "").slice(0, 5) }))
+                  }
+                  disabled={formData.deutschlandweit}
+                  maxLength={5}
+                />
+                {formData.postalCode && !isPlz(formData.postalCode) && (
+                  <p className="text-xs text-destructive">Bitte eine gültige 5-stellige PLZ eingeben.</p>
+                )}
+                {resolvingOrt && (
+                  <p className="text-xs text-muted-foreground">Ort wird ermittelt…</p>
+                )}
+                {!resolvingOrt && resolvedOrt && (
+                  <p className="text-xs text-muted-foreground">📍 {formData.postalCode} {resolvedOrt}</p>
+                )}
+                <div className="flex items-center gap-2 mt-1">
+                  <input
+                    type="checkbox"
+                    id="deutschlandweit"
+                    checked={formData.deutschlandweit}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, deutschlandweit: e.target.checked, postalCode: e.target.checked ? "" : prev.postalCode }))
+                    }
+                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  />
+                  <label htmlFor="deutschlandweit" className="text-xs text-muted-foreground">
+                    Ich bin deutschlandweit verfügbar
+                  </label>
+                </div>
               </div>
 
-              <div className="flex gap-3">
-                <Button 
-                  type="button"
-                  variant="outline" 
-                  onClick={() => setCurrentStep(2)}
-                  className="flex-1"
-                  size="lg"
-                >
-                  <ChevronLeft className="h-4 w-4 mr-1" />
-                  Zurück
-                </Button>
-                <Button
-                  type="submit"
-                  className="flex-1"
-                  size="lg"
-                  disabled={mutation.isPending}
-                >
-                  {mutation.isPending ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Wird gesendet...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="h-4 w-4" />
-                      Jetzt bewerben
-                    </>
-                  )}
-                </Button>
+              <div className="bg-muted/50 rounded-lg p-2 text-sm text-muted-foreground">
+                <p>
+                  <span className="font-medium text-foreground">Deine Auswahl:</span>{" "}
+                  {roles.find(r => r.id === formData.role)?.label} · {experienceLevels.find(e => e.id === formData.experience)?.label}
+                </p>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  id="privacy"
+                  checked={privacyAccepted}
+                  onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                  className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                <label htmlFor="privacy" className="text-xs text-muted-foreground">
+                  Ich stimme der Verarbeitung meiner Daten (Name, E-Mail, Telefonnummer) gemäß der{" "}
+                  <a href="/datenschutz" target="_blank" className="text-primary underline hover:no-underline">
+                    Datenschutzerklärung
+                  </a>{" "}
+                  zu. Meine Daten werden nicht an Dritte weitergegeben.
+                </label>
               </div>
             </form>
           )}
@@ -539,6 +578,78 @@ const ApplyModal = ({
             </div>
           )}
         </div>
+
+        {/* Fixierter Footer mit Navigations-/Absende-Button, bleibt beim Scrollen sichtbar */}
+        {currentStep !== 4 && (
+          <div className="shrink-0 border-t p-4 bg-background">
+            {currentStep === 1 && (
+              <Button
+                onClick={() => setCurrentStep(2)}
+                disabled={!canProceedToStep2}
+                className="w-full"
+                size="lg"
+              >
+                Weiter
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            )}
+            {currentStep === 2 && (
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentStep(1)}
+                  className="flex-1"
+                  size="lg"
+                >
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  Zurück
+                </Button>
+                <Button
+                  onClick={() => setCurrentStep(3)}
+                  disabled={!canProceedToStep3}
+                  className="flex-1"
+                  size="lg"
+                >
+                  Weiter
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+            )}
+            {currentStep === 3 && (
+              <div className="flex gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setCurrentStep(2)}
+                  className="flex-1"
+                  size="lg"
+                >
+                  <ChevronLeft className="h-4 w-4 mr-1" />
+                  Zurück
+                </Button>
+                <Button
+                  type="submit"
+                  form="applyForm"
+                  className="flex-1"
+                  size="lg"
+                  disabled={mutation.isPending || !privacyAccepted}
+                >
+                  {mutation.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Wird gesendet...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4" />
+                      Jetzt bewerben
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

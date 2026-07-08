@@ -13,6 +13,8 @@ export const applicationSchema = z.object({
   phone: z.string().trim().min(1, "Telefonnummer ist erforderlich").max(30, "Telefonnummer darf max. 30 Zeichen lang sein").regex(/^[+\d\s\-()\/]+$/, "Bitte eine gültige Telefonnummer eingeben"),
   role: z.enum(validRoles, { errorMap: () => ({ message: "Bitte wählen Sie eine gültige Rolle" }) }),
   experience: z.enum(validExperience, { errorMap: () => ({ message: "Bitte wählen Sie eine gültige Erfahrungsstufe" }) }),
+  postalCode: z.string().trim().regex(/^\d{5}$/, "PLZ muss 5-stellig sein").optional().or(z.literal("")),
+  deutschlandweit: z.boolean().optional(),
 });
 
 // Job creation/update

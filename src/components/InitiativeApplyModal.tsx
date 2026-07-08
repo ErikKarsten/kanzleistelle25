@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { applicationSchema } from "@/lib/validations";
+import { isPlz, resolveOrtFromPlz } from "@/lib/geo";
 import ApplySuccessStep from "./ApplySuccessStep";
 
 interface InitiativeApplyModalProps {
@@ -60,12 +61,35 @@ const InitiativeApplyModal = ({ open, onOpenChange }: InitiativeApplyModalProps)
     lastName: "",
     email: "",
     phone: "",
+    postalCode: "",
+    deutschlandweit: false,
   });
+  const [resolvedOrt, setResolvedOrt] = useState<string | null>(null);
+  const [resolvingOrt, setResolvingOrt] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
+
+  // PLZ -> Ortsname auflösen (debounced), sobald eine gültige PLZ eingegeben wurde
+  useEffect(() => {
+    if (formData.deutschlandweit || !isPlz(formData.postalCode)) {
+      setResolvedOrt(null);
+      return;
+    }
+    setResolvingOrt(true);
+    const timer = setTimeout(async () => {
+      const ort = await resolveOrtFromPlz(formData.postalCode);
+      setResolvedOrt(ort);
+      setResolvingOrt(false);
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [formData.postalCode, formData.deutschlandweit]);
 
   const resetForm = () => {
     setCurrentStep(1);
     setApplicationId(null);
-    setFormData({ role: "", experience: "", firstName: "", lastName: "", email: "", phone: "" });
+    setFormData({ role: "", experience: "", firstName: "", lastName: "", email: "", phone: "", postalCode: "", deutschlandweit: false });
+    setResolvedOrt(null);
+    setResolvingOrt(false);
+    setPrivacyAccepted(false);
   };
 
   const handleOpenChange = (open: boolean) => {
@@ -78,7 +102,7 @@ const InitiativeApplyModal = ({ open, onOpenChange }: InitiativeApplyModalProps)
       const validated = applicationSchema.parse(formData);
       const generatedId = crypto.randomUUID();
 
-      const { error } = await supabase.from("applications").insert({
+      const insertData: Record<string, any> = {
         id: generatedId,
         job_id: null,
         company_id: null,
@@ -90,7 +114,18 @@ const InitiativeApplyModal = ({ open, onOpenChange }: InitiativeApplyModalProps)
         experience: validated.experience,
         internal_notes: "source: initiative",
         cover_letter: "Initiativbewerbung – Bewerber hat sich ohne spezifische Stellenanzeige beworben.",
-      } as any);
+      };
+
+      // Aktueller Wohnort / gewünschte Arbeitsregion (optional, teilen sich location/postal_code)
+      if (formData.deutschlandweit) {
+        insertData.location = "Deutschlandweit verfügbar";
+        insertData.postal_code = "00000";
+      } else if (isPlz(formData.postalCode)) {
+        insertData.postal_code = formData.postalCode;
+        insertData.location = resolvedOrt ? `${formData.postalCode} ${resolvedOrt}` : formData.postalCode;
+      }
+
+      const { error } = await supabase.from("applications").insert(insertData as any);
 
       if (error) {
         console.dir(error, { depth: null });
@@ -119,6 +154,10 @@ const InitiativeApplyModal = ({ open, onOpenChange }: InitiativeApplyModalProps)
       toast({ title: "Fehlende Angaben", description: "Bitte alle Pflichtfelder ausfüllen.", variant: "destructive" });
       return;
     }
+    if (!privacyAccepted) {
+      toast({ title: "Datenschutz-Einwilligung fehlt", description: "Bitte stimmen Sie der Datenverarbeitung zu, um fortzufahren.", variant: "destructive" });
+      return;
+    }
     mutation.mutate();
   };
 
@@ -127,9 +166,9 @@ const InitiativeApplyModal = ({ open, onOpenChange }: InitiativeApplyModalProps)
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-lg p-0 overflow-hidden">
+      <DialogContent className="sm:max-w-lg p-0 overflow-hidden flex flex-col max-h-[90vh]">
         {currentStep !== 4 && (
-          <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-6 pb-8">
+          <div className="shrink-0 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-6 pb-8">
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold text-center text-primary-foreground flex items-center justify-center gap-2">
                 <Sparkles className="h-6 w-6" />
@@ -158,7 +197,7 @@ const InitiativeApplyModal = ({ open, onOpenChange }: InitiativeApplyModalProps)
           </div>
         )}
 
-        <div className="p-6 -mt-4 bg-background rounded-t-2xl relative">
+        <div className="flex-1 overflow-y-auto p-6 -mt-4 bg-background rounded-t-2xl relative">
           {/* Step 1: Role */}
           {currentStep === 1 && (
             <div className="space-y-4">
@@ -196,9 +235,6 @@ const InitiativeApplyModal = ({ open, onOpenChange }: InitiativeApplyModalProps)
                   );
                 })}
               </div>
-              <Button onClick={() => setCurrentStep(2)} disabled={!canProceedToStep2} className="w-full mt-4" size="lg">
-                Weiter <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
             </div>
           )}
 
@@ -239,20 +275,12 @@ const InitiativeApplyModal = ({ open, onOpenChange }: InitiativeApplyModalProps)
                   );
                 })}
               </div>
-              <div className="flex gap-3 mt-4">
-                <Button variant="outline" onClick={() => setCurrentStep(1)} className="flex-1" size="lg">
-                  <ChevronLeft className="h-4 w-4 mr-1" /> Zurück
-                </Button>
-                <Button onClick={() => setCurrentStep(3)} disabled={!canProceedToStep3} className="flex-1" size="lg">
-                  Weiter <ChevronRight className="h-4 w-4 ml-1" />
-                </Button>
-              </div>
             </div>
           )}
 
           {/* Step 3: Contact */}
           {currentStep === 3 && (
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form id="initiativeApplyForm" onSubmit={handleSubmit} className="space-y-2">
               <div className="text-center mb-2">
                 <p className="text-xs text-muted-foreground uppercase tracking-wide">Schritt 3 von 3</p>
                 <h3 className="text-lg font-semibold text-foreground">Wie können wir dich erreichen?</h3>
@@ -279,23 +307,66 @@ const InitiativeApplyModal = ({ open, onOpenChange }: InitiativeApplyModalProps)
                 <Input id="init-phone" type="tel" placeholder="+49 123 456789" value={formData.phone} onChange={(e) => setFormData((p) => ({ ...p, phone: e.target.value }))} required />
               </div>
 
-              <div className="bg-muted/50 rounded-lg p-3 text-sm text-muted-foreground">
-                <p className="font-medium text-foreground mb-1">Deine Auswahl:</p>
-                <p>Rolle: {roles.find((r) => r.id === formData.role)?.label}</p>
-                <p>Erfahrung: {experienceLevels.find((e) => e.id === formData.experience)?.label}</p>
+              <div className="space-y-1 pt-1 border-t">
+                <Label htmlFor="init-postalCode">Aktueller Wohnort (optional)</Label>
+                <Input
+                  id="init-postalCode"
+                  placeholder="PLZ, z.B. 97421"
+                  inputMode="numeric"
+                  value={formData.postalCode}
+                  onChange={(e) =>
+                    setFormData((p) => ({ ...p, postalCode: e.target.value.replace(/\D/g, "").slice(0, 5) }))
+                  }
+                  disabled={formData.deutschlandweit}
+                  maxLength={5}
+                />
+                {formData.postalCode && !isPlz(formData.postalCode) && (
+                  <p className="text-xs text-destructive">Bitte eine gültige 5-stellige PLZ eingeben.</p>
+                )}
+                {resolvingOrt && (
+                  <p className="text-xs text-muted-foreground">Ort wird ermittelt…</p>
+                )}
+                {!resolvingOrt && resolvedOrt && (
+                  <p className="text-xs text-muted-foreground">📍 {formData.postalCode} {resolvedOrt}</p>
+                )}
+                <div className="flex items-center gap-2 mt-1">
+                  <input
+                    type="checkbox"
+                    id="init-deutschlandweit"
+                    checked={formData.deutschlandweit}
+                    onChange={(e) =>
+                      setFormData((p) => ({ ...p, deutschlandweit: e.target.checked, postalCode: e.target.checked ? "" : p.postalCode }))
+                    }
+                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  />
+                  <label htmlFor="init-deutschlandweit" className="text-xs text-muted-foreground">
+                    Ich bin deutschlandweit verfügbar
+                  </label>
+                </div>
               </div>
 
-              <div className="flex gap-3">
-                <Button type="button" variant="outline" onClick={() => setCurrentStep(2)} className="flex-1" size="lg">
-                  <ChevronLeft className="h-4 w-4 mr-1" /> Zurück
-                </Button>
-                <Button type="submit" className="flex-1" size="lg" disabled={mutation.isPending}>
-                  {mutation.isPending ? (
-                    <><Loader2 className="h-4 w-4 animate-spin" /> Wird gesendet...</>
-                  ) : (
-                    <><Send className="h-4 w-4" /> Initiativ bewerben</>
-                  )}
-                </Button>
+              <div className="bg-muted/50 rounded-lg p-2 text-sm text-muted-foreground">
+                <p>
+                  <span className="font-medium text-foreground">Deine Auswahl:</span>{" "}
+                  {roles.find((r) => r.id === formData.role)?.label} · {experienceLevels.find((e) => e.id === formData.experience)?.label}
+                </p>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  id="init-privacy"
+                  checked={privacyAccepted}
+                  onChange={(e) => setPrivacyAccepted(e.target.checked)}
+                  className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                />
+                <label htmlFor="init-privacy" className="text-xs text-muted-foreground">
+                  Ich stimme der Verarbeitung meiner Daten (Name, E-Mail, Telefonnummer) gemäß der{" "}
+                  <a href="/datenschutz" target="_blank" className="text-primary underline hover:no-underline">
+                    Datenschutzerklärung
+                  </a>{" "}
+                  zu. Meine Daten werden nicht an Dritte weitergegeben.
+                </label>
               </div>
             </form>
           )}
@@ -324,6 +395,47 @@ const InitiativeApplyModal = ({ open, onOpenChange }: InitiativeApplyModalProps)
             </div>
           )}
         </div>
+
+        {/* Fixierter Footer mit Navigations-/Absende-Button, bleibt beim Scrollen sichtbar */}
+        {currentStep !== 4 && (
+          <div className="shrink-0 border-t p-4 bg-background">
+            {currentStep === 1 && (
+              <Button onClick={() => setCurrentStep(2)} disabled={!canProceedToStep2} className="w-full" size="lg">
+                Weiter <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            )}
+            {currentStep === 2 && (
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={() => setCurrentStep(1)} className="flex-1" size="lg">
+                  <ChevronLeft className="h-4 w-4 mr-1" /> Zurück
+                </Button>
+                <Button onClick={() => setCurrentStep(3)} disabled={!canProceedToStep3} className="flex-1" size="lg">
+                  Weiter <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
+            )}
+            {currentStep === 3 && (
+              <div className="flex gap-3">
+                <Button type="button" variant="outline" onClick={() => setCurrentStep(2)} className="flex-1" size="lg">
+                  <ChevronLeft className="h-4 w-4 mr-1" /> Zurück
+                </Button>
+                <Button
+                  type="submit"
+                  form="initiativeApplyForm"
+                  className="flex-1"
+                  size="lg"
+                  disabled={mutation.isPending || !privacyAccepted}
+                >
+                  {mutation.isPending ? (
+                    <><Loader2 className="h-4 w-4 animate-spin" /> Wird gesendet...</>
+                  ) : (
+                    <><Send className="h-4 w-4" /> Initiativ bewerben</>
+                  )}
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

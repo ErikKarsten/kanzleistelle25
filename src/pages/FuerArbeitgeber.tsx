@@ -27,6 +27,7 @@ import {
 import officeModernImage from "@/assets/office-modern.webp";
 import partnershipImage from "@/assets/partnership-handshake.webp";
 import plzCoords from "@/data/plz-coords.json";
+import { geocodeQuery } from "@/lib/geo";
 
 const taxJobs = [
   "Steuerfachangestellte",
@@ -123,35 +124,6 @@ const benefits = [
     description: "Schnelle Prozesse für dringende Vakanzen in Ihrer Kanzlei.",
   },
 ];
-
-let lastNominatimCall = 0;
-
-async function geocodeQuery(query: string): Promise<{ lat: number; lon: number; postcode?: string } | null> {
-  const key = `gc_${query.toLowerCase().replace(/\s+/g, "_")}`;
-  const cached = sessionStorage.getItem(key);
-  if (cached !== null) return cached === "null" ? null : JSON.parse(cached);
-
-  const delay = Math.max(0, 1100 - (Date.now() - lastNominatimCall));
-  if (delay > 0) await new Promise((r) => setTimeout(r, delay));
-  lastNominatimCall = Date.now();
-
-  try {
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query + ", Deutschland")}&format=json&limit=1&accept-language=de&addressdetails=1`;
-    const res = await fetch(url, { headers: { "User-Agent": "kanzleistelle25/1.0" } });
-    const data = await res.json();
-    if (data[0]) {
-      const result = {
-        lat: parseFloat(data[0].lat),
-        lon: parseFloat(data[0].lon),
-        postcode: data[0].address?.postcode as string | undefined,
-      };
-      sessionStorage.setItem(key, JSON.stringify(result));
-      return result;
-    }
-  } catch {}
-  sessionStorage.setItem(key, "null");
-  return null;
-}
 
 function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371;
