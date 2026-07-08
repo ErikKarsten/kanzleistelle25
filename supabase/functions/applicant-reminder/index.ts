@@ -12,7 +12,7 @@ const corsHeaders = {
 const YEAR = new Date().getFullYear();
 const DASHBOARD_URL = "https://kanzleistelle24.de";
 const LOGO_URL =
-  "https://myvjwpbhdnnrkwazudnh.supabase.co/storage/v1/object/public/logos/Kanzleistelle%2024%20Logo-01.png";
+  "https://myvjwpbhdnnrkwazudnh.supabase.co/storage/v1/object/public/logos/kanzleistelle24-logo-optimiert.png";
 const NEELE_IMG =
   "https://myvjwpbhdnnrkwazudnh.supabase.co/storage/v1/object/public/logos/Neele%20Business.jpg";
 
