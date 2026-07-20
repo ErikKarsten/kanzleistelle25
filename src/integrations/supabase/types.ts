@@ -29,19 +29,24 @@ export type Database = {
           eintrittsdatum: string | null
           email: string | null
           experience: string | null
+          experience_years: number | null
           first_name: string | null
           gehaltsvorstellung: string | null
           id: string
           internal_notes: string | null
           is_archived: boolean
           job_id: string | null
+          kandidatenwerk_candidate_id: string | null
           kanzlei_id: string | null
           last_name: string | null
           last_profile_update: string | null
           last_viewed_by_employer: string | null
           lebenslauf_url: string | null
+          location: string | null
           notice_period: string | null
           phone: string | null
+          position: string | null
+          postal_code: string | null
           resume_url: string | null
           salary_expectation: string | null
           special_skills: string | null
@@ -64,19 +69,24 @@ export type Database = {
           eintrittsdatum?: string | null
           email?: string | null
           experience?: string | null
+          experience_years?: number | null
           first_name?: string | null
           gehaltsvorstellung?: string | null
           id?: string
           internal_notes?: string | null
           is_archived?: boolean
           job_id?: string | null
+          kandidatenwerk_candidate_id?: string | null
           kanzlei_id?: string | null
           last_name?: string | null
           last_profile_update?: string | null
           last_viewed_by_employer?: string | null
           lebenslauf_url?: string | null
+          location?: string | null
           notice_period?: string | null
           phone?: string | null
+          position?: string | null
+          postal_code?: string | null
           resume_url?: string | null
           salary_expectation?: string | null
           special_skills?: string | null
@@ -99,19 +109,24 @@ export type Database = {
           eintrittsdatum?: string | null
           email?: string | null
           experience?: string | null
+          experience_years?: number | null
           first_name?: string | null
           gehaltsvorstellung?: string | null
           id?: string
           internal_notes?: string | null
           is_archived?: boolean
           job_id?: string | null
+          kandidatenwerk_candidate_id?: string | null
           kanzlei_id?: string | null
           last_name?: string | null
           last_profile_update?: string | null
           last_viewed_by_employer?: string | null
           lebenslauf_url?: string | null
+          location?: string | null
           notice_period?: string | null
           phone?: string | null
+          position?: string | null
+          postal_code?: string | null
           resume_url?: string | null
           salary_expectation?: string | null
           special_skills?: string | null
@@ -221,6 +236,7 @@ export type Database = {
           id: string
           is_active: boolean
           just_reactivated: boolean
+          kandidatenwerk_client_id: string | null
           last_sign_in_at: string | null
           location: string | null
           logo_url: string | null
@@ -238,6 +254,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           just_reactivated?: boolean
+          kandidatenwerk_client_id?: string | null
           last_sign_in_at?: string | null
           location?: string | null
           logo_url?: string | null
@@ -255,6 +272,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           just_reactivated?: boolean
+          kandidatenwerk_client_id?: string | null
           last_sign_in_at?: string | null
           location?: string | null
           logo_url?: string | null
@@ -277,6 +295,7 @@ export type Database = {
           phone: string | null
           source_url: string | null
           status: string
+          telefon: string
         }
         Insert: {
           created_at?: string
@@ -287,6 +306,7 @@ export type Database = {
           phone?: string | null
           source_url?: string | null
           status?: string
+          telefon: string
         }
         Update: {
           created_at?: string
@@ -297,6 +317,7 @@ export type Database = {
           phone?: string | null
           source_url?: string | null
           status?: string
+          telefon?: string
         }
         Relationships: []
       }
@@ -354,7 +375,9 @@ export type Database = {
       jobs: {
         Row: {
           admin_feedback: string | null
+          ai_optimized: boolean | null
           benefits: string[] | null
+          city: string | null
           company: string
           company_id: string | null
           contact_person_id: string | null
@@ -364,7 +387,11 @@ export type Database = {
           employment_type: string | null
           id: string
           is_active: boolean | null
+          kandidatenwerk_campaign_id: string | null
+          latitude: number | null
           location: string | null
+          longitude: number | null
+          postal_code: string | null
           requirements: string | null
           salary_max: number | null
           salary_min: number | null
@@ -376,7 +403,9 @@ export type Database = {
         }
         Insert: {
           admin_feedback?: string | null
+          ai_optimized?: boolean | null
           benefits?: string[] | null
+          city?: string | null
           company: string
           company_id?: string | null
           contact_person_id?: string | null
@@ -386,7 +415,11 @@ export type Database = {
           employment_type?: string | null
           id?: string
           is_active?: boolean | null
+          kandidatenwerk_campaign_id?: string | null
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
+          postal_code?: string | null
           requirements?: string | null
           salary_max?: number | null
           salary_min?: number | null
@@ -398,7 +431,9 @@ export type Database = {
         }
         Update: {
           admin_feedback?: string | null
+          ai_optimized?: boolean | null
           benefits?: string[] | null
+          city?: string | null
           company?: string
           company_id?: string | null
           contact_person_id?: string | null
@@ -408,7 +443,11 @@ export type Database = {
           employment_type?: string | null
           id?: string
           is_active?: boolean | null
+          kandidatenwerk_campaign_id?: string | null
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
+          postal_code?: string | null
           requirements?: string | null
           salary_max?: number | null
           salary_min?: number | null
@@ -478,7 +517,35 @@ export type Database = {
             referencedRelation: "applications"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "messages_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications_public"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      postal_codes: {
+        Row: {
+          city: string | null
+          latitude: number | null
+          longitude: number | null
+          postal_code: string
+        }
+        Insert: {
+          city?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          postal_code: string
+        }
+        Update: {
+          city?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          postal_code?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -521,7 +588,7 @@ export type Database = {
           admin_id: string
           admin_note: string | null
           applicant_name: string | null
-          applicant_user_id: string
+          applicant_user_id: string | null
           company_id: string
           company_name: string | null
           confirmed_at: string | null
@@ -536,7 +603,7 @@ export type Database = {
           admin_id: string
           admin_note?: string | null
           applicant_name?: string | null
-          applicant_user_id: string
+          applicant_user_id?: string | null
           company_id: string
           company_name?: string | null
           confirmed_at?: string | null
@@ -551,7 +618,7 @@ export type Database = {
           admin_id?: string
           admin_note?: string | null
           applicant_name?: string | null
-          applicant_user_id?: string
+          applicant_user_id?: string | null
           company_id?: string
           company_name?: string | null
           confirmed_at?: string | null
@@ -586,6 +653,39 @@ export type Database = {
           },
         ]
       }
+      salary_data: {
+        Row: {
+          bundesland: string
+          created_at: string | null
+          experience_level: string
+          id: string
+          job_type: string
+          salary_max: number
+          salary_median: number
+          salary_min: number
+        }
+        Insert: {
+          bundesland: string
+          created_at?: string | null
+          experience_level: string
+          id?: string
+          job_type: string
+          salary_max: number
+          salary_median: number
+          salary_min: number
+        }
+        Update: {
+          bundesland?: string
+          created_at?: string | null
+          experience_level?: string
+          id?: string
+          job_type?: string
+          salary_max?: number
+          salary_median?: number
+          salary_min?: number
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -606,6 +706,60 @@ export type Database = {
       }
     }
     Views: {
+      applications_public: {
+        Row: {
+          applicant_role: string | null
+          created_at: string | null
+          earliest_start_date: string | null
+          eintrittsdatum: string | null
+          experience: string | null
+          experience_years: number | null
+          gehaltsvorstellung: string | null
+          id: string | null
+          location: string | null
+          notice_period: string | null
+          position: string | null
+          postal_code: string | null
+          salary_expectation: string | null
+          special_skills: string | null
+          status: string | null
+        }
+        Insert: {
+          applicant_role?: string | null
+          created_at?: string | null
+          earliest_start_date?: string | null
+          eintrittsdatum?: string | null
+          experience?: string | null
+          experience_years?: number | null
+          gehaltsvorstellung?: string | null
+          id?: string | null
+          location?: string | null
+          notice_period?: string | null
+          position?: string | null
+          postal_code?: string | null
+          salary_expectation?: string | null
+          special_skills?: string | null
+          status?: string | null
+        }
+        Update: {
+          applicant_role?: string | null
+          created_at?: string | null
+          earliest_start_date?: string | null
+          eintrittsdatum?: string | null
+          experience?: string | null
+          experience_years?: number | null
+          gehaltsvorstellung?: string | null
+          id?: string | null
+          location?: string | null
+          notice_period?: string | null
+          position?: string | null
+          postal_code?: string | null
+          salary_expectation?: string | null
+          special_skills?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
       public_companies: {
         Row: {
           admin_notes: string | null
@@ -662,6 +816,10 @@ export type Database = {
       }
     }
     Functions: {
+      calculate_distance: {
+        Args: { lat1: number; lat2: number; lon1: number; lon2: number }
+        Returns: number
+      }
       has_role:
         | {
             Args: {
@@ -677,6 +835,17 @@ export type Database = {
       link_application_to_user: {
         Args: { _application_id: string; _email: string; _user_id: string }
         Returns: undefined
+      }
+      search_jobs_by_radius: {
+        Args: { radius_km?: number; search_postal_code: string }
+        Returns: {
+          city: string
+          company: string
+          distance_km: number
+          id: string
+          postal_code: string
+          title: string
+        }[]
       }
     }
     Enums: {
