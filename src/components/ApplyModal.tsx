@@ -195,15 +195,19 @@ const ApplyModal = ({
       }
 
       console.log('[ApplyModal] Sende Insert:', JSON.stringify(insertData, null, 2));
-      
-      const { error } = await supabase.from("applications").insert(insertData as any);
-      
+
+      const { data: inserted, error } = await supabase
+        .from("applications")
+        .insert(insertData as any)
+        .select("status_token")
+        .single();
+
       if (error) {
         console.dir(error, { depth: null });
         throw error;
       }
-      
-      return { success: true, applicationId: generatedId };
+
+      return { success: true, applicationId: generatedId, statusToken: inserted?.status_token as string | undefined };
     },
     onSuccess: async (result) => {
       setApplicationId(result.applicationId);
@@ -234,6 +238,25 @@ const ApplyModal = ({
           }
         }
       } catch (e) { console.warn("[ApplyModal] Employer email notification error:", e); }
+
+      // Bestätigungsmail an den Bewerber + interne Benachrichtigung (fire-and-forget)
+      supabase.functions.invoke("send-application-confirmation", {
+        body: {
+          applicationId: result.applicationId,
+          firstName: formData.firstName,
+          email: formData.email,
+          statusToken: result.statusToken,
+        },
+      }).catch((e) => console.warn("[ApplyModal] send-application-confirmation error:", e));
+
+      supabase.functions.invoke("notify-new-application", {
+        body: {
+          applicantName: `${formData.firstName} ${formData.lastName}`.trim(),
+          email: formData.email,
+          position: jobTitle,
+          applicantRole: formData.role,
+        },
+      }).catch((e) => console.warn("[ApplyModal] notify-new-application error:", e));
     },
     onError: (error: any) => {
       console.error('Bewerbung Fehler:', error);

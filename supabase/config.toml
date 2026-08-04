@@ -12,6 +12,15 @@ verify_jwt = false
 [functions.applicant-reminder]
 verify_jwt = false
 
+[functions.get-application-status]
+verify_jwt = false
+
+[functions.send-application-confirmation]
+verify_jwt = false
+
+[functions.notify-new-application]
+verify_jwt = false
+
 [functions.leadtable]
 enabled = true
 verify_jwt = true

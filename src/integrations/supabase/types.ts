@@ -76,6 +76,7 @@ export type Database = {
           salary_expectation: string | null
           special_skills: string | null
           status: string | null
+          status_token: string
           updated_at: string | null
           user_id: string | null
           zeugnis_url: string | null
@@ -116,6 +117,7 @@ export type Database = {
           salary_expectation?: string | null
           special_skills?: string | null
           status?: string | null
+          status_token?: string
           updated_at?: string | null
           user_id?: string | null
           zeugnis_url?: string | null
@@ -156,6 +158,7 @@ export type Database = {
           salary_expectation?: string | null
           special_skills?: string | null
           status?: string | null
+          status_token?: string
           updated_at?: string | null
           user_id?: string | null
           zeugnis_url?: string | null

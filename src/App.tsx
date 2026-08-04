@@ -28,6 +28,7 @@ import AGB from "./pages/AGB";
 import Datenschutz from "./pages/Datenschutz";
 import { CookieBanner } from "@/components/CookieBanner";
 import BewerberDashboard from "./pages/BewerberDashboard";
+import BewerbungStatus from "./pages/BewerbungStatus";
 import PasswortVergessen from "./pages/PasswortVergessen";
 import PasswortZuruecksetzen from "./pages/PasswortZuruecksetzen";
 import NeeleContactElements from "./components/NeeleContactElements";
@@ -62,6 +63,7 @@ const App = () => (
               <Route path="/passwort-vergessen" element={<PasswortVergessen />} />
               <Route path="/passwort-zuruecksetzen" element={<PasswortZuruecksetzen />} />
               <Route path="/bewerber-dashboard" element={<BewerberDashboard />} />
+              <Route path="/bewerbung-status" element={<BewerbungStatus />} />
               <Route path="/dashboard" element={<EmployerDashboard />} />
               <Route path="/dashboard/settings" element={<EmployerSettings />} />
               <Route path="/admin-upload" element={<AdminUpload />} />
