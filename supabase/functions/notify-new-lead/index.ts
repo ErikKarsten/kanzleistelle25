@@ -12,14 +12,14 @@ serve(async (req) => {
   }
 
   try {
-    const { full_name, email, phone, message, source_url } = await req.json();
+    const { full_name, email, telefon, message, source_url } = await req.json();
 
     const html = `
       <h2>Neue Kontaktanfrage über Kanzleistelle24</h2>
       <table style="border-collapse:collapse;">
         <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Name:</td><td>${full_name}</td></tr>
         <tr><td style="padding:4px 12px 4px 0;font-weight:bold;">E-Mail:</td><td><a href="mailto:${email}">${email}</a></td></tr>
-        ${phone ? `<tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Telefon:</td><td>${phone}</td></tr>` : ""}
+        ${telefon ? `<tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Telefon:</td><td>${telefon}</td></tr>` : ""}
         ${source_url ? `<tr><td style="padding:4px 12px 4px 0;font-weight:bold;">Seite:</td><td>${source_url}</td></tr>` : ""}
       </table>
       <h3>Nachricht:</h3>

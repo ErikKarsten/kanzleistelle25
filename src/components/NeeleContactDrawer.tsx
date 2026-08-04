@@ -32,7 +32,7 @@ const NeeleContactDrawer = ({ open, onOpenChange }: NeeleContactDrawerProps) => 
     const leadData = {
       full_name: form.name.trim(),
       email: form.email.trim(),
-      phone: form.phone.trim(),
+      telefon: form.phone.trim(),
       message: form.message.trim(),
       source_url: window.location.pathname,
     };
