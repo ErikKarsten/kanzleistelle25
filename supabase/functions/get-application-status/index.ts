@@ -29,7 +29,7 @@ serve(async (req) => {
 
     const { data, error } = await supabase
       .from("applications")
-      .select("first_name, status, created_at, position, applicant_role, jobs(title)")
+      .select("first_name, status, created_at, position, applicant_role, applicant_role_other, jobs(title)")
       .eq("status_token", token)
       .maybeSingle();
 
@@ -55,6 +55,7 @@ serve(async (req) => {
         created_at: data.created_at,
         position: (data.jobs as { title?: string } | null)?.title || data.position || null,
         applicant_role: data.applicant_role,
+        applicant_role_other: data.applicant_role_other,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );

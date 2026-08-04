@@ -1,21 +1,32 @@
 import { z } from "zod";
 
 // Valid role and experience options
-const validRoles = ["steuerfachangestellte", "steuerberater", "bilanzbuchhalter", "lohnbuchhalter"] as const;
+const validRoles = ["steuerfachangestellte", "steuerberater", "bilanzbuchhalter", "lohnbuchhalter", "steuerfachwirt", "sonstige"] as const;
 const validExperience = ["0-1", "2-3", "4-6", "7+"] as const;
 const validEmploymentTypes = ["vollzeit", "teilzeit", "minijob"] as const;
 
 // Application form
-export const applicationSchema = z.object({
-  firstName: z.string().trim().min(1, "Vorname ist erforderlich").max(100, "Vorname darf max. 100 Zeichen lang sein"),
-  lastName: z.string().trim().min(1, "Nachname ist erforderlich").max(100, "Nachname darf max. 100 Zeichen lang sein"),
-  email: z.string().trim().email("Ungültige E-Mail-Adresse").max(255, "E-Mail darf max. 255 Zeichen lang sein"),
-  phone: z.string().trim().min(1, "Telefonnummer ist erforderlich").max(30, "Telefonnummer darf max. 30 Zeichen lang sein").regex(/^[+\d\s\-()\/]+$/, "Bitte eine gültige Telefonnummer eingeben"),
-  role: z.enum(validRoles, { errorMap: () => ({ message: "Bitte wählen Sie eine gültige Rolle" }) }),
-  experience: z.enum(validExperience, { errorMap: () => ({ message: "Bitte wählen Sie eine gültige Erfahrungsstufe" }) }),
-  postalCode: z.string().trim().regex(/^\d{5}$/, "PLZ muss 5-stellig sein").optional().or(z.literal("")),
-  deutschlandweit: z.boolean().optional(),
-});
+export const applicationSchema = z
+  .object({
+    firstName: z.string().trim().min(1, "Vorname ist erforderlich").max(100, "Vorname darf max. 100 Zeichen lang sein"),
+    lastName: z.string().trim().min(1, "Nachname ist erforderlich").max(100, "Nachname darf max. 100 Zeichen lang sein"),
+    email: z.string().trim().email("Ungültige E-Mail-Adresse").max(255, "E-Mail darf max. 255 Zeichen lang sein"),
+    phone: z.string().trim().min(1, "Telefonnummer ist erforderlich").max(30, "Telefonnummer darf max. 30 Zeichen lang sein").regex(/^[+\d\s\-()\/]+$/, "Bitte eine gültige Telefonnummer eingeben"),
+    role: z.enum(validRoles, { errorMap: () => ({ message: "Bitte wählen Sie eine gültige Rolle" }) }),
+    roleOther: z.string().trim().max(100, "Berufsbezeichnung darf max. 100 Zeichen lang sein").optional().or(z.literal("")),
+    experience: z.enum(validExperience, { errorMap: () => ({ message: "Bitte wählen Sie eine gültige Erfahrungsstufe" }) }),
+    postalCode: z.string().trim().regex(/^\d{5}$/, "PLZ muss 5-stellig sein").optional().or(z.literal("")),
+    deutschlandweit: z.boolean().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.role === "sonstige" && !data.roleOther?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["roleOther"],
+        message: "Bitte gib deine Berufsbezeichnung an",
+      });
+    }
+  });
 
 // Job creation/update
 export const jobSchema = z.object({

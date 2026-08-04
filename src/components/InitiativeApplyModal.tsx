@@ -20,6 +20,8 @@ import {
   Scale,
   BookOpen,
   Users,
+  GraduationCap,
+  MoreHorizontal,
   Clock,
   Briefcase,
   Award,
@@ -42,6 +44,8 @@ const roles = [
   { id: "steuerberater", label: "Steuerberater*in", sublabel: "(m/w/d)", icon: Scale },
   { id: "bilanzbuchhalter", label: "Finanz/Bilanzbuchhalter*in", sublabel: "(m/w/d)", icon: BookOpen },
   { id: "lohnbuchhalter", label: "Lohnbuchhalter*in", sublabel: "(m/w/d)", icon: Users },
+  { id: "steuerfachwirt", label: "Steuerfachwirt*in", sublabel: "(m/w/d)", icon: GraduationCap },
+  { id: "sonstige", label: "Sonstige", sublabel: "(m/w/d)", icon: MoreHorizontal },
 ];
 
 const experienceLevels = [
@@ -56,6 +60,7 @@ const InitiativeApplyModal = ({ open, onOpenChange }: InitiativeApplyModalProps)
   const [applicationId, setApplicationId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     role: "",
+    roleOther: "",
     experience: "",
     firstName: "",
     lastName: "",
@@ -86,7 +91,7 @@ const InitiativeApplyModal = ({ open, onOpenChange }: InitiativeApplyModalProps)
   const resetForm = () => {
     setCurrentStep(1);
     setApplicationId(null);
-    setFormData({ role: "", experience: "", firstName: "", lastName: "", email: "", phone: "", postalCode: "", deutschlandweit: false });
+    setFormData({ role: "", roleOther: "", experience: "", firstName: "", lastName: "", email: "", phone: "", postalCode: "", deutschlandweit: false });
     setResolvedOrt(null);
     setResolvingOrt(false);
     setPrivacyAccepted(false);
@@ -111,6 +116,7 @@ const InitiativeApplyModal = ({ open, onOpenChange }: InitiativeApplyModalProps)
         email: validated.email,
         phone: validated.phone,
         applicant_role: validated.role,
+        applicant_role_other: validated.role === "sonstige" ? validated.roleOther?.trim() || null : null,
         experience: validated.experience,
         internal_notes: "source: initiative",
         cover_letter: "Initiativbewerbung – Bewerber hat sich ohne spezifische Stellenanzeige beworben.",
@@ -184,7 +190,8 @@ const InitiativeApplyModal = ({ open, onOpenChange }: InitiativeApplyModalProps)
     mutation.mutate();
   };
 
-  const canProceedToStep2 = formData.role !== "";
+  const canProceedToStep2 =
+    formData.role !== "" && (formData.role !== "sonstige" || formData.roleOther.trim() !== "");
   const canProceedToStep3 = formData.experience !== "";
 
   return (
@@ -258,6 +265,18 @@ const InitiativeApplyModal = ({ open, onOpenChange }: InitiativeApplyModalProps)
                   );
                 })}
               </div>
+              {formData.role === "sonstige" && (
+                <div className="space-y-2">
+                  <Label htmlFor="init-roleOther">Bitte gib deine Berufsbezeichnung an *</Label>
+                  <Input
+                    id="init-roleOther"
+                    placeholder="z.B. Steuerassistent*in"
+                    value={formData.roleOther}
+                    onChange={(e) => setFormData((p) => ({ ...p, roleOther: e.target.value }))}
+                    required
+                  />
+                </div>
+              )}
             </div>
           )}
 

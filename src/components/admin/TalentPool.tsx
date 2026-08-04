@@ -40,7 +40,15 @@ const roleLabels: Record<string, string> = {
   steuerberater: "Steuerberater*in",
   bilanzbuchhalter: "Finanz-/Bilanzbuchhalter*in",
   lohnbuchhalter: "Lohnbuchhalter*in",
+  steuerfachwirt: "Steuerfachwirt*in",
+  sonstige: "Sonstige",
 };
+
+function formatApplicantRole(role: string | null | undefined, roleOther: string | null | undefined): string {
+  if (!role) return "—";
+  const label = roleLabels[role] || role;
+  return role === "sonstige" && roleOther ? `${label}: ${roleOther}` : label;
+}
 
 const TalentPool = () => {
   const { user } = useAuth();
@@ -235,7 +243,7 @@ const TalentPool = () => {
                       {talent.first_name} {talent.last_name}
                     </TableCell>
                     <TableCell className="text-sm">
-                      {roleLabels[talent.applicant_role || ""] || talent.applicant_role || "—"}
+                      {formatApplicantRole(talent.applicant_role, talent.applicant_role_other)}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {talent.experience ? `${talent.experience} Jahre` : "—"}
@@ -308,7 +316,7 @@ const TalentPool = () => {
               <DialogDescription>
                 {selectedTalent && (
                   <span>
-                    Weisen Sie <strong>{selectedTalent.first_name} {selectedTalent.last_name}</strong> ({roleLabels[selectedTalent.applicant_role] || selectedTalent.applicant_role}) einer Kanzlei zu.
+                    Weisen Sie <strong>{selectedTalent.first_name} {selectedTalent.last_name}</strong> ({formatApplicantRole(selectedTalent.applicant_role, selectedTalent.applicant_role_other)}) einer Kanzlei zu.
                   </span>
                 )}
               </DialogDescription>

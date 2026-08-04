@@ -21,6 +21,8 @@ import {
   Scale,
   BookOpen,
   Users,
+  GraduationCap,
+  MoreHorizontal,
   Clock,
   Briefcase,
   Award,
@@ -64,11 +66,25 @@ const roles = [
     icon: BookOpen,
     color: "bg-[hsl(220,60%,25%)] text-[hsl(45,100%,95%)]"
   },
-  { 
-    id: "lohnbuchhalter", 
-    label: "Lohnbuchhalter*in", 
+  {
+    id: "lohnbuchhalter",
+    label: "Lohnbuchhalter*in",
     sublabel: "(m/w/d)",
     icon: Users,
+    color: "bg-[hsl(220,60%,25%)] text-[hsl(45,100%,95%)]"
+  },
+  {
+    id: "steuerfachwirt",
+    label: "Steuerfachwirt*in",
+    sublabel: "(m/w/d)",
+    icon: GraduationCap,
+    color: "bg-[hsl(220,60%,25%)] text-[hsl(45,100%,95%)]"
+  },
+  {
+    id: "sonstige",
+    label: "Sonstige",
+    sublabel: "(m/w/d)",
+    icon: MoreHorizontal,
     color: "bg-[hsl(220,60%,25%)] text-[hsl(45,100%,95%)]"
   },
 ];
@@ -93,6 +109,7 @@ const ApplyModal = ({
   const [applicationId, setApplicationId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     role: "",
+    roleOther: "",
     experience: "",
     firstName: "",
     lastName: "",
@@ -140,6 +157,7 @@ const ApplyModal = ({
     setApplicationId(null);
     setFormData({
       role: "",
+      roleOther: "",
       experience: "",
       firstName: "",
       lastName: "",
@@ -179,6 +197,7 @@ const ApplyModal = ({
         email: validated.email,
         phone: validated.phone,
         applicant_role: validated.role,
+        applicant_role_other: validated.role === "sonstige" ? validated.roleOther?.trim() || null : null,
         experience: validated.experience,
       };
       if (companyId) {
@@ -296,7 +315,8 @@ const ApplyModal = ({
     mutation.mutate();
   };
 
-  const canProceedToStep2 = formData.role !== "";
+  const canProceedToStep2 =
+    formData.role !== "" && (formData.role !== "sonstige" || formData.roleOther.trim() !== "");
   const canProceedToStep3 = formData.experience !== "";
 
   const progressPercent = ((currentStep - 1) / 2) * 100;
@@ -393,6 +413,20 @@ const ApplyModal = ({
                   );
                 })}
               </div>
+              {formData.role === "sonstige" && (
+                <div className="space-y-2">
+                  <Label htmlFor="roleOther">Bitte gib deine Berufsbezeichnung an *</Label>
+                  <Input
+                    id="roleOther"
+                    placeholder="z.B. Steuerassistent*in"
+                    value={formData.roleOther}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, roleOther: e.target.value }))
+                    }
+                    required
+                  />
+                </div>
+              )}
             </div>
           )}
 

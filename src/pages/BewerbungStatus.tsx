@@ -16,6 +16,7 @@ interface StatusData {
   created_at: string | null;
   position: string | null;
   applicant_role: string | null;
+  applicant_role_other: string | null;
 }
 
 const STATUS_CONFIG: Record<string, { label: string; className: string; icon: typeof Clock }> = {
@@ -32,6 +33,8 @@ const ROLE_LABELS: Record<string, string> = {
   steuerberater: "Steuerberater*in",
   bilanzbuchhalter: "Finanz/Bilanzbuchhalter*in",
   lohnbuchhalter: "Lohnbuchhalter*in",
+  steuerfachwirt: "Steuerfachwirt*in",
+  sonstige: "Sonstige",
 };
 
 const BewerbungStatus = () => {
@@ -63,7 +66,11 @@ const BewerbungStatus = () => {
 
   const statusInfo = data?.status ? STATUS_CONFIG[data.status] : null;
   const StatusIcon = statusInfo?.icon ?? Clock;
-  const roleLabel = data?.applicant_role ? ROLE_LABELS[data.applicant_role] ?? data.applicant_role : null;
+  const roleLabel = data?.applicant_role
+    ? data.applicant_role === "sonstige" && data.applicant_role_other
+      ? `${ROLE_LABELS[data.applicant_role] ?? data.applicant_role}: ${data.applicant_role_other}`
+      : ROLE_LABELS[data.applicant_role] ?? data.applicant_role
+    : null;
 
   return (
     <div className="min-h-screen flex flex-col">
