@@ -47,6 +47,10 @@ const NeeleContactDrawer = ({ open, onOpenChange }: NeeleContactDrawerProps) => 
 
     supabase.functions.invoke("notify-new-lead", { body: leadData }).catch(console.error);
 
+    supabase.functions.invoke("send-contact-confirmation", {
+      body: { name: leadData.full_name, email: leadData.email },
+    }).catch((e) => console.warn("[NeeleContactDrawer] send-contact-confirmation error:", e));
+
     setSending(false);
     setSent(true);
     setForm({ name: "", email: "", phone: "", message: "" });
