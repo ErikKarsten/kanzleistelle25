@@ -24,6 +24,12 @@ verify_jwt = false
 [functions.send-contact-confirmation]
 verify_jwt = false
 
+[functions.send-employer-welcome]
+verify_jwt = false
+
+[functions.notify-new-employer]
+verify_jwt = false
+
 [functions.leadtable]
 enabled = true
 verify_jwt = true

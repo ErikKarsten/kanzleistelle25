@@ -84,6 +84,15 @@ const RegisterEmployer = () => {
 
       if (companyError) throw companyError;
 
+      // Willkommensmail an die Kanzlei + interne Benachrichtigung (fire-and-forget)
+      supabase.functions.invoke("send-employer-welcome", {
+        body: { companyName: formData.companyName, email: formData.email },
+      }).catch((e) => console.warn("[RegisterEmployer] send-employer-welcome error:", e));
+
+      supabase.functions.invoke("notify-new-employer", {
+        body: { companyName: formData.companyName, email: formData.email },
+      }).catch((e) => console.warn("[RegisterEmployer] notify-new-employer error:", e));
+
       // Show verification step
       setStep("verify");
       
