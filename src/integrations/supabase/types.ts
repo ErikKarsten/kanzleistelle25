@@ -881,6 +881,25 @@ export type Database = {
           title: string
         }[]
       }
+      submit_application: {
+        Args: {
+          _applicant_role: string
+          _applicant_role_other?: string | null
+          _company_id?: string | null
+          _cover_letter?: string | null
+          _email: string
+          _experience: string
+          _first_name: string
+          _id: string
+          _internal_notes?: string | null
+          _job_id?: string | null
+          _last_name: string
+          _location?: string | null
+          _phone: string
+          _postal_code?: string | null
+        }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "admin" | "employer" | "candidate"

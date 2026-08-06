@@ -1,0 +1,15 @@
+-- Der spaltenscharfe SELECT-Grant aus
+-- 20260806000000_applications_grant_status_token_select.sql wird durch
+-- public.submit_application() (siehe
+-- 20260806010000_submit_application_function.sql) ueberfluessig: anon
+-- bekommt den status_token der neu erstellten Bewerbung jetzt ausschliesslich
+-- als Rueckgabewert der Funktion, nicht mehr per direktem SELECT auf der
+-- Tabelle.
+--
+-- Absichtlich als eigene REVOKE-Migration statt Aenderung/Loeschung der
+-- alten Datei: die war bereits live ausgefuehrt und ist Teil der
+-- Migrationshistorie. Ein spaltenscharfer GRANT bleibt zudem ein
+-- unnoetiges Risiko, sobald der sicherere RPC-Weg existiert -- er waere
+-- z.B. durch eine kuenftige Migration versehentlich auf weitere Spalten
+-- erweiterbar.
+REVOKE SELECT (status_token) ON public.applications FROM anon;

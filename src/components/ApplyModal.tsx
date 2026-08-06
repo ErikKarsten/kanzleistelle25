@@ -189,44 +189,40 @@ const ApplyModal = ({
 
       const generatedId = crypto.randomUUID();
 
-      const insertData: Record<string, any> = {
-        id: generatedId,
-        job_id: jobId,
-        first_name: validated.firstName,
-        last_name: validated.lastName,
-        email: validated.email,
-        phone: validated.phone,
-        applicant_role: validated.role,
-        applicant_role_other: validated.role === "sonstige" ? validated.roleOther?.trim() || null : null,
-        experience: validated.experience,
+      const rpcParams: Record<string, any> = {
+        _id: generatedId,
+        _job_id: jobId,
+        _first_name: validated.firstName,
+        _last_name: validated.lastName,
+        _email: validated.email,
+        _phone: validated.phone,
+        _applicant_role: validated.role,
+        _applicant_role_other: validated.role === "sonstige" ? validated.roleOther?.trim() || null : null,
+        _experience: validated.experience,
       };
       if (companyId) {
-        insertData.company_id = companyId;
+        rpcParams._company_id = companyId;
       }
 
       // Aktueller Wohnort / gewünschte Arbeitsregion (optional, teilen sich location/postal_code)
       if (formData.deutschlandweit) {
-        insertData.location = "Deutschlandweit verfügbar";
-        insertData.postal_code = "00000";
+        rpcParams._location = "Deutschlandweit verfügbar";
+        rpcParams._postal_code = "00000";
       } else if (isPlz(formData.postalCode)) {
-        insertData.postal_code = formData.postalCode;
-        insertData.location = resolvedOrt ? `${formData.postalCode} ${resolvedOrt}` : formData.postalCode;
+        rpcParams._postal_code = formData.postalCode;
+        rpcParams._location = resolvedOrt ? `${formData.postalCode} ${resolvedOrt}` : formData.postalCode;
       }
 
-      console.log('[ApplyModal] Sende Insert:', JSON.stringify(insertData, null, 2));
+      console.log('[ApplyModal] Sende RPC submit_application:', JSON.stringify(rpcParams, null, 2));
 
-      const { data: inserted, error } = await supabase
-        .from("applications")
-        .insert(insertData as any)
-        .select("status_token")
-        .single();
+      const { data: statusToken, error } = await supabase.rpc("submit_application", rpcParams as any);
 
       if (error) {
         console.dir(error, { depth: null });
         throw error;
       }
 
-      return { success: true, applicationId: generatedId, statusToken: inserted?.status_token as string | undefined };
+      return { success: true, applicationId: generatedId, statusToken: statusToken as string | undefined };
     },
     onSuccess: async (result) => {
       setApplicationId(result.applicationId);

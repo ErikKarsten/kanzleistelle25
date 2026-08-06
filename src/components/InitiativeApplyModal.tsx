@@ -107,42 +107,38 @@ const InitiativeApplyModal = ({ open, onOpenChange }: InitiativeApplyModalProps)
       const validated = applicationSchema.parse(formData);
       const generatedId = crypto.randomUUID();
 
-      const insertData: Record<string, any> = {
-        id: generatedId,
-        job_id: null,
-        company_id: null,
-        first_name: validated.firstName,
-        last_name: validated.lastName,
-        email: validated.email,
-        phone: validated.phone,
-        applicant_role: validated.role,
-        applicant_role_other: validated.role === "sonstige" ? validated.roleOther?.trim() || null : null,
-        experience: validated.experience,
-        internal_notes: "source: initiative",
-        cover_letter: "Initiativbewerbung – Bewerber hat sich ohne spezifische Stellenanzeige beworben.",
+      const rpcParams: Record<string, any> = {
+        _id: generatedId,
+        _job_id: null,
+        _company_id: null,
+        _first_name: validated.firstName,
+        _last_name: validated.lastName,
+        _email: validated.email,
+        _phone: validated.phone,
+        _applicant_role: validated.role,
+        _applicant_role_other: validated.role === "sonstige" ? validated.roleOther?.trim() || null : null,
+        _experience: validated.experience,
+        _internal_notes: "source: initiative",
+        _cover_letter: "Initiativbewerbung – Bewerber hat sich ohne spezifische Stellenanzeige beworben.",
       };
 
       // Aktueller Wohnort / gewünschte Arbeitsregion (optional, teilen sich location/postal_code)
       if (formData.deutschlandweit) {
-        insertData.location = "Deutschlandweit verfügbar";
-        insertData.postal_code = "00000";
+        rpcParams._location = "Deutschlandweit verfügbar";
+        rpcParams._postal_code = "00000";
       } else if (isPlz(formData.postalCode)) {
-        insertData.postal_code = formData.postalCode;
-        insertData.location = resolvedOrt ? `${formData.postalCode} ${resolvedOrt}` : formData.postalCode;
+        rpcParams._postal_code = formData.postalCode;
+        rpcParams._location = resolvedOrt ? `${formData.postalCode} ${resolvedOrt}` : formData.postalCode;
       }
 
-      const { data: inserted, error } = await supabase
-        .from("applications")
-        .insert(insertData as any)
-        .select("status_token")
-        .single();
+      const { data: statusToken, error } = await supabase.rpc("submit_application", rpcParams as any);
 
       if (error) {
         console.dir(error, { depth: null });
         throw error;
       }
 
-      return { success: true, applicationId: generatedId, statusToken: inserted?.status_token as string | undefined };
+      return { success: true, applicationId: generatedId, statusToken: statusToken as string | undefined };
     },
     onSuccess: (result) => {
       setApplicationId(result.applicationId);
