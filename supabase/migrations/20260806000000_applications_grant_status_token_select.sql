@@ -1,0 +1,12 @@
+-- Nachdokumentation: bereits live ausgeführt.
+--
+-- Hintergrund: 20260707000000_applications_rls_and_public_view.sql hat
+-- anon auf public.applications auf INSERT-only verengt (REVOKE ALL;
+-- GRANT INSERT). Seit Commit 60e3fad (04.08.) hängen ApplyModal.tsx und
+-- InitiativeApplyModal.tsx nach dem Insert ein .select("status_token")
+-- an, was PostgREST als "INSERT ... RETURNING status_token" ausführt.
+-- Eine RETURNING-Klausel benötigt in Postgres zusätzlich zum INSERT-Recht
+-- auch SELECT-Recht auf die zurückgegebenen Spalten -- das fehlte anon,
+-- daher "permission denied for table applications" beim Absenden von
+-- Bewerbungen (regulär wie initiativ).
+GRANT SELECT (status_token) ON public.applications TO anon;
