@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/table";
 import {
   Briefcase, MapPin, Building2, Pencil, Trash2, TrendingUp,
-  FileX, Star, Plus, CheckCircle, Clock, Search, ChevronLeft, ChevronRight, Sparkles,
+  FileX, Star, Plus, CheckCircle, Clock, Search, ChevronLeft, ChevronRight, Sparkles, Copy,
 } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -61,6 +61,7 @@ const isPendingStatus = (status: string | null) => status === "pending" || statu
 const JobManagement = () => {
   const [selectedJob, setSelectedJob] = useState<JobWithCompany | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [detailsInitialTab, setDetailsInitialTab] = useState<"preview" | "edit">("preview");
   const [previewOpen, setPreviewOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("active");
@@ -187,6 +188,52 @@ const JobManagement = () => {
     onError: () => { toast.error("Fehler beim Freigeben"); },
   });
 
+  const duplicateMutation = useMutation({
+    mutationFn: async (jobId: string) => {
+      const { data: original, error: fetchError } = await supabase
+        .from("jobs")
+        .select("*")
+        .eq("id", jobId)
+        .single();
+      if (fetchError) throw fetchError;
+
+      // Nur inhaltliche Felder übernehmen. Explizit ausgeschlossen:
+      // id/created_at/updated_at (neue Zeile), is_active/status/ai_optimized
+      // (unten überschrieben), sowie Felder die eindeutig pro Anzeige sind
+      // (Statistiken, Freigabe-Feedback, Kandidatenwerk-Sync-Verknüpfung).
+      const {
+        id, created_at, updated_at, is_active, status, ai_optimized,
+        matching_candidates_count, kandidatenwerk_campaign_id, admin_feedback,
+        ...contentFields
+      } = original;
+
+      const { data: inserted, error: insertError } = await supabase
+        .from("jobs")
+        .insert({
+          ...contentFields,
+          title: `[Kopie] ${contentFields.title}`,
+          is_active: false,
+          status: "pending",
+          ai_optimized: false,
+        })
+        .select(`id, title, company, company_id, location, employment_type, working_model,
+          description, requirements, benefits, salary_min, salary_max, salary_range,
+          is_active, status, ai_optimized, created_at, updated_at, companies (name, logo_url, is_active)`)
+        .single();
+      if (insertError) throw insertError;
+      return inserted as JobWithCompany;
+    },
+    onSuccess: (newJob) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-jobs"] });
+      queryClient.invalidateQueries({ queryKey: ["featured-jobs"] });
+      toast.success("Stellenanzeige dupliziert");
+      setSelectedJob(newJob);
+      setDetailsInitialTab("edit");
+      setDetailsOpen(true);
+    },
+    onError: () => { toast.error("Fehler beim Duplizieren"); },
+  });
+
   const stats = useMemo(() => {
     if (!jobs || !applicationCounts) {
       return { activeJobs: 0, inactiveJobs: 0, pendingJobs: 0, jobsWithoutApps: 0, popularJob: null as string | null };
@@ -289,6 +336,7 @@ const JobManagement = () => {
 
   const handleJobClick = (job: JobWithCompany) => {
     setSelectedJob(job);
+    setDetailsInitialTab("preview");
     if (isPendingStatus(job.status)) setPreviewOpen(true);
     else setDetailsOpen(true);
   };
@@ -441,6 +489,7 @@ const JobManagement = () => {
                 onJobClick={handleJobClick}
                 onToggle={(jobId, isActive) => toggleMutation.mutate({ jobId, isActive })}
                 onDelete={(jobId) => deleteMutation.mutate(jobId)}
+                onDuplicate={(jobId) => duplicateMutation.mutate(jobId)}
               />
             </TabsContent>
 
@@ -451,6 +500,7 @@ const JobManagement = () => {
                 onJobClick={handleJobClick}
                 onToggle={(jobId, isActive) => toggleMutation.mutate({ jobId, isActive })}
                 onDelete={(jobId) => deleteMutation.mutate(jobId)}
+                onDuplicate={(jobId) => duplicateMutation.mutate(jobId)}
               />
             </TabsContent>
 
@@ -478,6 +528,7 @@ const JobManagement = () => {
         open={detailsOpen}
         onOpenChange={setDetailsOpen}
         onDelete={(id) => deleteMutation.mutate(id)}
+        initialTab={detailsInitialTab}
       />
       <JobPreviewModal
         job={selectedJob}
@@ -496,9 +547,10 @@ interface JobsTableProps {
   onJobClick: (job: JobWithCompany) => void;
   onToggle: (jobId: string, isActive: boolean) => void;
   onDelete: (jobId: string) => void;
+  onDuplicate: (jobId: string) => void;
 }
 
-const JobsTable = ({ jobs, applicationCounts, onJobClick, onToggle, onDelete }: JobsTableProps) => {
+const JobsTable = ({ jobs, applicationCounts, onJobClick, onToggle, onDelete, onDuplicate }: JobsTableProps) => {
   if (jobs.length === 0) {
     return (
       <div className="text-center py-12">
@@ -576,6 +628,9 @@ const JobsTable = ({ jobs, applicationCounts, onJobClick, onToggle, onDelete }: 
                   <Switch checked={job.is_active ?? false} onCheckedChange={(checked) => onToggle(job.id, checked)} aria-label="Status umschalten" />
                   <Button variant="ghost" size="icon" onClick={() => onJobClick(job)} title="Bearbeiten">
                     <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => onDuplicate(job.id)} title="Duplizieren">
+                    <Copy className="h-4 w-4" />
                   </Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>

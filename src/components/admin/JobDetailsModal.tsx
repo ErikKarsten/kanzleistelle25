@@ -91,6 +91,7 @@ interface JobDetailsModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onDelete: (id: string) => void;
+  initialTab?: "preview" | "edit";
 }
 
 const employmentTypes = [
@@ -126,6 +127,7 @@ const JobDetailsModal = ({
   open,
   onOpenChange,
   onDelete,
+  initialTab = "preview",
 }: JobDetailsModalProps) => {
   const [activeTab, setActiveTab] = useState("preview");
   const [aiLoading, setAiLoading] = useState(false);
@@ -159,9 +161,9 @@ const JobDetailsModal = ({
       });
       setBenefits(Array.isArray(job.benefits) ? job.benefits : []);
       setNewBenefit("");
-      setActiveTab("preview");
+      setActiveTab(initialTab);
     }
-  }, [job]);
+  }, [job, initialTab]);
 
   const { data: applicants } = useQuery({
     queryKey: ["job-applicants", job?.id],
