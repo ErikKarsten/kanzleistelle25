@@ -345,10 +345,13 @@ const FuerArbeitgeber = () => {
                   Für Steuerkanzleien
                 </div>
                 <h1 className="text-4xl md:text-5xl font-bold mb-4">
-                  Finden Sie die besten Talente für Ihre Kanzlei
+                  Finden Sie die besten{" "}
+                  <br className="hidden md:inline" />
+                  Talente für Ihre Kanzlei
                 </h1>
                 <p className="text-lg opacity-90 mb-8 max-w-2xl">
-                  Der Fachkräftemangel in der Steuerberatung ist real. Wir helfen Ihnen, 
+                  Der Fachkräftemangel in der Steuerberatung ist real. Wir helfen Ihnen,{" "}
+                  <br className="hidden md:inline" />
                   qualifizierte Mitarbeiter zu finden – schnell, diskret und passgenau.
                 </p>
                 <Button 
