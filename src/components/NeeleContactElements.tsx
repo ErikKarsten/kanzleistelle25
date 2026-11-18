@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MessageCircle, ChevronDown, ChevronUp, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import NeeleContactDrawer from "./NeeleContactDrawer";
 import neeleImage from "@/assets/neele-ehlers.webp";
+import { INSTAGRAM_PHONE_VISIBLE_EVENT } from "@/lib/instagramPhoneEvents";
 
 /**
  * Sticky desktop card + mobile bottom bar for Neele Ehlers.
@@ -13,11 +14,21 @@ const NeeleContactElements = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const isMobile = useIsMobile();
+  // Solange das Instagram-Handy im Startseiten-Kopf sichtbar ist, Karte ausblenden
+  const [instagramPhoneVisible, setInstagramPhoneVisible] = useState(
+    () => typeof window !== "undefined" && window.location.pathname === "/"
+  );
+
+  useEffect(() => {
+    const onVisibility = (e: Event) => setInstagramPhoneVisible((e as CustomEvent<boolean>).detail);
+    window.addEventListener(INSTAGRAM_PHONE_VISIBLE_EVENT, onVisibility);
+    return () => window.removeEventListener(INSTAGRAM_PHONE_VISIBLE_EVENT, onVisibility);
+  }, []);
 
   return (
     <>
       {/* ── Desktop: Floating card on right edge ── */}
-      {!isMobile && (
+      {!isMobile && !instagramPhoneVisible && (
         <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2">
           {/* Collapse toggle */}
           <button

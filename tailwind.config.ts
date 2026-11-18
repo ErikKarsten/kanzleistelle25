@@ -81,10 +81,28 @@ export default {
             height: "0",
           },
         },
+        // Instagram-Handy im Startseiten-Kopf: von unten einfliegen …
+        "phone-rise": {
+          "0%": { transform: "translateY(115%)", opacity: "0" },
+          "60%": { opacity: "1" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
+        },
+        // … und danach kurz schütteln
+        "phone-shake": {
+          "0%, 100%": { transform: "rotate(0deg)" },
+          "12%": { transform: "rotate(-5deg)" },
+          "26%": { transform: "rotate(4.5deg)" },
+          "40%": { transform: "rotate(-3.5deg)" },
+          "54%": { transform: "rotate(2.5deg)" },
+          "68%": { transform: "rotate(-1.5deg)" },
+          "82%": { transform: "rotate(0.75deg)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "phone-rise": "phone-rise 1s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both",
+        "phone-shake": "phone-shake 0.8s ease-in-out 1.35s both",
       },
     },
   },

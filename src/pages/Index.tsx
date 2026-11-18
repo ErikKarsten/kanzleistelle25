@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import NeeleContactDrawer from "@/components/NeeleContactDrawer";
 import InitiativeApplyModal from "@/components/InitiativeApplyModal";
 import GehaltsCheckModal from "@/components/GehaltsCheckModal";
+import InstagramPhone from "@/components/InstagramPhone";
 import { Button } from "@/components/ui/button";
 import { Briefcase, Building2, UserPlus, UserCheck, ArrowRight } from "lucide-react";
 import { useJobsRealtime } from "@/hooks/useJobsRealtime";
@@ -48,24 +49,25 @@ const Index = () => {
 
           <div className="container relative z-10">
 
-            {/* OBERER TEIL — zentriert */}
-            <div className="text-center max-w-4xl mx-auto mb-16">
+            {/* OBERER TEIL — mobil zentriert, ab lg zweispaltig mit Instagram-Handy rechts */}
+            <div className="grid lg:grid-cols-[1fr_auto] items-center gap-12 xl:gap-16 mb-16">
+            <div className="text-center lg:text-left max-w-4xl mx-auto lg:mx-0">
               <div className="inline-flex items-center gap-2 bg-background/10 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold text-primary-foreground mb-6">
                 <Briefcase className="h-4 w-4" />
                 Die Plattform für die Steuerbranche
               </div>
 
-              <h1 className="text-4xl md:text-6xl font-bold text-white mb-4">
+              <h1 className="text-4xl md:text-6xl lg:text-5xl xl:text-6xl font-bold text-white mb-4">
                 Der Treffpunkt für<br />
                 Steuerexperten &amp; Kanzleien
               </h1>
 
-              <p className="text-white/80 text-lg md:text-xl max-w-2xl mx-auto mb-8">
+              <p className="text-white/80 text-lg md:text-xl max-w-2xl mx-auto lg:mx-0 mb-8">
                 Ob Sie qualifizierte Fachkräfte suchen oder Ihre nächste
                 Karrierechance — bei Kanzleistelle24 finden Sie zusammen.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12">
                 <Button
                   size="lg"
                   className="bg-white text-primary font-bold hover:bg-white/90 h-12 px-8"
@@ -86,7 +88,7 @@ const Index = () => {
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-2xl mx-auto">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-2xl mx-auto lg:mx-0">
                 <div className="bg-background/20 backdrop-blur-sm p-4 rounded-lg border border-background/30">
                   <div className="text-2xl font-bold text-primary-foreground">30 Sek.</div>
                   <div className="text-xs text-primary-foreground/80">Express-Bewerbung</div>
@@ -104,6 +106,12 @@ const Index = () => {
                   <div className="text-xs text-primary-foreground/80">Geprüft</div>
                 </div>
               </div>
+            </div>
+
+            {/* Instagram-Handy mit der neuesten Folge */}
+            <div className="flex justify-center pt-4 lg:pt-0">
+              <InstagramPhone />
+            </div>
             </div>
 
             {/* UNTERER TEIL — Gehaltscheck (auf Production per VITE_HIDE_GEHALTSCHECK deaktivierbar) */}
