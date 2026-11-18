@@ -40,7 +40,7 @@ const Index = () => {
       <main className="flex-1">
 
         {/* Hero + Gehaltscheck */}
-        <section className="relative py-20 md:py-28 lg:pt-12 lg:pb-20 overflow-hidden">
+        <section className="relative py-20 md:py-28 lg:py-14 overflow-hidden">
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url(${officeModernImage})` }}
@@ -50,7 +50,7 @@ const Index = () => {
           <div className="container relative z-10">
 
             {/* OBERER TEIL — mobil zentriert, ab lg zweispaltig mit Instagram-Handy rechts */}
-            <div className="grid lg:grid-cols-[1fr_auto] items-center gap-12 xl:gap-16 mb-16">
+            <div className={`grid lg:grid-cols-[1fr_auto] items-center gap-12 xl:gap-16 ${hideGehaltscheck ? "" : "mb-16"}`}>
             <div className="text-center lg:text-left max-w-4xl lg:max-w-none mx-auto lg:mx-0">
               <div className="inline-flex items-center gap-2 bg-background/10 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold text-primary-foreground mb-6">
                 <Briefcase className="h-4 w-4" />
@@ -109,7 +109,7 @@ const Index = () => {
             </div>
 
             {/* Instagram-Handy mit der neuesten Folge */}
-            <div className="flex justify-center pt-4 lg:pt-0">
+            <div className="flex justify-center pt-4 lg:pt-0 min-[1150px]:pr-8 xl:pr-14">
               <InstagramPhone />
             </div>
             </div>
