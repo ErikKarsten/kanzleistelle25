@@ -223,15 +223,16 @@ const InstagramPhone = () => {
 
             {/* Aktionen rechts (nur Optik) */}
             <div
-              className={`pointer-events-none absolute right-2.5 bottom-[3.6rem] z-10 flex flex-col items-center gap-4 ${iconShadow}`}
+              className={`pointer-events-none absolute right-2.5 bottom-[3.6rem] z-10 flex flex-col items-center gap-[18px] ${iconShadow}`}
               aria-hidden="true"
             >
-              <Heart className="h-[22px] w-[22px]" strokeWidth={1.8} />
-              <MessageCircle className="h-[22px] w-[22px] -scale-x-100" strokeWidth={1.8} />
-              <Send className="h-[21px] w-[21px]" strokeWidth={1.8} />
-              <MoreHorizontal className="h-[22px] w-[22px]" strokeWidth={1.8} />
-              <span className="flex h-6 w-6 items-center justify-center rounded-md border-2 border-white bg-white">
-                <img src="/favicon.svg" alt="" className="h-3.5 w-3.5" />
+              <Heart className="h-[26px] w-[26px]" strokeWidth={1.8} />
+              <MessageCircle className="h-[26px] w-[26px] -scale-x-100" strokeWidth={1.8} />
+              <Send className="h-[25px] w-[25px]" strokeWidth={1.8} />
+              {/* Extra-Abstand, damit die oberen Symbole über dem „Folgen“-Knopf stehen */}
+              <MoreHorizontal className="mt-6 h-[26px] w-[26px]" strokeWidth={1.8} />
+              <span className="flex h-7 w-7 items-center justify-center rounded-md border-2 border-white bg-white">
+                <img src="/favicon.svg" alt="" className="h-4 w-4" />
               </span>
             </div>
 
