@@ -74,7 +74,7 @@ const VisualFeatureCards = ({ onScrollToJobs }: VisualFeatureCardsProps) => {
                   alt={feature.title}
                   loading="lazy"
                   decoding="async"
-                  className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="w-full h-48 object-cover object-top transition-transform duration-300 group-hover:scale-105"
                 />
                 {feature.highlight && (
                   <div className="absolute top-3 right-3 bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
