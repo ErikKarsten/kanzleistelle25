@@ -51,18 +51,18 @@ const Index = () => {
 
             {/* OBERER TEIL — mobil zentriert, ab lg zweispaltig mit Instagram-Handy rechts */}
             <div className="grid lg:grid-cols-[1fr_auto] items-center gap-12 xl:gap-16 mb-16">
-            <div className="text-center lg:text-left max-w-4xl mx-auto lg:mx-0">
+            <div className="text-center lg:text-left max-w-4xl lg:max-w-none mx-auto lg:mx-0">
               <div className="inline-flex items-center gap-2 bg-background/10 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold text-primary-foreground mb-6">
                 <Briefcase className="h-4 w-4" />
                 Die Plattform für die Steuerbranche
               </div>
 
-              <h1 className="text-4xl md:text-6xl lg:text-5xl xl:text-6xl font-bold text-white mb-4">
+              <h1 className="text-4xl md:text-6xl lg:text-5xl xl:text-6xl min-[1400px]:text-[4.25rem] font-bold text-white mb-4 xl:mb-6">
                 Der Treffpunkt für<br />
                 Steuerexperten &amp; Kanzleien
               </h1>
 
-              <p className="text-white/80 text-lg md:text-xl max-w-2xl mx-auto lg:mx-0 mb-8">
+              <p className="text-white/80 text-lg md:text-xl xl:text-2xl max-w-2xl xl:max-w-3xl mx-auto lg:mx-0 mb-8 xl:mb-10">
                 Ob Sie qualifizierte Fachkräfte suchen oder Ihre nächste
                 Karrierechance — bei Kanzleistelle24 finden Sie zusammen.
               </p>

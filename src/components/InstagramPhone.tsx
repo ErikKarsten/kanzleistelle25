@@ -28,7 +28,9 @@ import { announceInstagramPhoneVisible } from "@/lib/instagramPhoneEvents";
  * (Video + Standbild liegen in /public/videos/).
  */
 const POST_URL = "https://www.instagram.com/p/De_mgtDIry9/";
-const PROFILE_URL = "https://www.instagram.com/kanzleistelle24/";
+// Vorerst führt „Folgen“ zum Beitrag (dort kann man ebenfalls folgen),
+// bis der genaue Profilname feststeht.
+const PROFILE_URL = POST_URL;
 const VIDEO_SRC = "/videos/chrissy-talks.mp4";
 const POSTER_SRC = "/videos/chrissy-talks.jpg";
 const EPISODE_TITLE = "Chrissy talks";
@@ -51,14 +53,53 @@ const iconShadow = "drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]";
 const InstagramPhone = () => {
   const [muted, setMuted] = useState(true);
   const [videoFailed, setVideoFailed] = useState(false);
+  const [autoplayBlocked, setAutoplayBlocked] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Sichtbarkeit melden, damit Neeles Kontaktkarte das Handy nicht verdeckt
+  // Video starten. Safari/iOS spielen nur automatisch ab, wenn das Video
+  // nachweislich stumm ist – React setzt das muted-Attribut nicht selbst.
+  const startVideo = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (v.muted) v.setAttribute("muted", "");
+    v.play()
+      .then(() => setAutoplayBlocked(false))
+      .catch(() => setAutoplayBlocked(true)); // z. B. iPhone-Stromsparmodus
+  };
+
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.defaultMuted = true;
+    v.muted = true;
+    v.setAttribute("muted", "");
+    v.setAttribute("playsinline", "");
+    v.setAttribute("webkit-playsinline", "");
+    startVideo();
+    v.addEventListener("canplay", startVideo, { once: true });
+    return () => v.removeEventListener("canplay", startVideo);
+  }, [videoFailed]);
+
+  // Ton-Schalter
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = muted;
+    if (muted) v.setAttribute("muted", "");
+    else v.removeAttribute("muted");
+  }, [muted]);
+
+  // Sichtbarkeit: Neeles Kontaktkarte ausblenden und Video nur abspielen, solange sichtbar
   useEffect(() => {
     const el = rootRef.current;
     if (!el || typeof IntersectionObserver === "undefined") return;
     const observer = new IntersectionObserver(([entry]) => {
       announceInstagramPhoneVisible(entry.isIntersecting);
+      const v = videoRef.current;
+      if (!v) return;
+      if (entry.isIntersecting) startVideo();
+      else v.pause();
     });
     observer.observe(el);
     return () => {
@@ -79,7 +120,7 @@ const InstagramPhone = () => {
         </div>
 
         {/* Gehäuse */}
-        <div className="relative w-[230px] sm:w-[255px] aspect-[9/19] rounded-[2.6rem] bg-neutral-900 p-[9px] shadow-2xl ring-1 ring-white/15">
+        <div className="relative w-[230px] sm:w-[255px] xl:[zoom:1.22] aspect-[9/19] rounded-[2.6rem] bg-neutral-900 p-[9px] shadow-2xl ring-1 ring-white/15">
           {/* Seitentasten */}
           <span className="absolute -left-[3px] top-24 h-10 w-[3px] rounded-l bg-neutral-700" />
           <span className="absolute -left-[3px] top-36 h-10 w-[3px] rounded-l bg-neutral-700" />
@@ -97,6 +138,7 @@ const InstagramPhone = () => {
                 </div>
               ) : (
                 <video
+                  ref={videoRef}
                   className="h-full w-full object-cover"
                   src={VIDEO_SRC}
                   poster={POSTER_SRC}
@@ -104,7 +146,7 @@ const InstagramPhone = () => {
                   muted={muted}
                   loop
                   playsInline
-                  preload="metadata"
+                  preload="auto"
                   aria-label={`Video: ${EPISODE_TITLE}`}
                   onError={() => setVideoFailed(true)}
                 />
@@ -141,6 +183,18 @@ const InstagramPhone = () => {
               </span>
               <Camera className="h-[22px] w-[22px]" strokeWidth={1.8} />
             </div>
+
+            {/* Falls der Browser automatisches Abspielen verhindert: Play-Knopf */}
+            {!videoFailed && autoplayBlocked && (
+              <button
+                type="button"
+                onClick={startVideo}
+                className="absolute left-1/2 top-1/2 z-10 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 backdrop-blur-sm hover:bg-black/65"
+                aria-label="Video abspielen"
+              >
+                <Play className="h-7 w-7 translate-x-0.5" fill="currentColor" />
+              </button>
+            )}
 
             {/* Ton an/aus */}
             {!videoFailed && (
