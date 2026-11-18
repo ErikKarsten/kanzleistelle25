@@ -111,6 +111,8 @@ const InstagramPhone = () => {
   return (
     // Äußere Ebene: fliegt von unten ein
     <div ref={rootRef} className="motion-safe:animate-phone-rise">
+      {/* Mittlere Ebene: leicht schräg gestellt */}
+      <div className="-rotate-6">
       {/* Innere Ebene: schüttelt sich danach kurz */}
       <div className="relative origin-bottom motion-safe:animate-phone-shake">
         {/* „Neu auf Instagram“-Hinweis */}
@@ -120,7 +122,7 @@ const InstagramPhone = () => {
         </div>
 
         {/* Gehäuse */}
-        <div className="relative w-[230px] sm:w-[255px] xl:[zoom:1.22] aspect-[9/19] rounded-[2.6rem] bg-neutral-900 p-[9px] shadow-2xl ring-1 ring-white/15">
+        <div className="relative w-[230px] sm:w-[255px] xl:[zoom:1.1] aspect-[9/19] rounded-[2.6rem] bg-neutral-900 p-[9px] shadow-2xl ring-1 ring-white/15">
           {/* Seitentasten */}
           <span className="absolute -left-[3px] top-24 h-10 w-[3px] rounded-l bg-neutral-700" />
           <span className="absolute -left-[3px] top-36 h-10 w-[3px] rounded-l bg-neutral-700" />
@@ -260,6 +262,7 @@ const InstagramPhone = () => {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

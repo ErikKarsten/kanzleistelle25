@@ -57,12 +57,12 @@ const Index = () => {
                 Die Plattform für die Steuerbranche
               </div>
 
-              <h1 className="text-4xl md:text-6xl lg:text-5xl xl:text-6xl min-[1400px]:text-[4.25rem] font-bold text-white mb-4 xl:mb-6">
+              <h1 className="text-4xl md:text-6xl lg:text-5xl xl:text-6xl min-[1400px]:text-[4rem] font-bold text-white mb-4 xl:mb-6">
                 Der Treffpunkt für<br />
                 Steuerexperten &amp; Kanzleien
               </h1>
 
-              <p className="text-white/80 text-lg md:text-xl xl:text-2xl max-w-2xl xl:max-w-3xl mx-auto lg:mx-0 mb-8 xl:mb-10">
+              <p className="text-white/80 text-lg md:text-xl xl:text-[1.375rem] max-w-2xl mx-auto lg:mx-0 mb-8 xl:mb-10">
                 Ob Sie qualifizierte Fachkräfte suchen oder Ihre nächste
                 Karrierechance — bei Kanzleistelle24 finden Sie zusammen.
               </p>
