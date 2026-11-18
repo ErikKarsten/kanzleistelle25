@@ -90,8 +90,9 @@ const UeberUns = () => {
                 Über Kanzleistelle24
               </h1>
               <p className="text-xl opacity-90">
-                Wir glauben, dass großartige Karrieren in der Steuerbranche nicht dem Zufall 
-                überlassen werden sollten.
+                Wir glauben, dass großartige Karrieren in der Steuerbranche{" "}
+                <br className="hidden md:inline" />
+                nicht dem Zufall überlassen werden sollten.
               </p>
             </div>
           </div>
