@@ -158,14 +158,15 @@ const InstagramPhone = () => {
               <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/75 to-transparent" />
             </div>
 
-            {/* Ganzer Bildschirm öffnet den Beitrag */}
-            <a
-              href={POST_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="absolute inset-x-0 top-0 bottom-11 z-[5]"
-              aria-label={`${EPISODE_TITLE} auf Instagram ansehen`}
-            />
+            {/* Tipp aufs Video schaltet den Ton um – wie in der Instagram-App */}
+            {!videoFailed && (
+              <button
+                type="button"
+                onClick={() => (autoplayBlocked ? startVideo() : setMuted((m) => !m))}
+                className="absolute inset-x-0 top-0 bottom-11 z-[5] cursor-pointer"
+                aria-label={muted ? "Ton einschalten" : "Ton ausschalten"}
+              />
+            )}
 
             {/* Statusleiste + Dynamic Island */}
             <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-center justify-between px-6 pt-[9px] text-[11px] font-semibold">
@@ -203,10 +204,17 @@ const InstagramPhone = () => {
               <button
                 type="button"
                 onClick={() => setMuted((m) => !m)}
-                className="absolute right-3 top-[4.6rem] z-10 flex h-7 w-7 items-center justify-center rounded-full bg-black/45 backdrop-blur-sm hover:bg-black/60"
+                className="absolute right-3 top-[4.6rem] z-10 flex h-7 items-center gap-1.5 rounded-full bg-black/55 px-2.5 text-[11px] font-semibold backdrop-blur-sm hover:bg-black/70"
                 aria-label={muted ? "Ton einschalten" : "Ton ausschalten"}
               >
-                {muted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
+                {muted ? (
+                  <>
+                    <VolumeX className="h-3.5 w-3.5" />
+                    Ton an
+                  </>
+                ) : (
+                  <Volume2 className="h-3.5 w-3.5" />
+                )}
               </button>
             )}
 
@@ -227,8 +235,16 @@ const InstagramPhone = () => {
             {/* Profil, Beschreibung, Audio */}
             <div className={`absolute left-3 right-12 bottom-[3.4rem] z-10 ${iconShadow}`}>
               <div className="mb-1.5 flex items-center gap-2">
-                <Avatar />
-                <span className="text-[12.5px] font-semibold">{USERNAME}</span>
+                <a
+                  href={POST_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 hover:opacity-90"
+                  aria-label={`${EPISODE_TITLE} auf Instagram ansehen`}
+                >
+                  <Avatar />
+                  <span className="text-[12.5px] font-semibold">{USERNAME}</span>
+                </a>
                 <a
                   href={PROFILE_URL}
                   target="_blank"
@@ -238,9 +254,14 @@ const InstagramPhone = () => {
                   Folgen
                 </a>
               </div>
-              <p className="pointer-events-none mb-1 line-clamp-2 text-[12px] leading-snug">
+              <a
+                href={POST_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mb-1 line-clamp-2 block text-[12px] leading-snug hover:underline"
+              >
                 <span className="font-semibold">{EPISODE_TITLE}</span> {CAPTION}
-              </p>
+              </a>
               <p className="pointer-events-none flex items-center gap-1 truncate text-[11px] text-white/90">
                 <Music2 className="h-3 w-3 shrink-0" />
                 {USERNAME} · Originalton
