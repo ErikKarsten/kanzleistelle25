@@ -87,6 +87,12 @@ export default {
           "60%": { opacity: "1" },
           "100%": { transform: "translateY(0)", opacity: "1" },
         },
+        // „Ton einschalten“-Knopf: sanfter Puls-Ring, damit man ihn sieht
+        "sound-pulse": {
+          "0%": { boxShadow: "0 0 0 0 rgba(255,255,255,0.75)" },
+          "70%": { boxShadow: "0 0 0 12px rgba(255,255,255,0)" },
+          "100%": { boxShadow: "0 0 0 0 rgba(255,255,255,0)" },
+        },
         // … und danach kurz schütteln
         "phone-shake": {
           "0%, 100%": { transform: "rotate(0deg)" },
@@ -103,6 +109,7 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out",
         "phone-rise": "phone-rise 1s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both",
         "phone-shake": "phone-shake 0.8s ease-in-out 1.35s both",
+        "sound-pulse": "sound-pulse 1.8s ease-out 2.3s infinite",
       },
     },
   },

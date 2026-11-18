@@ -16,7 +16,6 @@ import {
   Send,
   Signal,
   Volume2,
-  VolumeX,
   Wifi,
 } from "lucide-react";
 import { announceInstagramPhoneVisible } from "@/lib/instagramPhoneEvents";
@@ -204,16 +203,20 @@ const InstagramPhone = () => {
               <button
                 type="button"
                 onClick={() => setMuted((m) => !m)}
-                className="absolute right-3 top-[4.6rem] z-10 flex h-7 items-center gap-1.5 rounded-full bg-black/55 px-2.5 text-[11px] font-semibold backdrop-blur-sm hover:bg-black/70"
+                className={
+                  muted
+                    ? "absolute right-3 top-[4.4rem] z-10 flex h-10 items-center gap-2 rounded-full bg-white px-4 text-[14px] font-bold text-primary shadow-lg hover:bg-[#DCCBB9] motion-safe:animate-sound-pulse"
+                    : "absolute right-3 top-[4.4rem] z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/60 shadow-lg ring-1 ring-white/25 backdrop-blur-sm hover:bg-black/75"
+                }
                 aria-label={muted ? "Ton einschalten" : "Ton ausschalten"}
               >
                 {muted ? (
                   <>
-                    <VolumeX className="h-3.5 w-3.5" />
-                    Ton an
+                    <Volume2 className="h-5 w-5" strokeWidth={2.5} />
+                    Ton einschalten
                   </>
                 ) : (
-                  <Volume2 className="h-3.5 w-3.5" />
+                  <Volume2 className="h-5 w-5" />
                 )}
               </button>
             )}
