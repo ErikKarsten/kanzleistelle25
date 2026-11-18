@@ -40,7 +40,7 @@ const Index = () => {
       <main className="flex-1">
 
         {/* Hero + Gehaltscheck */}
-        <section className="relative py-20 md:py-28 overflow-hidden">
+        <section className="relative py-20 md:py-28 lg:pt-12 lg:pb-20 overflow-hidden">
           <div
             className="absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url(${officeModernImage})` }}

@@ -122,7 +122,7 @@ const InstagramPhone = () => {
         </div>
 
         {/* Gehäuse */}
-        <div className="relative w-[230px] sm:w-[255px] xl:[zoom:1.1] aspect-[9/19] rounded-[2.6rem] bg-neutral-900 p-[9px] shadow-2xl ring-1 ring-white/15">
+        <div className="relative w-[230px] sm:w-[255px] [@media(min-width:1280px)_and_(min-height:820px)]:[zoom:1.1] [@media(min-width:1024px)_and_(max-height:740px)]:[zoom:0.9] aspect-[9/19] rounded-[2.6rem] bg-neutral-900 p-[9px] shadow-2xl ring-1 ring-white/15">
           {/* Seitentasten */}
           <span className="absolute -left-[3px] top-24 h-10 w-[3px] rounded-l bg-neutral-700" />
           <span className="absolute -left-[3px] top-36 h-10 w-[3px] rounded-l bg-neutral-700" />
