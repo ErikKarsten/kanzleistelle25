@@ -247,8 +247,9 @@ const UeberUns = () => {
               Starten Sie jetzt
             </h2>
             <p className="text-xl opacity-90 mb-10 max-w-2xl mx-auto">
-              Ob Sie Ihren Traumjob suchen oder die besten Talente für Ihre Kanzlei – 
-              wir sind für Sie da.
+              Ob Sie Ihren Traumjob suchen oder die besten Talente{" "}
+              <br className="hidden md:inline" />
+              für Ihre Kanzlei – wir sind für Sie da.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" variant="secondary" className="text-lg px-8" asChild>
