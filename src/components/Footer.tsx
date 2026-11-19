@@ -83,7 +83,9 @@ const Footer = () => {
               />
             </Link>
             <p className="text-sm text-muted-foreground">
-              Die führende Jobbörse für Steuerkanzleien in Deutschland.
+              Die führende Jobbörse für{" "}
+              <br className="hidden md:inline" />
+              Steuerkanzleien in Deutschland.
             </p>
           </div>
 
