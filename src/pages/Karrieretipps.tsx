@@ -281,7 +281,9 @@ const Karrieretipps = () => {
               Bereit für den nächsten Schritt?
             </h2>
             <p className="text-lg opacity-90 mb-8 max-w-2xl mx-auto">
-              Entdecken Sie aktuelle Stellenangebote in der Steuerbranche und bewerben Sie sich in nur 30 Sekunden.
+              Entdecken Sie aktuelle Stellenangebote in der Steuerbranche{" "}
+              <br className="hidden md:inline" />
+              und bewerben Sie sich in nur 30 Sekunden.
             </p>
             <Button size="lg" variant="secondary" asChild>
               <Link to="/">

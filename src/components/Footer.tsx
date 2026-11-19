@@ -27,7 +27,8 @@ const Footer = () => {
                 Ihre Karriere in guten Händen
               </h3>
               <p className="text-muted-foreground mb-4">
-                Neele Ehlers begleitet Sie persönlich durch den Bewerbungsprozess – 
+                Neele Ehlers begleitet Sie persönlich durch den Bewerbungsprozess –{" "}
+                <br className="hidden md:inline" />
                 ob Sie den Traumjob suchen oder die besten Talente für Ihre Kanzlei.
               </p>
               <div className="flex flex-wrap items-center gap-4 justify-center md:justify-start">
