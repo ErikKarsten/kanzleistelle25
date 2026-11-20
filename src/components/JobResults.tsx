@@ -7,12 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, Clock, Building2, Send, Zap, Search, Briefcase, Sparkles, Navigation, Star } from "lucide-react";
+import { MapPin, Clock, Building2, Send, Zap, Search, Briefcase, Sparkles, Navigation, Star, List, Map as MapIcon } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
 import ApplyModal from "./ApplyModal";
 import InitiativeApplyModal from "./InitiativeApplyModal";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, lazy, Suspense } from "react";
+
+const JobMap = lazy(() => import("./map/JobMap"));
 
 interface JobWithCompany {
   id: string;
@@ -28,6 +30,8 @@ interface JobWithCompany {
   salary_min: number | null;
   salary_max: number | null;
   salary_range: string | null;
+  latitude: number | null;
+  longitude: number | null;
   created_at: string | null;
   is_active: boolean | null;
   distance_km?: number;
@@ -85,6 +89,7 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
   const [localLocationFilter, setLocalLocationFilter] = useState(initialLocation);
   const [initiativeOpen, setInitiativeOpen] = useState(false);
   const [pageSize, setPageSize] = useState(5);
+  const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -133,6 +138,8 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
               salary_min,
               salary_max,
               salary_range,
+              latitude,
+              longitude,
               created_at,
               is_active,
               companies!inner (
@@ -188,6 +195,8 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
           salary_min,
           salary_max,
           salary_range,
+          latitude,
+          longitude,
           created_at,
           is_active,
           companies!inner (
@@ -240,6 +249,11 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
       return matchesTitle && matchesLocation;
     });
   }, [jobs, localTitleFilter, localLocationFilter]);
+
+  const mapJobs = useMemo(
+    () => filteredJobs.map((j) => ({ ...j, salaryText: hasSalary(j) ? salaryText(j) : null })),
+    [filteredJobs]
+  );
 
   const totalPages = Math.max(1, Math.ceil(filteredJobs.length / pageSize));
   const paginatedJobs = filteredJobs.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -305,7 +319,7 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
           </div>
           
           {/* Results count + page size */}
-          <div className="mt-4 pt-4 border-t border-border flex items-center justify-between gap-4">
+          <div className="mt-4 pt-4 border-t border-border flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground">
               {isLoading ? (
                 "Lade Stellenangebote..."
@@ -329,6 +343,35 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
                 </>
               )}
             </p>
+            <div className="flex items-center gap-3">
+            {/* Ansicht: Liste / Karte */}
+            <div className="inline-flex rounded-lg border border-border bg-secondary/40 p-1" role="tablist" aria-label="Ansicht wählen">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={viewMode === "list"}
+                onClick={() => setViewMode("list")}
+                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                  viewMode === "list" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <List className="h-4 w-4" />
+                Liste
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={viewMode === "map"}
+                onClick={() => setViewMode("map")}
+                className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                  viewMode === "map" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <MapIcon className="h-4 w-4" />
+                Karte
+              </button>
+            </div>
+            {viewMode === "list" && (
             <select
               value={pageSize}
               onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
@@ -339,6 +382,8 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
               <option value={25}>25 pro Seite</option>
               <option value={50}>50 pro Seite</option>
             </select>
+            )}
+            </div>
           </div>
         </div>
 
@@ -359,6 +404,10 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
               </Card>
             ))}
           </div>
+        ) : filteredJobs.length > 0 && viewMode === "map" ? (
+          <Suspense fallback={<Skeleton className="w-full h-[460px] md:h-[600px] rounded-xl" />}>
+            <JobMap jobs={mapJobs} />
+          </Suspense>
         ) : filteredJobs.length > 0 ? (
           <>
           <div className="space-y-4">
