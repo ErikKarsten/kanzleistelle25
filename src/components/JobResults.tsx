@@ -27,6 +27,7 @@ interface JobWithCompany {
   benefits: string[] | null;
   salary_min: number | null;
   salary_max: number | null;
+  salary_range: string | null;
   created_at: string | null;
   is_active: boolean | null;
   distance_km?: number;
@@ -46,6 +47,20 @@ interface JobResultsProps {
   initialTitle?: string;
   initialLocation?: string;
 }
+
+// Gehalt: Stellen mit Gehaltsangabe werden hervorgehoben und oben gelistet
+const hasSalary = (job: { salary_min: number | null; salary_max: number | null; salary_range: string | null }) =>
+  Boolean((job.salary_range && job.salary_range.trim()) || (job.salary_min && job.salary_max));
+
+const salaryText = (job: { salary_min: number | null; salary_max: number | null; salary_range: string | null }) => {
+  if (job.salary_range && job.salary_range.trim()) {
+    let t = job.salary_range.trim().replace(/,00/g, "").replace(/\s*-\s*/, " – ");
+    if (!/€|eur/i.test(t)) t += " €";
+    if (!/jahr|monat|std|stunde/i.test(t)) t += " / Jahr";
+    return t;
+  }
+  return `${job.salary_min!.toLocaleString("de-DE")} – ${job.salary_max!.toLocaleString("de-DE")} € / Jahr`;
+};
 
 const employmentTypeLabels: Record<string, string> = {
   vollzeit: "Vollzeit",
@@ -117,6 +132,7 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
               benefits,
               salary_min,
               salary_max,
+              salary_range,
               created_at,
               is_active,
               companies!inner (
@@ -171,6 +187,7 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
           benefits,
           salary_min,
           salary_max,
+          salary_range,
           created_at,
           is_active,
           companies!inner (
@@ -199,7 +216,10 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
       const { data, error } = await query.limit(1000);
 
       if (error) throw error;
-      return data as JobWithCompany[];
+      // Stellen mit Gehaltsangabe zuerst, sonst neueste zuerst (stabile Sortierung)
+      return [...(data || [])].sort(
+        (a, b) => Number(hasSalary(b as JobWithCompany)) - Number(hasSalary(a as JobWithCompany))
+      ) as JobWithCompany[];
     },
   });
 
@@ -431,9 +451,9 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
                           })}
                         </span>
                       </div>
-                      {job.salary_min && job.salary_max && (
-                        <span className="font-medium text-foreground">
-                          {job.salary_min.toLocaleString("de-DE")} – {job.salary_max.toLocaleString("de-DE")} € / Jahr
+                      {hasSalary(job) && (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 font-semibold text-emerald-700">
+                          💰 {salaryText(job)}
                         </span>
                       )}
                     </div>
