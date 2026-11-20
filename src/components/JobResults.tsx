@@ -193,7 +193,7 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
         query = query.eq("employment_type", searchFilters.employmentType);
       }
 
-      const { data, error } = await query.limit(50);
+      const { data, error } = await query.limit(1000);
 
       if (error) throw error;
       return data as JobWithCompany[];
