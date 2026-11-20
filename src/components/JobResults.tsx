@@ -12,7 +12,7 @@ import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
 import ApplyModal from "./ApplyModal";
 import InitiativeApplyModal from "./InitiativeApplyModal";
-import { useState, useMemo, useEffect, lazy, Suspense } from "react";
+import { useState, useMemo, useEffect, useCallback, lazy, Suspense } from "react";
 
 const JobMap = lazy(() => import("./map/JobMap"));
 
@@ -98,6 +98,9 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
     }
   });
   const [currentPage, setCurrentPage] = useState(1);
+  // Karte: IDs der Stellen im aktuellen Kartenausschnitt (null = alle)
+  const [mapVisibleIds, setMapVisibleIds] = useState<Set<string> | null>(null);
+  const [mapResetSignal, setMapResetSignal] = useState(0);
 
   useEffect(() => {
     setLocalTitleFilter(initialTitle);
@@ -262,8 +265,14 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
     [filteredJobs]
   );
 
-  const totalPages = Math.max(1, Math.ceil(filteredJobs.length / pageSize));
-  const paginatedJobs = filteredJobs.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const mapFilterActive = viewMode === "map" && mapVisibleIds !== null;
+  const listJobs = mapFilterActive ? filteredJobs.filter((j) => mapVisibleIds!.has(j.id)) : filteredJobs;
+  const totalPages = Math.max(1, Math.ceil(listJobs.length / pageSize));
+  const paginatedJobs = listJobs.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const handleMapVisible = useCallback((ids: Set<string> | null) => {
+    setMapVisibleIds(ids);
+    setCurrentPage(1);
+  }, []);
 
   if (error) {
     return (
@@ -378,7 +387,6 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
                 Karte
               </button>
             </div>
-            {viewMode === "list" && (
             <select
               value={pageSize}
               onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
@@ -389,7 +397,6 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
               <option value={25}>25 pro Seite</option>
               <option value={50}>50 pro Seite</option>
             </select>
-            )}
             </div>
           </div>
         </div>
@@ -411,12 +418,43 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
               </Card>
             ))}
           </div>
-        ) : filteredJobs.length > 0 && viewMode === "map" ? (
-          <Suspense fallback={<Skeleton className="w-full h-[460px] lg:h-[640px] rounded-2xl" />}>
-            <JobMap jobs={mapJobs} onApply={(j) => setSelectedJob(j as unknown as JobWithCompany)} />
-          </Suspense>
         ) : filteredJobs.length > 0 ? (
           <>
+          {viewMode === "map" && (
+            <>
+              <Suspense fallback={<Skeleton className="w-full h-[420px] md:h-[520px] rounded-2xl" />}>
+                <JobMap
+                  jobs={mapJobs}
+                  onApply={(j) => setSelectedJob(j as unknown as JobWithCompany)}
+                  onVisibleChange={handleMapVisible}
+                  resetSignal={mapResetSignal}
+                />
+              </Suspense>
+              <div className="mt-6 mb-4 flex flex-wrap items-center justify-between gap-2">
+                <p className="text-sm text-muted-foreground">
+                  {mapFilterActive ? (
+                    <>
+                      <span className="font-semibold text-foreground">{listJobs.length}</span>{" "}
+                      {listJobs.length === 1 ? "Stelle" : "Stellen"} im gewählten Kartenausschnitt
+                    </>
+                  ) : (
+                    <>Alle <span className="font-semibold text-foreground">{filteredJobs.length}</span> Stellen – Karte zoomen, um nach Region zu filtern</>
+                  )}
+                </p>
+                {mapFilterActive && (
+                  <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setMapResetSignal((n) => n + 1)}>
+                    <MapIcon className="h-4 w-4" />
+                    Alle Stellen anzeigen
+                  </Button>
+                )}
+              </div>
+              {listJobs.length === 0 && (
+                <div className="text-center py-10 bg-card rounded-xl border border-border text-sm text-muted-foreground">
+                  In diesem Kartenausschnitt gibt es gerade keine Stellen. Zoomen Sie heraus oder klicken Sie auf „Alle Stellen anzeigen“.
+                </div>
+              )}
+            </>
+          )}
           <div className="space-y-4">
             {paginatedJobs.map((job) => (
               <Card

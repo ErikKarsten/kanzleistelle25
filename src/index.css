@@ -116,6 +116,8 @@ All colors MUST be HSL.
 .k24m-map .maplibregl-ctrl-group { border-radius: 12px; overflow: hidden; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12); border: 1px solid hsl(var(--border)); }
 .k24m-map .maplibregl-ctrl-group button { width: 34px; height: 34px; }
 .k24m-map .maplibregl-ctrl-attrib { font-size: 10px; border-radius: 8px; }
+.k24m-map .maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show) { background: hsl(var(--background) / 0.9); box-shadow: 0 1px 3px rgb(0 0 0 / 0.12); }
+.k24m-map .maplibregl-ctrl-attrib.maplibregl-compact:not(.maplibregl-compact-show) .maplibregl-ctrl-attrib-button { opacity: 0.35; }
 .k24m-popup .maplibregl-popup-content { padding: 0; border-radius: 16px; box-shadow: 0 12px 36px rgba(0, 20, 50, 0.22); overflow: hidden; font-family: inherit; }
 .k24m-popup .maplibregl-popup-close-button { font-size: 18px; width: 28px; height: 28px; right: 6px; top: 6px; border-radius: 9999px; color: hsl(var(--muted-foreground)); }
 .k24m-popup .maplibregl-popup-close-button:hover { background: hsl(var(--secondary)); }
