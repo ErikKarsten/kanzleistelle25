@@ -83,9 +83,9 @@ const UeberUns = () => {
             className="absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url(${officeModernImage})` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/85 to-primary/70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-brand/95 via-brand/85 to-brand/70" />
           <div className="container relative z-10">
-            <div className="max-w-2xl text-primary-foreground">
+            <div className="max-w-2xl text-white">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
                 Über Kanzleistelle24
               </h1>

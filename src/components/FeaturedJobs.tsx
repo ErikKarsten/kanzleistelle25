@@ -156,7 +156,7 @@ const FeaturedJobs = ({ searchQuery = '', searchLocation = '', searchRadius = ''
                 <div className="flex flex-col">
                   {/* Top: Large logo area */}
                   <div className="relative flex items-center justify-center pt-10 pb-4 px-6 bg-secondary/20">
-                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-background border border-border shadow-sm flex items-center justify-center overflow-hidden group-hover:shadow-md group-hover:scale-105 transition-all duration-300">
+                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-white border border-border shadow-sm flex items-center justify-center overflow-hidden group-hover:shadow-md group-hover:scale-105 transition-all duration-300">
                       {job.companies?.logo_url ? (
                         <img
                           src={job.companies.logo_url}

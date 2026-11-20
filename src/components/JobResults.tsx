@@ -465,7 +465,7 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
                 <div className="flex flex-col md:flex-row">
                   {/* Company Logo */}
                   <div className="hidden md:flex items-center justify-center p-6 bg-secondary/30 border-r border-border">
-                    <Avatar className="h-16 w-16 rounded-lg border border-border">
+                    <Avatar className="h-16 w-16 rounded-lg border border-border bg-white">
                       {job.companies?.logo_url ? (
                         <AvatarImage 
                           src={job.companies.logo_url} 
@@ -484,7 +484,7 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
                     <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
                       <div className="flex items-center gap-3">
                         {/* Mobile Logo */}
-                        <Avatar className="h-10 w-10 rounded-lg md:hidden border border-border">
+                        <Avatar className="h-10 w-10 rounded-lg md:hidden border border-border bg-white">
                           {job.companies?.logo_url ? (
                             <AvatarImage 
                               src={job.companies.logo_url} 
@@ -546,7 +546,7 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
                         </span>
                       </div>
                       {hasSalary(job) && (
-                        <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 font-semibold text-emerald-700">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 font-semibold text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-900/40 dark:text-emerald-300">
                           💰 {salaryText(job)}
                         </span>
                       )}

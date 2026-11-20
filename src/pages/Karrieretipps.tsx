@@ -93,10 +93,10 @@ const Karrieretipps = () => {
             className="absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url(${officeModernImage})` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/85 to-primary/70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-brand/95 via-brand/85 to-brand/70" />
           <div className="container relative z-10">
-            <div className="max-w-3xl mx-auto text-center text-primary-foreground">
-              <div className="inline-flex items-center gap-2 bg-background/10 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold mb-6">
+            <div className="max-w-3xl mx-auto text-center text-white">
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold mb-6">
                 <TrendingUp className="h-5 w-5" strokeWidth={1.5} />
                 Ihr Karriere-Ratgeber
               </div>

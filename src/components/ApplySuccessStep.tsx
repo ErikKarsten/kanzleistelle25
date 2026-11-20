@@ -148,7 +148,7 @@ const ApplySuccessStep = ({
     <div className="space-y-5 pb-6">
       {/* Success Header */}
       <div className="text-center">
-        <div className="mx-auto w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mb-3 animate-bounce">
+        <div className="mx-auto w-14 h-14 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center mb-3 animate-bounce">
           <CheckCircle2 className="h-8 w-8 text-green-600" />
         </div>
         <h3 className="text-xl font-bold text-foreground mb-1.5">

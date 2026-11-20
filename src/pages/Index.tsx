@@ -45,14 +45,14 @@ const Index = () => {
             className="absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url(${officeModernImage})` }}
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/90 to-primary/70" />
+          <div className="absolute inset-0 bg-gradient-to-r from-brand via-brand/90 to-brand/70" />
 
           <div className="container relative z-10">
 
             {/* OBERER TEIL — mobil zentriert, ab lg zweispaltig mit Instagram-Handy rechts */}
             <div className={`grid lg:grid-cols-[1fr_auto] items-center gap-12 xl:gap-16 ${hideGehaltscheck ? "" : "mb-16"}`}>
             <div className="text-center lg:text-left max-w-4xl lg:max-w-none mx-auto lg:mx-0">
-              <div className="inline-flex items-center gap-2 bg-background/10 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold text-primary-foreground mb-6">
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-semibold text-white mb-6">
                 <Briefcase className="h-4 w-4" />
                 Die Plattform für die Steuerbranche
               </div>
@@ -70,7 +70,7 @@ const Index = () => {
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12">
                 <Button
                   size="lg"
-                  className="bg-white text-primary font-bold hover:bg-white/90 h-12 px-8"
+                  className="bg-white text-brand font-bold hover:bg-white/90 h-12 px-8"
                   onClick={() => navigate("/fuer-arbeitgeber")}
                 >
                   <Building2 className="h-5 w-5 mr-2" />
@@ -79,7 +79,7 @@ const Index = () => {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-2 border-white text-white bg-white/10 hover:bg-white hover:text-primary font-bold h-12 px-8"
+                  className="border-2 border-white text-white bg-white/10 hover:bg-white hover:text-brand font-bold h-12 px-8"
                   onClick={() => setApplyOpen(true)}
                 >
                   <UserPlus className="h-5 w-5 mr-2" />
@@ -90,20 +90,20 @@ const Index = () => {
               {/* Stats */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-2xl mx-auto lg:mx-0">
                 <div className="bg-background/20 backdrop-blur-sm p-4 rounded-lg border border-background/30">
-                  <div className="text-2xl font-bold text-primary-foreground">30 Sek.</div>
-                  <div className="text-xs text-primary-foreground/80">Express-Bewerbung</div>
+                  <div className="text-2xl font-bold text-white">30 Sek.</div>
+                  <div className="text-xs text-white/80">Express-Bewerbung</div>
                 </div>
                 <div className="bg-background/20 backdrop-blur-sm p-4 rounded-lg border border-background/30">
-                  <div className="text-2xl font-bold text-primary-foreground">24h</div>
-                  <div className="text-xs text-primary-foreground/80">Erste Rückmeldung</div>
+                  <div className="text-2xl font-bold text-white">24h</div>
+                  <div className="text-xs text-white/80">Erste Rückmeldung</div>
                 </div>
                 <div className="bg-background/20 backdrop-blur-sm p-4 rounded-lg border border-background/30">
-                  <div className="text-2xl font-bold text-primary-foreground">100%</div>
-                  <div className="text-xs text-primary-foreground/80">Branchenfokus</div>
+                  <div className="text-2xl font-bold text-white">100%</div>
+                  <div className="text-xs text-white/80">Branchenfokus</div>
                 </div>
                 <div className="bg-background/20 backdrop-blur-sm p-4 rounded-lg border border-background/30">
-                  <div className="text-2xl font-bold text-primary-foreground">✓</div>
-                  <div className="text-xs text-primary-foreground/80">Geprüft</div>
+                  <div className="text-2xl font-bold text-white">✓</div>
+                  <div className="text-xs text-white/80">Geprüft</div>
                 </div>
               </div>
             </div>
@@ -132,8 +132,8 @@ const Index = () => {
                   </div>
                 </div>
 
-                <div className="bg-white rounded-2xl p-6 text-center min-w-[280px] shadow-2xl shrink-0">
-                  <p className="text-primary font-bold text-lg mb-1">
+                <div className="bg-white rounded-2xl p-6 text-center min-w-[280px] shadow-2xl shrink-0 [&_.text-muted-foreground]:text-slate-500">
+                  <p className="text-brand font-bold text-lg mb-1">
                     Ihr Gehalts-Ergebnis
                   </p>
                   <p className="text-muted-foreground text-sm mb-4">
@@ -141,7 +141,7 @@ const Index = () => {
                   </p>
                   <Button
                     size="lg"
-                    className="w-full bg-primary text-white font-bold h-12"
+                    className="w-full bg-brand text-white font-bold h-12 hover:bg-brand/90"
                     onClick={() => setGehaltsCheckOpen(true)}
                   >
                     Jetzt Gehalt checken →
@@ -157,11 +157,11 @@ const Index = () => {
         </section>
 
         {/* Zweispaltige Übersichts-Section */}
-        <section className="py-16 bg-white">
+        <section className="py-16 bg-background">
           <div className="container">
             <div className="grid md:grid-cols-2 gap-8">
               {/* Für Arbeitgeber */}
-              <div className="flex flex-col bg-white rounded-2xl shadow-md border border-border/40 overflow-hidden">
+              <div className="flex flex-col bg-card rounded-2xl shadow-md border border-border/40 overflow-hidden">
                 <div className="h-1 bg-primary" />
                 <div className="flex flex-col flex-1 p-8">
                   <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
@@ -186,7 +186,7 @@ const Index = () => {
               </div>
 
               {/* Für Bewerber */}
-              <div className="flex flex-col bg-white rounded-2xl shadow-md border border-border/40 overflow-hidden">
+              <div className="flex flex-col bg-card rounded-2xl shadow-md border border-border/40 overflow-hidden">
                 <div className="h-1 bg-primary/70" />
                 <div className="flex flex-col flex-1 p-8">
                   <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
@@ -231,7 +231,7 @@ const Index = () => {
                     onClick={() => setAudienceTab('bewerber')}
                     className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
                       audienceTab === 'bewerber'
-                        ? 'bg-primary text-white shadow-sm'
+                        ? 'bg-primary text-primary-foreground shadow-sm'
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
@@ -241,7 +241,7 @@ const Index = () => {
                     onClick={() => setAudienceTab('kanzlei')}
                     className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
                       audienceTab === 'kanzlei'
-                        ? 'bg-primary text-white shadow-sm'
+                        ? 'bg-primary text-primary-foreground shadow-sm'
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
@@ -266,7 +266,7 @@ const Index = () => {
                     <div
                       key={card.title}
                       className={`rounded-xl border-2 p-6 text-center transition-shadow hover:shadow-md ${
-                        card.highlight ? 'border-primary bg-primary/5' : 'border-border bg-white'
+                        card.highlight ? 'border-primary bg-primary/5' : 'border-border bg-card'
                       }`}
                     >
                       <div className={`mx-auto w-12 h-12 rounded-full flex items-center justify-center mb-4 text-2xl ${
@@ -294,7 +294,7 @@ const Index = () => {
                   ].map((card) => (
                     <div
                       key={card.title}
-                      className="rounded-xl border-2 border-border bg-white p-6 text-center transition-shadow hover:shadow-md"
+                      className="rounded-xl border-2 border-border bg-card p-6 text-center transition-shadow hover:shadow-md"
                     >
                       <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4 text-2xl">
                         {card.emoji}

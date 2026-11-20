@@ -322,12 +322,12 @@ const ApplyModal = ({
       <DialogContent className="sm:max-w-lg p-0 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header with progress - hide on success step */}
         {currentStep !== 4 && (
-          <div className="shrink-0 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-6 pb-8">
+          <div className="shrink-0 bg-gradient-to-r from-brand to-brand/80 text-white p-6 pb-8">
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-center text-primary-foreground">
+              <DialogTitle className="text-2xl font-bold text-center text-white">
                 In 30 Sekunden bewerben
               </DialogTitle>
-              <p className="text-center text-primary-foreground/90 text-sm mt-2">
+              <p className="text-center text-white/90 text-sm mt-2">
                 Ohne Anschreiben, ohne Lebenslauf
               </p>
             </DialogHeader>
@@ -340,8 +340,8 @@ const ApplyModal = ({
                     className={cn(
                       "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all",
                       currentStep >= step 
-                        ? "bg-white text-primary" 
-                        : "bg-primary-foreground/20 text-primary-foreground/60"
+                        ? "bg-white text-brand" 
+                        : "bg-white/20 text-white/60"
                     )}
                   >
                     {currentStep > step ? (
@@ -356,7 +356,7 @@ const ApplyModal = ({
                         "w-12 h-1 mx-1 rounded transition-all",
                         currentStep > step 
                           ? "bg-white" 
-                          : "bg-primary-foreground/20"
+                          : "bg-white/20"
                       )}
                     />
                   )}
@@ -616,7 +616,7 @@ const ApplyModal = ({
           {/* Job info footer - hide on success step */}
           {currentStep !== 4 && (
             <div className="mt-6 pt-4 border-t flex items-center justify-center gap-3 text-sm text-muted-foreground">
-              <Avatar className="h-8 w-8 rounded-lg border border-border">
+              <Avatar className="h-8 w-8 rounded-lg border border-border bg-white">
                 {companyData?.logo_url ? (
                   <AvatarImage src={companyData.logo_url} alt={company} className="object-cover" />
                 ) : null}

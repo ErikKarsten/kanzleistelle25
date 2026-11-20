@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { FeatureCollection, Point } from "geojson";
-import { Maximize2, Moon, Sun } from "lucide-react";
+import { Maximize2 } from "lucide-react";
+import { useTheme } from "next-themes";
 
 export interface MapJob {
   id: string;
@@ -34,7 +35,7 @@ const STYLE_URLS: Record<MapTheme, string> = {
   light: "https://tiles.openfreemap.org/styles/positron",
   dark: "https://tiles.openfreemap.org/styles/dark",
 };
-const THEME_KEY = "k24-map-theme";
+
 const GERMANY: [[number, number], [number, number]] = [
   [5.8, 47.25],
   [15.1, 55.1],
@@ -48,13 +49,6 @@ const PALETTE: Record<MapTheme, { fill: string; stroke: string; text: string; do
   dark: { fill: GOLD, stroke: "#0b1424", text: NAVY, dot: NAVY, halo: GOLD, bg: "#0b1424", water: "#132a47" },
 };
 
-const readTheme = (): MapTheme => {
-  try {
-    return localStorage.getItem(THEME_KEY) === "dark" ? "dark" : "light";
-  } catch {
-    return "light";
-  }
-};
 
 // Ruhiger Grundstil und deutsche Ortsnamen
 function applyBase(map: maplibregl.Map, theme: MapTheme) {
@@ -187,7 +181,9 @@ function JobMap<T extends MapJob>({ jobs, onApply, onVisibleChange, resetSignal 
   const popupRef = useRef<maplibregl.Popup | null>(null);
   const hoveredRef = useRef<string | null>(null);
   const [loaded, setLoaded] = useState(false);
-  const [theme, setTheme] = useState<MapTheme>(readTheme);
+  // Karte folgt dem Hell/Dunkel-Umschalter der Website
+  const { resolvedTheme } = useTheme();
+  const theme: MapTheme = resolvedTheme === "dark" ? "dark" : "light";
   const themeRef = useRef<MapTheme>(theme);
   const styleThemeRef = useRef<MapTheme>(theme);
   const dataRef = useRef<FeatureCollection | null>(null);
@@ -472,11 +468,6 @@ function JobMap<T extends MapJob>({ jobs, onApply, onVisibleChange, resetSignal 
   // Hell / Dunkel umschalten
   useEffect(() => {
     themeRef.current = theme;
-    try {
-      localStorage.setItem(THEME_KEY, theme);
-    } catch {
-      /* egal */
-    }
     const map = mapRef.current;
     if (!map || !loaded || styleThemeRef.current === theme) return;
     styleThemeRef.current = theme;
@@ -528,32 +519,6 @@ function JobMap<T extends MapJob>({ jobs, onApply, onVisibleChange, resetSignal 
             <Maximize2 className="h-3.5 w-3.5" />
             Ganz Deutschland
           </button>
-          <div
-            role="radiogroup"
-            aria-label="Kartendarstellung"
-            className="pointer-events-auto inline-flex items-center rounded-full bg-background/95 backdrop-blur border border-border p-0.5 shadow-md"
-          >
-            {([
-              { v: "light", label: "Hell", Icon: Sun },
-              { v: "dark", label: "Dunkel", Icon: Moon },
-            ] as const).map(({ v, label, Icon }) => (
-              <button
-                key={v}
-                type="button"
-                role="radio"
-                aria-checked={theme === v}
-                aria-label={`Karte ${label}`}
-                title={`Karte ${label}`}
-                onClick={() => setTheme(v)}
-                className={`inline-flex items-center gap-1.5 rounded-full px-2.5 sm:px-3 py-1.5 text-xs font-semibold transition ${
-                  theme === v ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <Icon className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">{label}</span>
-              </button>
-            ))}
-          </div>
         </div>
         <div className="pointer-events-none absolute left-3 bottom-3 z-10 hidden sm:flex items-center gap-3 rounded-full bg-background/90 backdrop-blur border border-border px-3.5 py-1.5 text-[11px] text-muted-foreground shadow-sm">
           <span className="inline-flex items-center gap-1.5">

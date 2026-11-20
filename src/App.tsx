@@ -33,6 +33,7 @@ import PasswortVergessen from "./pages/PasswortVergessen";
 import PasswortZuruecksetzen from "./pages/PasswortZuruecksetzen";
 import NeeleContactElements from "./components/NeeleContactElements";
 import AuthHashHandler from "./components/AuthHashHandler";
+import ThemeRoot from "./components/ThemeRoot";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <ThemeRoot>
             <ScrollToTop />
             <AuthHashHandler />
             <Routes>
@@ -75,6 +77,7 @@ const App = () => (
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+            </ThemeRoot>
           </BrowserRouter>
           <NeeleContactElements />
           <CookieBanner />

@@ -54,6 +54,15 @@
       gtag('js', new Date());
       gtag('config', 'G-QJP47LFR3C');
     </script>
+    <script>
+      /* Dunkles Design ohne Aufblitzen setzen (Auswahl aus dem Umschalter) */
+      try {
+        if (localStorage.getItem("k24-theme") === "dark" && !/^\/(admin|admin-|dashboard|bewerber-dashboard)/.test(location.pathname)) {
+          document.documentElement.classList.add("dark");
+          document.documentElement.style.colorScheme = "dark";
+        }
+      } catch (e) {}
+    </script>
   </head>
 
   <body>

@@ -194,13 +194,13 @@ const InitiativeApplyModal = ({ open, onOpenChange }: InitiativeApplyModalProps)
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-lg p-0 overflow-hidden flex flex-col max-h-[90vh]">
         {currentStep !== 4 && (
-          <div className="shrink-0 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-6 pb-8">
+          <div className="shrink-0 bg-gradient-to-r from-brand to-brand/80 text-white p-6 pb-8">
             <DialogHeader>
-              <DialogTitle className="text-2xl font-bold text-center text-primary-foreground flex items-center justify-center gap-2">
+              <DialogTitle className="text-2xl font-bold text-center text-white flex items-center justify-center gap-2">
                 <Sparkles className="h-6 w-6" />
                 Initiativ bewerben
               </DialogTitle>
-              <p className="text-center text-primary-foreground/90 text-sm mt-2">
+              <p className="text-center text-white/90 text-sm mt-2">
                 Keine passende Stelle gefunden? Kein Problem – wir finden die richtige Kanzlei für dich!
               </p>
             </DialogHeader>
@@ -210,12 +210,12 @@ const InitiativeApplyModal = ({ open, onOpenChange }: InitiativeApplyModalProps)
                 <div key={step} className="flex items-center">
                   <div className={cn(
                     "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all",
-                    currentStep >= step ? "bg-white text-primary" : "bg-primary-foreground/20 text-primary-foreground/60"
+                    currentStep >= step ? "bg-white text-brand" : "bg-white/20 text-white/60"
                   )}>
                     {currentStep > step ? <CheckCircle2 className="h-5 w-5" /> : step}
                   </div>
                   {step < 3 && (
-                    <div className={cn("w-12 h-1 mx-1 rounded transition-all", currentStep > step ? "bg-white" : "bg-primary-foreground/20")} />
+                    <div className={cn("w-12 h-1 mx-1 rounded transition-all", currentStep > step ? "bg-white" : "bg-white/20")} />
                   )}
                 </div>
               ))}
@@ -412,7 +412,7 @@ const InitiativeApplyModal = ({ open, onOpenChange }: InitiativeApplyModalProps)
           {/* Step 4: Success */}
           {currentStep === 4 && (
             <div className="text-center py-6 space-y-4">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+              <div className="w-16 h-16 bg-green-100 dark:bg-green-900/40 rounded-full flex items-center justify-center mx-auto">
                 <CheckCircle2 className="h-8 w-8 text-green-600" />
               </div>
               <h3 className="text-xl font-bold text-foreground">Deine Initiativbewerbung ist eingegangen! 🎉</h3>

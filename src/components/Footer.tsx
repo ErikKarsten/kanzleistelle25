@@ -78,7 +78,7 @@ const Footer = () => {
               <img
                 src={logo}
                 alt="Kanzleistelle24"
-                className="h-8 w-auto"
+                className="h-8 w-auto dark:brightness-0 dark:invert"
                 loading="lazy"
                 decoding="async"
               />
