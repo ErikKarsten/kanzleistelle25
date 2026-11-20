@@ -405,8 +405,8 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
             ))}
           </div>
         ) : filteredJobs.length > 0 && viewMode === "map" ? (
-          <Suspense fallback={<Skeleton className="w-full h-[460px] md:h-[600px] rounded-xl" />}>
-            <JobMap jobs={mapJobs} />
+          <Suspense fallback={<Skeleton className="w-full h-[460px] lg:h-[640px] rounded-2xl" />}>
+            <JobMap jobs={mapJobs} onApply={(j) => setSelectedJob(j as unknown as JobWithCompany)} />
           </Suspense>
         ) : filteredJobs.length > 0 ? (
           <>
