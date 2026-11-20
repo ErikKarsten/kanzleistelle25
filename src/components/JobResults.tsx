@@ -89,7 +89,14 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
   const [localLocationFilter, setLocalLocationFilter] = useState(initialLocation);
   const [initiativeOpen, setInitiativeOpen] = useState(false);
   const [pageSize, setPageSize] = useState(5);
-  const [viewMode, setViewMode] = useState<"list" | "map">("list");
+  // Karte ist Standard – nur ohne WebGL2 (sehr alte Geräte/Browser) startet die Liste.
+  const [viewMode, setViewMode] = useState<"list" | "map">(() => {
+    try {
+      return document.createElement("canvas").getContext("webgl2") ? "map" : "list";
+    } catch {
+      return "list";
+    }
+  });
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
