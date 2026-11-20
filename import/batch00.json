@@ -1,0 +1,94 @@
+[
+ {
+  "key": "foerster",
+  "action": "update",
+  "id": "f2aeb4e7-275e-4c48-b79e-0d78affc8e30",
+  "name": "Förster & Pump GmbH",
+  "location": "Schnackenburgallee 13, 22525 Hamburg",
+  "website": "https://www.foerster-pump.de",
+  "description": "Die Förster & Pump GmbH ist eine Hamburger Steuerberatungsgesellschaft mit über 30 Jahren Erfahrung und zwölf Mitarbeitenden. Geführt wird die Kanzlei von Christian und Stefan Förster – Vater und Sohn. Mit DATEV Unternehmen online arbeitet das eingespielte Team weitgehend papierlos mit seinen Mandanten zusammen.",
+  "logo": "foerster-pump.png",
+  "fill_missing": false,
+  "job": {
+   "title": "Steuerfachangestellte*r / Steuerfachwirt*in (m/w/d)",
+   "employment_type": "vollzeit",
+   "working_model": "vor_ort",
+   "city": "Hamburg",
+   "postal_code": "22525",
+   "location": "22525 Hamburg",
+   "latitude": 53.5848333,
+   "longitude": 9.9118944,
+   "description": "🏢 Über uns\n\nDie Förster & Pump GmbH ist eine Hamburger Steuerberatungsgesellschaft mit zwölf Mitarbeitenden. 1994 als Günther Pump GmbH gegründet, wird die Kanzlei heute von Christian und Stefan Förster geführt – als Vater und Sohn ziehen sie an einem Strang. Das eingespielte, langjährige Team arbeitet mit DATEV Unternehmen online weitgehend digital mit den Mandanten zusammen. Respekt, Offenheit und Wertschätzung prägen den Umgang miteinander. Die Stelle ist in Voll- oder Teilzeit möglich.\n\n📋 Ihre Aufgaben\n\n• Bearbeitung von Finanzbuchhaltungen\n• Lohn- und Gehaltsabrechnungen\n• Vorbereitung von Jahresabschlüssen und Einnahmen-Überschussrechnungen\n• Erstellung von Steuererklärungen",
+   "requirements": "Abgeschlossene Ausbildung als Steuerfachangestellte/r oder Steuerfachwirt/in\nGute DATEV-Kenntnisse\nIdealerweise Erfahrung mit der digitalen Belegbearbeitung in DATEV Unternehmen online\nSicherer Umgang mit Word und Excel\nFreude am Kontakt mit Mandanten",
+   "benefits": [
+    "Unbefristete Anstellung",
+    "Weniger als 40 Stunden pro Woche",
+    "Flexible Arbeitszeiten",
+    "Kostenlose Fort- und Weiterbildungen",
+    "Moderner Arbeitsplatz",
+    "Offenes, freundliches Team",
+    "Kostenlose Parkplätze",
+    "Fahrtkostenzuschuss",
+    "Kostenlose Getränke"
+   ]
+  }
+ },
+ {
+  "key": "rendsburg",
+  "action": "update",
+  "id": "50577a90-3973-4956-952e-12801e58ee9c",
+  "name": "Rossdam, Thomsen, Petersen, Michael, Beiersdorf Part mbB",
+  "location": "Moltkestraße 20, 24768 Rendsburg",
+  "website": "https://www.stb-rendsburg.de",
+  "description": "Die Partnerschaft aus fünf Steuerberatern – einer davon zugleich Wirtschaftsprüfer – gehört zu den etablierten Beratungskanzleien im Kreis Rendsburg-Eckernförde. Sitz ist eine alte Stadtvilla in Rendsburg. Beraten werden Unternehmen und Privatpersonen in Steuerberatung, Buchhaltung, betriebswirtschaftlicher Beratung und Wirtschaftsprüfung.",
+  "logo": "rendsburg.png",
+  "fill_missing": false,
+  "job": {
+   "title": "Steuerfachangestellte*r / Steuerfachwirt*in (m/w/d)",
+   "employment_type": "vollzeit",
+   "working_model": "hybrid",
+   "city": "Rendsburg",
+   "postal_code": "24768",
+   "location": "24768 Rendsburg",
+   "latitude": 54.3019766,
+   "longitude": 9.6539064,
+   "description": "🏢 Über uns\n\nDie Partnerschaft Rossdam, Thomsen, Petersen, Michael, Beiersdorf gehört zu den etablierten Beratungskanzleien im Kreis Rendsburg-Eckernförde. Fünf Partner – Steuerberater und ein Wirtschaftsprüfer – führen die Kanzlei in einer alten Stadtvilla mitten in Rendsburg. Wertschätzung heißt hier: regelmäßiges Feedback, flache Hierarchien, ein offener Umgang mit Fehlern und eine Ergebnis- statt Präsenzkultur – mit viel Raum für eine ausgewogene Work-Life-Balance.\n\n📋 Ihre Aufgaben\n\n• Weitgehend selbstständige Betreuung eines eigenen Mandantenkreises\n• Jahresabschlüsse nach Handels- und Steuerrecht\n• Monatliche Abschlüsse und betriebswirtschaftliche Auswertungen\n• Einnahmen-Überschussrechnungen\n• Betriebliche und private Steuererklärungen\n• Mitwirkung bei steuerlichen Prüfungen",
+   "requirements": "Abgeschlossene Ausbildung als Steuerfachangestellte/r oder Steuerfachwirt/in\nSicherer Umgang mit MS Office, insbesondere Outlook, Word und Excel\nSicheres, freundliches Auftreten\nSelbstständige und zuverlässige Arbeitsweise\nBerufswiedereinsteiger sind willkommen",
+   "benefits": [
+    "Überdurchschnittliches, nettooptimiertes Gehalt",
+    "Betriebliche Altersvorsorge",
+    "Homeoffice bis 50 %",
+    "Flexible Arbeitszeitmodelle",
+    "Unterstützung bei Weiterbildungen",
+    "JobRad",
+    "Kostenlose Getränke und Kaffee",
+    "Arbeitsplatz in einer alten Stadtvilla",
+    "Wertschätzendes Arbeitsklima"
+   ]
+  }
+ },
+ {
+  "key": "grone",
+  "action": "insert",
+  "id": null,
+  "name": "Grone & Krull Partnerschaft von Steuerberatern mbB",
+  "location": "Boltentorstr. 43-45, 26721 Emden",
+  "website": null,
+  "description": null,
+  "logo": null,
+  "fill_missing": false,
+  "job": null
+ },
+ {
+  "key": "kaniser",
+  "action": "insert",
+  "id": null,
+  "name": "Steuerberater Guido Kaniser",
+  "location": "Kapellenstr. 2, 63179 Obertshausen",
+  "website": null,
+  "description": null,
+  "logo": null,
+  "fill_missing": false,
+  "job": null
+ }
+]
