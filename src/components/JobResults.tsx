@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MapPin, Clock, Building2, Send, Zap, Search, Briefcase, Sparkles, Navigation } from "lucide-react";
+import { MapPin, Clock, Building2, Send, Zap, Search, Briefcase, Sparkles, Navigation, Star } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { de } from "date-fns/locale";
 import ApplyModal from "./ApplyModal";
@@ -24,6 +24,7 @@ interface JobWithCompany {
   city: string | null;
   employment_type: string | null;
   description: string | null;
+  benefits: string[] | null;
   salary_min: number | null;
   salary_max: number | null;
   created_at: string | null;
@@ -113,6 +114,7 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
               city,
               employment_type,
               description,
+              benefits,
               salary_min,
               salary_max,
               created_at,
@@ -166,6 +168,7 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
           city,
           employment_type,
           description,
+          benefits,
           salary_min,
           salary_max,
           created_at,
@@ -439,6 +442,26 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
                     <p className="text-sm text-muted-foreground line-clamp-2">
                       {job.description}
                     </p>
+
+                    {/* Benefits (Vorschau) */}
+                    {Array.isArray(job.benefits) && job.benefits.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {job.benefits.slice(0, 3).map((b, i) => (
+                          <span
+                            key={i}
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs border border-border bg-secondary/50 text-foreground"
+                          >
+                            <Star className="h-3 w-3 text-featured fill-featured" />
+                            {b}
+                          </span>
+                        ))}
+                        {job.benefits.length > 3 && (
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs text-muted-foreground">
+                            +{job.benefits.length - 3} weitere
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* CTA */}
