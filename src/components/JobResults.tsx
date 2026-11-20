@@ -654,18 +654,33 @@ const JobResults = ({ searchFilters, initialTitle = '', initialLocation = '' }: 
         )}
       </div>
       {/* Initiative Apply CTA */}
-      <div className="mt-8 text-center">
-        <div className="inline-flex flex-col items-center gap-2 bg-primary/5 border border-primary/10 rounded-xl px-8 py-6">
-          <Sparkles className="h-6 w-6 text-primary" />
-          <p className="text-sm font-medium text-foreground">Keine passende Stelle dabei?</p>
-          <p className="text-xs text-muted-foreground max-w-sm">Bewirb dich initiativ – wir finden die richtige Kanzlei für dich!</p>
-          <Button variant="outline" className="mt-2 gap-2" onClick={() => setInitiativeOpen(true)}>
-            <Sparkles className="h-4 w-4" />
-            Initiativ bewerben
-          </Button>
+      <div className="container mt-10">
+        <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-brand via-brand to-[hsl(210_80%_28%)] px-6 py-8 md:px-10 md:py-9 shadow-lg">
+          {/* dezente Lichtakzente */}
+          <div className="pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full bg-featured/15 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 left-1/3 h-56 w-56 rounded-full bg-white/10 blur-3xl" />
+          <div className="relative flex flex-col items-center gap-6 text-center md:flex-row md:text-left">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/10 ring-1 ring-white/15">
+              <Sparkles className="h-7 w-7 text-featured" />
+            </div>
+            <div className="flex-1">
+              <p className="text-xl md:text-2xl font-bold text-white">Keine passende Stelle dabei?</p>
+              <p className="mt-1 text-white/75">
+                Bewirb dich initiativ – wir finden die richtige Kanzlei für dich!
+              </p>
+            </div>
+            <Button
+              size="lg"
+              className="h-12 shrink-0 gap-2 bg-white px-7 font-bold text-brand shadow-md hover:bg-white/90"
+              onClick={() => setInitiativeOpen(true)}
+            >
+              <Sparkles className="h-4 w-4" />
+              Initiativ bewerben
+            </Button>
+          </div>
         </div>
       </div>
-       
+
       {selectedJob && (
         <ApplyModal
           open={!!selectedJob}
