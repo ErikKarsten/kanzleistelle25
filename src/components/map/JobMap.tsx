@@ -396,14 +396,14 @@ function JobMap<T extends MapJob>({ jobs, onApply, onVisibleChange, resetSignal 
       },
     });
     map.touchZoomRotate.disableRotation();
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right");
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-right");
     const geolocate = new maplibregl.GeolocateControl({
       positionOptions: { enableHighAccuracy: false },
       fitBoundsOptions: { maxZoom: 9 },
     });
     geolocate.on("geolocate", () => (userMovedRef.current = true));
-    map.addControl(geolocate, "bottom-right");
-    map.addControl(new maplibregl.FullscreenControl(), "bottom-right");
+    map.addControl(geolocate, "top-right");
+    map.addControl(new maplibregl.FullscreenControl(), "top-right");
 
     // Nach jedem (Neu-)Laden des Stils: Grundfarben + Stellen-Ebenen
     map.on("style.load", () => {
