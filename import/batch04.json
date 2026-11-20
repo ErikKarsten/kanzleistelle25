@@ -1,0 +1,72 @@
+[
+ {
+  "action": "insert",
+  "id": null,
+  "name": "Toralf Schanze Steuerberater",
+  "location": "Pekrunstraße 2, 12685 Berlin",
+  "website": "https://www.stb-schanze.de",
+  "description": "Steuerkanzlei in Berlin-Marzahn mit über 20 Jahren Erfahrung. Das familiäre Team betreut Gewerbetreibende, Freiberufler, kleine Kapitalgesellschaften und Privatpersonen aus Berlin und ganz Deutschland – von Finanz- und Lohnbuchhaltung über Jahresabschlüsse bis zu Steuererklärungen, mit persönlicher Betreuung im Mittelpunkt.",
+  "logo": "toralf-schanze-steuerberater.png",
+  "fill_missing": true,
+  "job_only_if_none": false,
+  "key": "schanze-stfa",
+  "job": {
+   "employment_type": "vollzeit",
+   "working_model": "hybrid",
+   "city": "Berlin",
+   "postal_code": "12685",
+   "location": "12685 Berlin",
+   "latitude": 52.5399798,
+   "longitude": 13.5463031,
+   "benefits": [
+    "Sicherer Arbeitsplatz",
+    "Leistungsgerechte Vergütung & regelmäßige Gehaltserhöhungen",
+    "Flexible Arbeitszeiten",
+    "Homeoffice möglich",
+    "Vollzeit oder Teilzeit",
+    "Einarbeitung durch mehrere Ansprechpartner",
+    "Intensive Förderung der Weiterbildung",
+    "Moderne Technik & komplette Ausstattung",
+    "Familiäres Team"
+   ],
+   "title": "Steuerfachangestellte*r (m/w/d)",
+   "description": "🏢 Über uns\n\nDie Steuerkanzlei von Toralf Schanze ist seit über 20 Jahren in Berlin-Marzahn zu Hause. Das kleine, familiäre Team betreut Gewerbetreibende, kleine Kapitalgesellschaften, Freiberufler und Privatpersonen aus Berlin und ganz Deutschland – in allen steuerlichen und betriebswirtschaftlichen Fragen. Im Mittelpunkt steht die persönliche Betreuung: Lösungen werden gemeinsam mit den Mandanten erarbeitet, mit dem Ziel einer dauerhaften Vertrauensbasis.\n\n📋 Ihre Aufgaben\n\n• Direkte Ansprechperson für Ihre Mandanten\n• Eigenständige Betreuung eines eigenen Mandantenstamms – von der Buchhaltung über den Jahresabschluss bis zur Steuererklärung\n• Laufende Finanzbuchführung und Umsatzsteuervoranmeldungen\n• Erstellung von Einnahmen-Überschuss-Rechnungen, Jahresabschlüssen und Steuererklärungen\n• Lohnbuchhaltung – Einsteiger werden eingearbeitet\n\n🕒 Arbeitszeit\n\nFestanstellung in Vollzeit oder Teilzeit, Start zum nächstmöglichen Termin. Bewerben geht unkompliziert – Lebenslauf und Anschreiben sind keine Pflicht.",
+   "requirements": "Abgeschlossene Ausbildung als Steuerfachangestellte*r\nBerufserfahrung in einer Steuerkanzlei oder im Steuerrecht\nSicherer Umgang mit Kanzleisoftware, idealerweise DATEV oder Agenda, sowie MS Office\nSorgfältige, selbstständige und lösungsorientierte Arbeitsweise\nTeamgeist und Freude am Kontakt mit Mandanten"
+  }
+ },
+ {
+  "action": "insert",
+  "id": null,
+  "name": "Toralf Schanze Steuerberater",
+  "location": "Pekrunstraße 2, 12685 Berlin",
+  "website": "https://www.stb-schanze.de",
+  "description": "Steuerkanzlei in Berlin-Marzahn mit über 20 Jahren Erfahrung. Das familiäre Team betreut Gewerbetreibende, Freiberufler, kleine Kapitalgesellschaften und Privatpersonen aus Berlin und ganz Deutschland – von Finanz- und Lohnbuchhaltung über Jahresabschlüsse bis zu Steuererklärungen, mit persönlicher Betreuung im Mittelpunkt.",
+  "logo": "toralf-schanze-steuerberater.png",
+  "fill_missing": true,
+  "job_only_if_none": false,
+  "key": "schanze-stfw",
+  "job": {
+   "employment_type": "vollzeit",
+   "working_model": "hybrid",
+   "city": "Berlin",
+   "postal_code": "12685",
+   "location": "12685 Berlin",
+   "latitude": 52.5399798,
+   "longitude": 13.5463031,
+   "benefits": [
+    "Sicherer Arbeitsplatz",
+    "Leistungsgerechte Vergütung & regelmäßige Gehaltserhöhungen",
+    "Flexible Arbeitszeiten",
+    "Homeoffice möglich",
+    "Vollzeit oder Teilzeit",
+    "Einarbeitung durch mehrere Ansprechpartner",
+    "Intensive Förderung der Weiterbildung",
+    "Moderne Technik & komplette Ausstattung",
+    "Familiäres Team"
+   ],
+   "title": "Steuerfachwirt*in (m/w/d)",
+   "description": "🏢 Über uns\n\nDie Steuerkanzlei von Toralf Schanze ist seit über 20 Jahren in Berlin-Marzahn zu Hause. Das kleine, familiäre Team betreut Gewerbetreibende, kleine Kapitalgesellschaften, Freiberufler und Privatpersonen aus Berlin und ganz Deutschland – in allen steuerlichen und betriebswirtschaftlichen Fragen. Im Mittelpunkt steht die persönliche Betreuung: Lösungen werden gemeinsam mit den Mandanten erarbeitet, mit dem Ziel einer dauerhaften Vertrauensbasis.\n\n📋 Ihre Aufgaben\n\n• Eigenverantwortliche Betreuung eines eigenen Mandantenstamms aus Gewerbetreibenden, kleinen Kapitalgesellschaften, Freiberuflern und Privatpersonen\n• Direkte Ansprechperson für Ihre Mandanten in steuerlichen und betriebswirtschaftlichen Fragen\n• Erstellung von Jahresabschlüssen und Einnahmen-Überschuss-Rechnungen\n• Betriebliche und private Steuererklärungen\n• Begleitung der Finanz- und Lohnbuchhaltung\n\n🕒 Arbeitszeit\n\nFestanstellung in Vollzeit oder Teilzeit, Start zum nächstmöglichen Termin. Bewerben geht unkompliziert – Lebenslauf und Anschreiben sind keine Pflicht.",
+   "requirements": "Abgeschlossene Fortbildung zum/zur Steuerfachwirt*in\nBerufserfahrung in einer Steuerkanzlei oder im Steuerrecht\nSicherer Umgang mit Kanzleisoftware, idealerweise DATEV oder Agenda, sowie MS Office\nSorgfältige, selbstständige und lösungsorientierte Arbeitsweise\nTeamgeist und Freude am Kontakt mit Mandanten"
+  }
+ }
+]
